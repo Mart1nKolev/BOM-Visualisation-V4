@@ -1,0 +1,4284 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Обединен BOM Визуализатор</title>
+    <style>
+        .ral-highlight {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .parts-summary-global,
+        .parts-summary-by-object {
+            margin: 20px 0;
+        }
+
+        .object-summary {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .quantity-cell {
+            text-align: center;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .objects-cell {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .network-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-online { background: #28a745; }
+        .status-offline { background: #dc3545; }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        /* Премахнато менюто за ръчно зареждане на JSON файла */
+
+        .btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.3);
+        }
+
+        .objects-summary {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .objects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .object-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+
+        .object-card h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+        }
+
+        .object-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .ral-summary {
+            margin-top: 15px;
+        }
+
+        .ral-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .ral-tag {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .content-tabs {
+            padding: 0 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 15px 25px;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            border-bottom-color: #007bff;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding-bottom: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .bom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: visible; /* Променено от hidden - за да се виждат tooltip-овете */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .bom-table th {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .bom-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .bom-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .bom-table tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        .level-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .level-1 { background: #28a745; }
+        .level-2 { background: #007bff; }
+        .level-3 { background: #ffc107; color: #000; }
+        .level-4 { background: #dc3545; }
+        .level-5 { background: #6f42c1; }
+
+        .object-filter {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+
+        .ral-highlight {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .assembly-indicator {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .global-stats {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .expandable-assemblies {
+            margin-top: 20px;
+        }
+
+        .assembly-table {
+            margin-bottom: 10px;
+        }
+
+        .assembly-row {
+            background-color: #f8f9fa !important;
+            font-weight: bold;
+        }
+
+        .assembly-row:hover {
+            background-color: #e9ecef !important;
+        }
+
+        .expand-icon {
+            display: inline-block;
+            width: 20px;
+            text-align: center;
+            color: #007bff;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .part-row {
+            background-color: #ffffff;
+            font-size: 0.9em;
+        }
+
+        .part-row td {
+            border-top: 1px solid #e9ecef;
+            padding: 8px 15px;
+        }
+
+        .parts-table {
+            border-top: 1px solid #dee2e6;
+            background-color: #f8f9fa;
+        }
+
+        .global-stats h3 {
+            margin: 0 0 15px 0;
+        }
+
+        .global-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .global-stat-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Data Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            overflow: visible;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .data-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .data-table tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        /* Image Tooltip Styles */
+        /* Осигуряване че таблиците не режат tooltip-овете */
+        table {
+            overflow: visible !important;
+        }
+        
+        td, th {
+            overflow: visible !important;
+        }
+        
+        .image-tooltip {
+            position: relative;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .image-tooltip:hover {
+            color: #0056b3;
+        }
+
+        .tooltip-image {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(calc(-50% + 40px)); /* Изместен 40px надясно */
+            margin-bottom: 10px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 2px solid #007bff;
+            z-index: 10000;
+            display: none;
+            width: 500px;
+            pointer-events: none;
+        }
+
+        /* Алтернативно позициониране за tooltip-и близо до краищата */
+        .tooltip-image.left-aligned {
+            left: 40px; /* Започва 40px от левия ръб */
+            transform: translateX(0);
+            margin-left: 10px;
+        }
+
+        .tooltip-image.right-aligned {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+            margin-right: 10px;
+        }
+
+        .tooltip-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid #007bff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .tooltip-image::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #007bff;
+        }
+
+        /* Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 85%;
+            max-width: 1200px;
+            max-height: 90vh;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .modal-body {
+            padding: 15px;
+            text-align: center;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .modal-body img {
+            width: 100%;
+            height: auto;
+            max-height: calc(90vh - 80px);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: contain;
+            display: block;
+        }
+
+        .no-image {
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Assembly Classification Styles */
+        .classification-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .classification-content {
+            margin-top: 15px;
+        }
+
+        .empty-classification {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .empty-classification-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-classification h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .empty-classification p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .classification-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            transition: all 0.2s;
+        }
+
+        .classification-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .assembly-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .assembly-item:hover {
+            background: #e9ecef;
+            transform: translateX(3px);
+        }
+
+        .assembly-item-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .assembly-item-count {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .move-button {
+            padding: 5px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .move-button:hover {
+            background: #0056b3;
+        }
+
+        .workshop-section .assembly-item {
+            border-left-color: #28a745;
+        }
+
+        .external-section .assembly-item {
+            border-left-color: #dc3545;
+        }
+
+        /* Admin Mode Toggle Switch */
+        .admin-toggle-container {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 15px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .admin-mode-indicator {
+            position: absolute;
+            right: 180px;
+            top: 20px;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-mode-indicator.active {
+            display: flex;
+        }
+
+        /* Password Modal */
+        .password-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .password-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .password-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .password-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .password-modal-header h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .password-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .password-modal-close:hover {
+            color: #dc3545;
+        }
+
+        .password-modal-body {
+            margin-bottom: 20px;
+        }
+
+        .password-modal-body p {
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .password-input.error {
+            border-color: #dc3545;
+        }
+
+        .password-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .password-error.active {
+            display: block;
+        }
+
+        .password-modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .password-modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .password-modal-button.primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .password-modal-button.primary:hover {
+            background: #0056b3;
+        }
+
+        .password-modal-button.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .password-modal-button.secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Обединен BOM Визуализатор</h1>
+            <p>Визуализация на обединени спецификации от множество обекти</p>
+            
+            <!-- Admin Mode Toggle -->
+            <div class="admin-toggle-container">
+                <span class="admin-toggle-label">👤 Админ режим</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="adminModeToggle" onchange="toggleAdminMode()">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <!-- Admin Mode Indicator -->
+            <div class="admin-mode-indicator" id="adminModeIndicator">
+                <span>🔓</span>
+                <span>АДМИН РЕЖМ</span>
+            </div>
+            
+            <div class="network-status">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <span id="statusText">Проверява...</span>
+            </div>
+            <!-- Версия на визуализатора за кеш проверка -->
+            <div style="position:absolute; left:20px; top:10px; font-size:12px; font-weight:bold; opacity:0.6;">v2025-12-12C</div>
+            
+            <!-- Бутон за ръчно зареждане на JSON файл -->
+            <div style="position:absolute; left:20px; bottom:10px;">
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="loadJSONFile(event)">
+                <button onclick="document.getElementById('jsonFileInput').click()" 
+                        style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    📁 Зареди JSON файл
+                </button>
+            </div>
+        </div>
+
+        <!-- Премахнато менюто за ръчно зареждане на JSON файл (автоматично зареждане активирано) -->
+
+        <div id="contentTabs" class="content-tabs hidden">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('overview')">📋 Преглед</button>
+                <button class="tab-button" onclick="showTab('byObject')">🌳 Дърво на детайлите</button>
+                <button class="tab-button" onclick="showTab('partsSummary')">📊 Всички части</button>
+                <button class="tab-button" onclick="showTab('detailsParts')">🔧 Детайли</button>
+                <button class="tab-button" onclick="showTab('fastenerParts')">⚙️ Крепежи</button>
+                <button class="tab-button" onclick="showTab('assemblyClassification')">🏭 Сглобяване</button>
+                <button class="tab-button" onclick="showTab('ralItems')">🎨 RAL елементи</button>
+            </div>
+
+            <div id="overviewTab" class="tab-content active">
+                <h3>📋 Общ преглед</h3>
+                <div id="overviewContent"></div>
+            </div>
+
+            <div id="byObjectTab" class="tab-content">
+                <h3>🌳 Информация по възли</h3>
+                <div id="byObjectContent"></div>
+            </div>
+
+            <div id="partsSummaryTab" class="tab-content">
+                <h3>📊 Всички части</h3>
+                <div class="object-filter">
+                    <label>Режим на обобщение:</label>
+                    <select id="summaryMode" class="filter-select" onchange="generatePartsSummary()">
+                        <option value="global">Всички части</option>
+                        <option value="byObject">По възли</option>
+                    </select>
+                </div>
+                <div id="partsSummaryContent"></div>
+            </div>
+
+            <div id="detailsPartsTab" class="tab-content">
+                <h3>🔧 Детайли</h3>
+                <div class="object-filter">
+                    <label>Режим на обобщение:</label>
+                    <select id="detailsMode" class="filter-select" onchange="generateDetailsParts()">
+                        <option value="global">Всички детайли (общо)</option>
+                        <option value="byObject">По възли</option>
+                    </select>
+                </div>
+                <div id="detailsPartsContent"></div>
+            </div>
+
+            <div id="fastenerPartsTab" class="tab-content">
+                <h3>⚙️ Крепежи</h3>
+                <div class="object-filter">
+                    <label>Режим на обобщение:</label>
+                    <select id="fastenersMode" class="filter-select" onchange="generateFastenerParts()">
+                        <option value="global">Всички крепежи (общо)</option>
+                        <option value="byObject">По възли</option>
+                    </select>
+                </div>
+                <div id="fastenerPartsContent"></div>
+            </div>
+
+            <div id="allPartsTab" class="tab-content">
+                <h3>🔧 Всички части и компоненти (стар таб)</h3>
+                <div class="object-filter">
+                    <label>Избери обект:</label>
+                    <select id="partsObjectFilter" class="filter-select" onchange="filterPartsByObject()">
+                        <option value="">Всички възли</option>
+                    </select>
+                </div>
+                <div id="allPartsContent"></div>
+            </div>
+
+            <div id="allItemsTab" class="tab-content">
+                <h3>📃 Всички елементи</h3>
+                <div id="allItemsContent"></div>
+            </div>
+
+            <div id="assemblyClassificationTab" class="tab-content">
+                <h3>🏭 Класификация на сглобяването</h3>
+                
+                <!-- Бутони за управление (само в админ режим) -->
+                <div class="classification-controls admin-only-control" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
+                    <button onclick="startClassificationWizard()" class="classification-btn" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                        🏭 Започни класификация
+                    </button>
+                    <button onclick="exportClassification()" class="classification-btn" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+                        📥 Експорт JSON
+                    </button>
+                    <button onclick="importClassification()" class="classification-btn" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+                        📤 Импорт JSON
+                    </button>
+                    <input type="file" id="classificationFileInput" accept=".json" style="display: none;" onchange="handleClassificationImport(event)">
+                </div>
+                
+                <!-- Съобщение за user режим -->
+                <div class="user-mode-message" style="display: none; padding: 12px; background: #e7f3ff; border-left: 4px solid #007bff; border-radius: 4px; margin-bottom: 20px;">
+                    ℹ️ Класификацията на сборките е достъпна само в админ режим
+                </div>
+                
+                <!-- Секция 1: Сглобяване в цеха -->
+                <div class="classification-section workshop-section" style="margin-bottom: 30px;">
+                    <h4 style="color: #28a745; display: flex; align-items: center; gap: 10px;">
+                        🏭 Сглобяване в цеха 
+                        <span id="workshopCount" style="background: #28a745; color: white; padding: 3px 10px; border-radius: 12px; font-size: 14px;">0</span>
+                    </h4>
+                    <div id="workshopContent" class="classification-content">
+                        <!-- Тук ще се генерира съдържанието -->
+                    </div>
+                </div>
+                
+                <!-- Секция 2: Сглобяване на обекта -->
+                <div class="classification-section external-section">
+                    <h4 style="color: #dc3545; display: flex; align-items: center; gap: 10px;">
+                        🏭️ Сглобяване на обекта 
+                        <span id="externalCount" style="background: #dc3545; color: white; padding: 3px 10px; border-radius: 12px; font-size: 14px;">0</span>
+                    </h4>
+                    <div id="externalContent" class="classification-content">
+                        <!-- Тук ще се генерира съдържанието -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="ralItemsTab" class="tab-content">
+                <h3>🎨 Елементи с RAL кодове</h3>
+                <div id="ralItemsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Версия за отстраняване на кеш проблеми
+        console.log('🚀 SCRIPT STARTED - Unified BOM Viewer version: v2025-12-12C');
+        console.log('🔧 Fixes applied: Network status updates & JSON file loading with await');
+        console.log('✅ Fixed: Syntax error with startClassificationWizard function');
+        
+        let bomData = null;
+        let currentFilter = "";
+        
+        // 🌐 СПОДЕЛЯНЕ НА ДАННИ МЕЖДУ УСТРОЙСТВА
+        let isSharedMode = false;
+        let serverURL = '';
+        
+        // 🔐 ADMIN MODE VARIABLES
+        let isAdminMode = false;
+        const ADMIN_PASSWORD = "2006";
+        
+        console.log('✅ Variables initialized');
+        
+        // ============================================
+        // 🔐 ADMIN MODE FUNCTIONS
+        // ============================================
+        
+        // Зареждане на запазено състояние при стартиране
+        function loadAdminModeState() {
+            const savedMode = localStorage.getItem('adminMode');
+            if (savedMode === 'true') {
+                isAdminMode = true;
+                document.getElementById('adminModeToggle').checked = true;
+                document.getElementById('adminModeIndicator').classList.add('active');
+                console.log('🔓 Admin режим възстановен от localStorage');
+            }
+        }
+        
+        // Toggle на admin режима
+        function toggleAdminMode() {
+            const toggle = document.getElementById('adminModeToggle');
+            
+            if (toggle.checked) {
+                // Включване на admin режим - показваме modal за парола
+                showPasswordModal();
+            } else {
+                //Изключване на admin режим
+                exitAdminMode();
+            }
+        }
+        
+        // Показване на password modal
+        function showPasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            
+            modal.classList.add('active');
+            input.value = '';
+            input.classList.remove('error');
+            error.classList.remove('active');
+            
+            // Focus на input след кратка пауза (за да работи правилно анимацията)
+            setTimeout(() => {
+                input.focus();
+            }, 100);
+        }
+        
+        // Затваряне на password modal
+        function closePasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            const toggle = document.getElementById('adminModeToggle');
+            
+            modal.classList.remove('active');
+            
+            // Ако не е в admin режим, връщаме toggle-а в изключено състояние
+            if (!isAdminMode) {
+                toggle.checked = false;
+            }
+        }
+        
+        // Валидация на парола
+        function validatePassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            const password = input.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                // Успешна валидация
+                enterAdminMode();
+                closePasswordModal();
+            } else {
+                // Грешна парола
+                input.classList.add('error');
+                error.classList.add('active');
+                input.value = '';
+                input.focus();
+                
+                // Премахваме error класа след 2 секунди
+                setTimeout(() => {
+                    input.classList.remove('error');
+                }, 2000);
+            }
+        }
+        
+        // Обработка на Enter при въвеждане на парола
+        function handlePasswordKeyPress(event) {
+            if (event.key === 'Enter') {
+                validatePassword();
+            }
+        }
+        
+        // Влизане в admin режим
+        function enterAdminMode() {
+            isAdminMode = true;
+            localStorage.setItem('adminMode', 'true');
+            
+            // Показваме индикатора
+            document.getElementById('adminModeIndicator').classList.add('active');
+            
+            console.log('🔓 Admin режим активиран');
+            
+            // TODO: Обновяване на UI за админ функции (Фаза 2-6)
+            updateUIForAdminMode();
+        }
+        
+        // Излизане от admin режим
+        function exitAdminMode() {
+            isAdminMode = false;
+            localStorage.setItem('adminMode', 'false');
+            
+            // Скриваме индикатора
+            document.getElementById('adminModeIndicator').classList.remove('active');
+            
+            console.log('🔒 Admin режим деактивиран');
+            
+            // TODO: Обновяване на UI за user функции (Фаза 2-6)
+            updateUIForAdminMode();
+        }
+        
+        // Обновяване на UI според admin режим
+        function updateUIForAdminMode() {
+            console.log('🔄 Обновяване на UI за режим:', isAdminMode ? 'ADMIN' : 'USER');
+            
+            // Контролираме RAL редакцията
+            const adminControls = document.querySelectorAll('.admin-only-control');
+            const userMessages = document.querySelectorAll('.user-mode-message');
+            
+            adminControls.forEach(control => {
+                if (isAdminMode) {
+                    control.disabled = false;
+                    control.style.opacity = '1';
+                    control.style.cursor = 'pointer';
+                } else {
+                    control.disabled = true;
+                    control.style.opacity = '0.5';
+                    control.style.cursor = 'not-allowed';
+                }
+            });
+            
+            userMessages.forEach(msg => {
+                msg.style.display = isAdminMode ? 'none' : 'inline';
+            });
+            
+            // Контролираме класификация бутоните
+            const classificationControls = document.querySelectorAll('.classification-controls');
+            classificationControls.forEach(control => {
+                control.style.display = isAdminMode ? 'block' : 'none';
+            });
+            
+            // Презареждаме класификацията ако е отворен табът
+            if (document.getElementById('assemblyClassificationTab').classList.contains('active')) {
+                generateAssemblyClassificationTab();
+            }
+        }
+        
+        // ============================================
+        // 🏭 ASSEMBLY CLASSIFICATION FUNCTIONS (ФАЗА 2)
+        // ============================================
+        
+        // Глобална променлива за класификация
+        let assemblyClassification = {
+            workshop: [],    // Пътища на сборки в цеха
+            external: [],    // Пътища на сборки на обекта
+            timestamp: null
+        };
+        
+        // Зареждане на класификация от localStorage/network
+        async function loadAssemblyClassification() {
+            console.log('📥 Зареждане на класификация...');
+            
+            try {
+                // Опитваме се да заредим от споделените данни
+                const userData = await loadSharedUserData();
+                
+                // Търсим classification_* ключове
+                const workshop = [];
+                const external = [];
+                
+                for (let key in userData) {
+                    if (key.startsWith('classification_')) {
+                        const path = key.replace('classification_', '');
+                        const category = userData[key];
+                        
+                        if (category === 'workshop') {
+                            workshop.push(path);
+                        } else if (category === 'external') {
+                            external.push(path);
+                        }
+                    }
+                }
+                
+                if (workshop.length > 0 || external.length > 0) {
+                    assemblyClassification = {
+                        workshop: workshop,
+                        external: external,
+                        timestamp: new Date().toISOString()
+                    };
+                    console.log('✅ Класификация заредена:', assemblyClassification);
+                } else {
+                    console.log('ℹ️ Няма запазена класификация');
+                }
+            } catch (error) {
+                console.error('❌ Грешка при зареждане на класификация:', error);
+            }
+            
+            return assemblyClassification;
+        }
+        
+        // Запазване на класификация
+        async function saveAssemblyClassification(data) {
+            console.log('💾 Запазване на класификация...', data);
+            
+            // Запазваме всяка сборка отделно в споделените данни
+            // Първо изчистваме старите classification_* записи
+            const userData = await loadSharedUserData();
+            for (let key in userData) {
+                if (key.startsWith('classification_')) {
+                    await saveUserDataChange(key, null);
+                }
+            }
+            
+            // Запазваме workshop сборките
+            for (let path of data.workshop) {
+                await saveUserDataChange('classification_' + path, 'workshop');
+            }
+            
+            // Запазваме external сборките
+            for (let path of data.external) {
+                await saveUserDataChange('classification_' + path, 'external');
+            }
+            
+            assemblyClassification = data;
+            console.log('✅ Класификация запазена');
+        }
+        
+        // Генериране на таба с класификация
+        async function generateAssemblyClassificationTab() {
+            console.log('🏭 Генериране на таб за класификация...');
+            
+            // Зареждаме класификацията
+            await loadAssemblyClassification();
+            
+            const workshopContent = document.getElementById('workshopContent');
+            const externalContent = document.getElementById('externalContent');
+            const workshopCount = document.getElementById('workshopCount');
+            const externalCount = document.getElementById('externalCount');
+            
+            // Ако няма данни - показваме празно състояние
+            if (assemblyClassification.workshop.length === 0 && assemblyClassification.external.length === 0) {
+                const emptyState = `
+                    <div class="empty-classification">
+                        <div class="empty-classification-icon">🏭</div>
+                        <h4>Няма класифицирани сборки</h4>
+                        <p>Класификацията помага да се организират сборките според мястото на сглобяване.</p>
+                        <p style="margin-top: 15px; font-weight: 500;">
+                            ${isAdminMode ? 
+                                'Натиснете бутона "🏭 Започни класификация" за да започнете.' : 
+                                'Влезте в админ режим за да започнете класификация.'}
+                        </p>
+                    </div>
+                `;
+                workshopContent.innerHTML = emptyState;
+                externalContent.innerHTML = '';
+                workshopCount.textContent = '0';
+                externalCount.textContent = '0';
+                return;
+            }
+            
+            // Генерираме съдържание за workshop сборките
+            let workshopHTML = '';
+            assemblyClassification.workshop.forEach(path => {
+                const assembly = findAssemblyByPath(path);
+                if (assembly) {
+                    workshopHTML += `
+                        <div class="assembly-item">
+                            <div>
+                                <span class="assembly-item-name">${assembly.name}</span>
+                                ${assembly.quantity ? `<span class="assembly-item-count"> (${assembly.quantity} бр)</span>` : ''}
+                            </div>
+                            ${isAdminMode ? `
+                                <button class="move-button admin-only-control" onclick="moveAssemblyToExternal('${path}')">
+                                    → На обекта
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            // Генерираме съдържание за external сборките
+            let externalHTML = '';
+            assemblyClassification.external.forEach(path => {
+                const assembly = findAssemblyByPath(path);
+                if (assembly) {
+                    externalHTML += `
+                        <div class="assembly-item">
+                            <div>
+                                <span class="assembly-item-name">${assembly.name}</span>
+                                ${assembly.quantity ? `<span class="assembly-item-count"> (${assembly.quantity} бр)</span>` : ''}
+                            </div>
+                            ${isAdminMode ? `
+                                <button class="move-button admin-only-control" onclick="moveAssemblyToWorkshop('${path}')">
+                                    → В цеха
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            workshopContent.innerHTML = workshopHTML || '<p style="color: #6c757d; padding: 20px; text-align: center;">Няма сборки</p>';
+            externalContent.innerHTML = externalHTML || '<p style="color: #6c757d; padding: 20px; text-align: center;">Няма сборки</p>';
+            workshopCount.textContent = assemblyClassification.workshop.length;
+            externalCount.textContent = assemblyClassification.external.length;
+        }
+        
+        // Помощна функция за намиране на сборка по път
+        function findAssemblyByPath(path) {
+            if (!bomData || !bomData.objects) return null;
+            
+            for (let obj of bomData.objects) {
+                if (obj.flatBOM) {
+                    for (let item of obj.flatBOM) {
+                        if (item.path === path) {
+                            return {
+                                name: item.name,
+                                path: item.path,
+                                quantity: item.quantity,
+                                level: item.level
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // Placeholder функции за Фаза 3-6
+        function startClassificationWizard() {
+            console.log('📋 Стартиране на wizard за класификация...');
+            
+            // Получаваме level 1 сборки
+            wizardAssemblies = getLevel1Assemblies();
+            
+            if (wizardAssemblies.length === 0) {
+                alert('❌ Няма налични сборки за класификация');
+                return;
+            }
+            
+            // Инициализация
+            wizardCurrentIndex = 0;
+            wizardClassifications = {};
+            
+            // Показваме wizard-а
+            document.getElementById('classificationWizard').classList.add('active');
+            document.getElementById('wizardTotalCount').textContent = wizardAssemblies.length;
+            
+            // Показваме първата сборка
+            showWizardAssembly(0);
+        }
+        
+        function exportClassification() {
+            alert('📥 Експорт на класификация ще бъде имплементиран във Фаза 6');
+        }
+        
+        function importClassification() {
+            document.getElementById('classificationFileInput').click();
+        }
+        
+        function handleClassificationImport(event) {
+            alert('📤 Импорт на класификация ще бъде имплементиран във Фаза 6');
+        }
+        
+        function moveAssemblyToExternal(path) {
+            alert('→ Преместване ще бъде имплементирано във Фаза 4');
+        }
+        
+        function moveAssemblyToWorkshop(path) {
+            alert('⚠ Преместването ще бъде имплементирано във фаза 4');
+        }
+        
+        // Показване на сборка в wizard
+        function showWizardAssembly(index) {
+            if (index < 0 || index >= wizardAssemblies.length) return;
+            
+            wizardCurrentIndex = index;
+            const assembly = wizardAssemblies[index];
+            
+            // Обновяване на прогрес
+            document.getElementById('wizardCurrentIndex').textContent = index + 1;
+            const progressPercent = ((index) / wizardAssemblies.length) * 100;
+            document.getElementById('wizardProgressFill').style.width = progressPercent + '%';
+            
+            // Генериране на съдържание
+            const wizardBody = document.getElementById('wizardBody');
+            wizardBody.innerHTML = `
+                <div class="wizard-assembly-info">
+                    <div class="wizard-assembly-name">
+                        ${assembly.cleanName}
+                    </div>
+                    <div class="wizard-assembly-details">
+                         Обект: ${assembly.objectName} | Количество: ${assembly.quantity} бр
+                    </div>
+                </div>
+                
+                <p class="wizard-question">
+                    Къде се сглобява тази сборка?
+                </p>
+                
+                <div class="wizard-buttons">
+                    <button class="wizard-choice-btn wizard-btn-workshop" onclick="classifyAssembly('workshop')">
+                        <div class="wizard-choice-icon"></div>
+                        <div class="wizard-choice-text">В цеха</div>
+                    </button>
+                    <button class="wizard-choice-btn wizard-btn-external" onclick="classifyAssembly('external')">
+                        <div class="wizard-choice-icon"></div>
+                        <div class="wizard-choice-text">На обекта</div>
+                    </button>
+                </div>
+            `;
+            
+            // Контрол на навигация бутони
+            document.getElementById('wizardPrevBtn').disabled = (index === 0);
+            document.getElementById('wizardNextBtn').disabled = true;
+            
+            // Показваме/скриваме skip бутон
+            document.getElementById('wizardSkipBtn').style.display = 'block';
+        }
+        
+        // Класификация на сборка
+        function classifyAssembly(category) {
+            const assembly = wizardAssemblies[wizardCurrentIndex];
+            console.log(` Класифицирана: ${assembly.cleanName}  ${category}`);
+            
+            // Запазваме класификацията
+            wizardClassifications[assembly.path] = category;
+            
+            // Автоматично класифицираме всички деца
+            autoClassifyChildren(assembly.path, category);
+            
+            // Активираме бутона "Напред"
+            document.getElementById('wizardNextBtn').disabled = false;
+            
+            // Ако е последната сборка, преминаваме към финал
+            if (wizardCurrentIndex === wizardAssemblies.length - 1) {
+                setTimeout(() => completeWizard(), 300);
+            } else {
+                // Автоматично преминаваме към следващата
+                setTimeout(() => wizardNext(), 300);
+            }
+        }
+        
+        // Автоматична класификация на деца
+        function autoClassifyChildren(parentPath, category) {
+            const objects = bomData.objects || [];
+            let childrenCount = 0;
+            
+            objects.forEach(obj => {
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        // Намираме всички деца (level 2+) на този родител
+                        if (item.path.startsWith(parentPath + '/') && item.level > 1) {
+                            wizardClassifications[item.path] = category;
+                            childrenCount++;
+                        }
+                    });
+                }
+            });
+            
+            if (childrenCount > 0) {
+                console.log(`    ${childrenCount} деца автоматично класифицирани като ${category}`);
+            }
+        }
+        
+        // Навигация - Назад
+        function wizardPrevious() {
+            if (wizardCurrentIndex > 0) {
+                showWizardAssembly(wizardCurrentIndex - 1);
+            }
+        }
+        
+        // Навигация - Напред
+        function wizardNext() {
+            if (wizardCurrentIndex < wizardAssemblies.length - 1) {
+                showWizardAssembly(wizardCurrentIndex + 1);
+            }
+        }
+        
+        // Прескачане
+        function wizardSkip() {
+            if (confirm('Сигурни ли сте, че искате да прескочите тази сборка? Тя ще остане некласифицирана.')) {
+                wizardNext();
+            }
+        }
+        
+        // Завършване на wizard
+        async function completeWizard() {
+            console.log(' Wizard завършен! Класификации:', wizardClassifications);
+            
+            // Показваме екран със завършване
+            const wizardBody = document.getElementById('wizardBody');
+            const workshopCount = Object.values(wizardClassifications).filter(c => c === 'workshop').length;
+            const externalCount = Object.values(wizardClassifications).filter(c => c === 'external').length;
+            
+            wizardBody.innerHTML = `
+                <div class="wizard-complete">
+                    <div class="wizard-complete-icon"></div>
+                    <h3 class="wizard-complete-title">Класификацията е завършена!</h3>
+                    <div class="wizard-complete-summary">
+                        <p> В цеха: <strong>${workshopCount}</strong> сборки</p>
+                        <p> На обекта: <strong>${externalCount}</strong> сборки</p>
+                    </div>
+                    <button class="wizard-complete-btn" onclick="saveAndCloseWizard()">
+                         Запази и затвори
+                    </button>
+                </div>
+            `;
+            
+            // Скриваме footer бутоните
+            document.querySelector('.wizard-footer').style.display = 'none';
+        }
+        
+        // Запазване и затваряне
+        async function saveAndCloseWizard() {
+            console.log(' Запазване на класификации...');
+            
+            // Подготвяме данните за запазване
+            const classificationData = {
+                workshop: [],
+                external: []
+            };
+            
+            // Групираме по категория
+            Object.keys(wizardClassifications).forEach(path => {
+                const category = wizardClassifications[path];
+                if (category === 'workshop') {
+                    classificationData.workshop.push(path);
+                } else if (category === 'external') {
+                    classificationData.external.push(path);
+                }
+            });
+            
+            // Запазваме всяка класификация
+            for (const path of classificationData.workshop) {
+                await saveUserDataChange('classification_' + path, 'workshop');
+            }
+            for (const path of classificationData.external) {
+                await saveUserDataChange('classification_' + path, 'external');
+            }
+            
+            console.log(' Класификациите са запазени успешно');
+            
+            // Затваряме wizard-а
+            closeClassificationWizard();
+            
+            // Презареждаме таба
+            await loadAssemblyClassification();
+            generateAssemblyClassificationTab();
+            
+            // Показваме notification
+            alert(' Класификацията е запазена успешно!');
+        }
+        
+        // Затваряне на wizard-а
+        function closeClassificationWizard() {
+            document.getElementById('classificationWizard').classList.remove('active');
+            document.querySelector('.wizard-footer').style.display = 'flex';
+            wizardAssemblies = [];
+            wizardCurrentIndex = 0;
+            wizardClassifications = {};
+        }
+        
+        // Placeholder функции за Фаза 4-6
+        function exportClassification() {
+            alert('📥 Експорт на класификация ще бъде имплементиран във Фаза 6');
+        }
+        
+        // ============================================
+        // 🌐 NETWORK & SHARED MODE FUNCTIONS
+        // ============================================
+        
+        // Автоматично откриване дали работим в споделен режим
+        async function detectSharedMode() {
+            console.log('🔍 detectSharedMode: Starting...');
+            updateNetworkStatus(false, "Проверява режим...");
+            try {
+                const response = await fetch('/get_user_data');
+                console.log('🔍 detectSharedMode: Response status:', response.status);
+                if (response.ok || response.status === 404) { // 404 е ОК - означава че няма данни, но сървърът работи
+                    isSharedMode = true;
+                    serverURL = window.location.origin;
+                    updateNetworkStatus(true, "Мрежов режим активен");
+                    console.log('🌐 Споделен режим активиран:', serverURL);
+                } else {
+                    throw new Error('Server not found');
+                }
+            } catch (error) {
+                isSharedMode = false;
+                updateNetworkStatus(false, "Локален режим");
+                console.log('📱 Локален режим - промените се запазват само на това устройство');
+            }
+        }
+
+        function updateNetworkStatus(online, text) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (indicator && statusText) {
+                indicator.className = online ? 'status-indicator status-online' : 'status-indicator status-offline';
+                statusText.textContent = text;
+            }
+        }
+        
+        // Показва индикатор за споделен режим
+        function showSharedModeIndicator() {
+            const indicator = document.createElement('div');
+            indicator.innerHTML = '🌐 Споделен режим активен - промените се виждат от всички устройства';
+            indicator.style.cssText = `
+                position: fixed; top: 10px; right: 10px; z-index: 9999;
+                background: #28a745; color: white; padding: 8px 12px;
+                border-radius: 5px; font-size: 12px; font-weight: bold;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            document.body.appendChild(indicator);
+            
+            // Скрива след 5 секунди
+            setTimeout(() => {
+                indicator.style.opacity = '0.7';
+            }, 5000);
+        }
+        
+        // Запазва потребителски данни (checkbox-и, бележки, RAL)
+        async function saveSharedUserData(data) {
+            console.log('🌐 saveSharedUserData - isSharedMode:', isSharedMode);
+            console.log('🌐 Данни за запазване:', data);
+            
+            if (isSharedMode) {
+                try {
+                    console.log('🌐 Изпращане към мрежата...');
+                    const response = await fetch('/save_user_data', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            timestamp: new Date().toISOString(),
+                            user: `${navigator.userAgent.substring(0,20)}...`,
+                            data: data
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        console.log('✅ Споделените данни са запазени в мрежата');
+                    } else {
+                        console.warn('⚠️ Грешка в отговора от сървъра:', response.status);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Грешка при споделяне:', error);
+                }
+            } else {
+                // Локално запазване
+                console.log('💾 Локално запазване в localStorage...');
+                localStorage.setItem('bomUserData', JSON.stringify(data));
+                console.log('✅ Данните са запазени локално');
+            }
+        }
+
+        // Зарежда потребителски данни
+        async function loadSharedUserData() {
+            console.log('📥 loadSharedUserData - isSharedMode:', isSharedMode);
+            
+            if (isSharedMode) {
+                try {
+                    console.log('🌐 Зареждане от мрежата...');
+                    const response = await fetch('/get_user_data');
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('📥 RAW данни от сървъра:', data);
+                        
+                        // Сървърът връща структура: {timestamp: "...", user: "...", data: {...}}
+                        // Или директно данните ако е стар формат
+                        let userData = {};
+                        if (data.data) {
+                            userData = data.data;
+                            console.log('📥 Извлечени потребителски данни (нов формат):', userData);
+                        } else if (data.timestamp || data.user) {
+                            // Ако има timestamp/user в root-а, но няма data поле
+                            userData = {};
+                            console.log('📥 Празни данни (само метаданни)');
+                        } else {
+                            // Директни данни (стар формат)
+                            userData = data;
+                            console.log('📥 Извлечени потребителски данни (стар формат):', userData);
+                        }
+                        
+                        return userData;
+                    } else if (response.status === 404) {
+                        console.log('📥 Няма запазени данни в мрежата (празно състояние)');
+                        return {};
+                    } else {
+                        console.warn('⚠️ Грешка при зареждане от мрежата:', response.status);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Грешка при зареждане на споделени данни:', error);
+                }
+            } else {
+                // Локално зареждане
+                console.log('💾 Зареждане от localStorage...');
+                const stored = localStorage.getItem('bomUserData');
+                const data = stored ? JSON.parse(stored) : {};
+                console.log('📥 Заредени локални данни:', data);
+                return data;
+            }
+            return {};
+        }        // Показва notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.innerHTML = message;
+            notification.style.cssText = `
+                position: fixed; top: 50px; right: 10px; z-index: 9999;
+                background: ${type === 'success' ? '#28a745' : '#17a2b8'}; 
+                color: white; padding: 10px 15px; border-radius: 5px;
+                font-size: 13px; max-width: 300px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        // CSS за анимация
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Инициализиране при зареждане
+        window.addEventListener('load', async function() {
+            console.log('🚀 Window load event triggered!');
+            
+            // Зареждаме admin mode състояние
+            loadAdminModeState();
+            
+            console.log('🔍 Starting detectSharedMode...');
+            await detectSharedMode();
+            console.log('✅ detectSharedMode completed, isSharedMode:', isSharedMode);
+            
+            // Изчакваме detectSharedMode да завърши и после проверяваме за данни
+            setTimeout(async () => {
+                console.log('⏰ Timeout fired, isSharedMode:', isSharedMode);
+                if (isSharedMode) {
+                    console.log('🌐 Мрежов режим - проверявам за съществуващи потребителски данни...');
+                    // В мрежов режим проверяваме дали има запазени потребителски данни
+                    const networkUserData = await loadSharedUserData();
+                    if (Object.keys(networkUserData).length > 0) {
+                        console.log('📥 Намерени запазени потребителски данни в мрежата:', networkUserData);
+                        userDataCache = networkUserData;
+                        
+                        // Проверяваме дали има запазени BOM данни в localStorage за мрежовия режим
+                        const savedBOMData = localStorage.getItem('lastLoadedBOMData');
+                        if (savedBOMData) {
+                            console.log('🔄 Възстановяване на BOM данни за да приложим потребителските данни...');
+                            bomData = JSON.parse(savedBOMData);
+                            displayBOMData();
+                        } else {
+                            console.log('⚠️ Няма локално кеширани BOM данни - опитвам автоматично извличане от /get_bom');
+                            try {
+                                showNotification('Зареждам BOM от сървъра...', 'info');
+                                const resp = await fetch('/get_bom');
+                                if (resp.ok) {
+                                    const bomJson = await resp.json();
+                                    bomData = bomJson;
+                                    console.log('✅ Успешно авто-зареждане на BOM от сървъра');
+                                    displayBOMData();
+                                    updateNetworkStatus(true, "Мрежов режим - BOM зареден");
+                                    showNotification('BOM данните са заредени', 'success');
+                                } else {
+                                    console.warn('❌ /get_bom върна статус:', resp.status);
+                                    showNotification('Неуспешно зареждане на BOM (статус ' + resp.status + ')', 'info');
+                                }
+                            } catch (e) {
+                                console.error('❌ Грешка при авто-зареждане на BOM:', e);
+                                showNotification('Грешка при зареждане на BOM. Опитайте refresh.', 'info');
+                            }
+                        }
+                    } else {
+                        console.log('📭 Няма запазени потребителски данни в мрежата');
+                        // Все пак опитваме да заредим BOM автоматично ако няма user data
+                        try {
+                            console.log('🌐 Опит за авто-зареждане на BOM без user data...');
+                            const resp = await fetch('/get_bom');
+                            if (resp.ok) {
+                                const bomJson = await resp.json();
+                                bomData = bomJson;
+                                displayBOMData();
+                                showNotification('BOM зареден (без потребителски данни)', 'success');
+                            } else {
+                                console.warn('❌ /get_bom статус:', resp.status);
+                            }
+                        } catch (e) {
+                            console.error('❌ Грешка при /get_bom без user data:', e);
+                        }
+                    }
+                } else {
+                    console.log('💾 Локален режим - проверявам localStorage...');
+                    // В локален режим възстановяваме последния файл ако има такъв
+                    const savedBOMData = localStorage.getItem('lastLoadedBOMData');
+                    if (savedBOMData) {
+                        try {
+                            console.log('🔄 Възстановяване на BOM данни от localStorage...');
+                            bomData = JSON.parse(savedBOMData);
+                            displayBOMData();
+                            updateNetworkStatus(false, "Локален режим - BOM зареден");
+                            console.log('✅ BOM данните са възстановени успешно');
+                        } catch (error) {
+                            console.error('❌ Грешка при възстановяване на BOM данни:', error);
+                            localStorage.removeItem('lastLoadedBOMData');
+                        }
+                    } else {
+                        console.warn('⚠️ Няма запазени BOM данни в localStorage');
+                        console.log('📁 Опитвам да заредя bom_data.json от директорията...');
+                        
+                        // Опитваме се да заредим bom_data.json от същата директория
+                        try {
+                            const response = await fetch('./bom_data.json');
+                            if (response.ok) {
+                                const jsonData = await response.json();
+                                console.log('✅ bom_data.json успешно зареден от директорията');
+                                bomData = jsonData;
+                                displayBOMData();
+                            } else {
+                                throw new Error(`Статус: ${response.status}`);
+                            }
+                        } catch (error) {
+                            console.warn('⚠️ Не мога да заредя bom_data.json:', error.message);
+                            console.log('💡 Моля, заредете BOM файл чрез Python сървъра на адрес http://localhost:5000');
+                            // Показваме съобщение на потребителя
+                            document.getElementById('contentTabs').classList.remove('hidden');
+                            document.getElementById('overviewContent').innerHTML = `
+                                <div style="padding: 40px; text-align: center;">
+                                    <h3 style="color: #dc3545;">⚠️ Няма заредени BOM данни</h3>
+                                    <p style="margin: 20px 0;">За да заредите BOM данни, можете да:</p>
+                                    <ol style="text-align: left; display: inline-block; margin: 20px auto;">
+                                        <li style="margin: 10px 0;">Поставете файл <strong>bom_data.json</strong> в същата директория като този HTML файл</li>
+                                        <li style="margin: 10px 0;">Или стартирайте Python сървъра и отворете: <br><strong style="color: #007bff;">http://localhost:5000</strong></li>
+                                    </ol>
+                                    <p style="margin-top: 20px; color: #6c757d; font-size: 0.9em;">Опреснете страницата след като добавите файла.</p>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            }, 1000); // Изчакваме 1 секунда за detectSharedMode
+        });
+
+        // Речник за превод на заглавията на възлите
+        const nodeTranslations = {
+            'Bufer Service Shaft': 'Сервизен буфер',
+            'FR Vrati': 'Ролетни врати',
+            'Kabina': 'Кабина',
+            'Kula': 'Кула', 
+            'Pod': 'Под',
+            'Rampa etaj 1': 'Рампа етаж 1',
+            'Rampa etaj 5': 'Рампа етаж 5',
+            'Relsov Pyt Double': 'Релсов път',
+            'Shasi Double': 'Шаси'
+        };
+
+        // Функция за превод на заглавията на възлите
+        function translateNodeTitle(originalTitle) {
+            return nodeTranslations[originalTitle] || originalTitle;
+        }
+
+        // Функция за ръчно зареждане на JSON файл
+        function loadJSONFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                console.warn('Не е избран файл');
+                return;
+            }
+            
+            console.log('📁 Зареждане на файл:', file.name);
+            updateNetworkStatus(false, "Зареждам файл...");
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    console.log('✅ JSON файлът е парсиран успешно');
+                    console.log('📦 Данни от файла:', jsonData);
+                    bomData = jsonData;
+                    await displayBOMData();
+                    
+                    // Актуализираме статуса според текущия режим
+                    if (isSharedMode) {
+                        updateNetworkStatus(true, "Мрежов режим - BOM зареден");
+                    } else {
+                        updateNetworkStatus(false, "Локален режим - BOM зареден");
+                    }
+                    
+                    showNotification('✅ BOM данните са заредени успешно!', 'success');
+                } catch (error) {
+                    console.error('❌ Грешка при парсване на JSON:', error);
+                    updateNetworkStatus(false, "Грешка при зареждане");
+                    alert('Грешка при четене на JSON файла: ' + error.message);
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error('❌ Грешка при четене на файла');
+                updateNetworkStatus(false, "Грешка при зареждане");
+                alert('Грешка при четене на файла');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        /* Премахната функция loadBOM() - вече не е необходима при автоматично зареждане */
+
+        async function displayBOMData() {
+            console.log('Заредени BOM данни:', bomData);
+            
+            // Запазваме BOM данните за възможност за възстановяване при refresh
+            localStorage.setItem('lastLoadedBOMData', JSON.stringify(bomData));
+            console.log('💾 BOM данните са запазени в localStorage');
+            
+            // Зареждаме споделените потребителски данни
+            await loadAllUserData();
+            
+            // Проверяваме структурата на данните и конвертираме ако е необходимо
+            if (bomData.objects) {
+                // Нова структура - преобразуваме към очакваната структура
+                window.bomData = bomData.objects.map(obj => {
+                    // Ако няма allParts, генерираме от assemblies
+                    let allParts = obj.allParts || [];
+                    if (!obj.allParts && obj.assemblies) {
+                        allParts = obj.assemblies.map(assembly => ({
+                            name: assembly.cleanName || assembly.name,
+                            cleanName: assembly.cleanName || assembly.name,
+                            path: assembly.path,
+                            level: assembly.level,
+                            quantity: assembly.quantity,
+                            objectSource: assembly.objectSource,
+                            hasRAL: assembly.hasRAL,
+                            ralType: assembly.ralType,
+                            materialSpec: assembly.materialSpec || '',
+                            unitPrice: assembly.unitPrice || '',
+                            totalPrice: assembly.totalPrice || ''
+                        }));
+                    }
+                    
+                    return {
+                        objectName: obj.objectName,
+                        sourceFile: obj.sourceFile,
+                        assemblies: obj.assemblies || [],
+                        flatBOM: obj.flatBOM || [],
+                        allParts: allParts
+                    };
+                });
+            } else {
+                // Стара структура - използваме директно
+                window.bomData = bomData;
+            }
+            
+            console.log('Обработени BOM данни:', window.bomData);
+            
+            // Показваме основните секции
+            const contentTabs = document.getElementById('contentTabs');
+            if (contentTabs) {
+                console.log('✅ Показвам contentTabs (премахвам hidden класа)');
+                contentTabs.classList.remove('hidden');
+            } else {
+                console.error('❌ contentTabs елементът не е намерен!');
+            }
+            
+            // Генерираме съдържанието
+            generateObjectFilter();
+            generateOverviewContent();
+            generateAllPartsContent();
+            generateAllItemsContent();
+            generateRalItemsContent();
+            
+            // Първоначално показваме всички обекти
+            filterByObject();
+            filterPartsByObject();
+        }
+
+        function generateObjectFilter() {
+            // Не добавяме динамично обектите в dropdown-а
+            // Двата dropdown-а ('objectFilter' и 'partsObjectFilter') вече имат нужните опции в HTML
+        }
+
+        function generateOverviewContent() {
+            const objects = bomData.objects || [];
+            
+            let overviewHTML = '<div class="objects-grid">';
+            
+            objects.forEach(obj => {
+                // Броим детайлите и крепежите за този възел (използваме същата логика като в таба "Детайли")
+                let detailsCount = 0;
+                let fastenersCount = 0;
+                
+                // Използваме flatBOM с интелигентна дедупликация
+                if (obj.flatBOM) {
+                    const processedItems = new Set(); // За проследяване на обработените комбинации
+                    
+                    obj.flatBOM.forEach(item => {
+                        // Създаваме уникален ключ: име + път + ниво
+                        const itemKey = `${item.name}|${item.path || ''}|${item.level || 0}`;
+                        
+                        // Ако вече сме обработили тази комбинация, пропускаме я
+                        if (processedItems.has(itemKey)) {
+                            if (obj.objectName === 'Bufer Service Shaft' || obj.objectName === 'Pod') {
+                                console.log(`[DEBUG] ПРОПУСНАТ ДУБЛИКАТ: "${item.name}" (path: ${item.path}, level: ${item.level})`);
+                            }
+                            return;
+                        }
+                        
+                        processedItems.add(itemKey);
+                        
+                        if (!item.isAssembly) {
+                            if (isFastener(item.name)) {
+                                fastenersCount += item.quantity || 1;
+                            } else {
+                                detailsCount += item.quantity || 1;
+                            }
+                        }
+                    });
+                    
+                    // Debug за проблемни възли
+                    if (obj.objectName === 'Bufer Service Shaft' || obj.objectName === 'Pod') {
+                        console.log(`[DEBUG] ${obj.objectName} (flatBOM с дедупликация):`);
+                        console.log(`[DEBUG] flatBOM общо елементи: ${obj.flatBOM.length}, уникални: ${processedItems.size}`);
+                        console.log(`[DEBUG] Детайли: ${detailsCount}, Крепежи: ${fastenersCount}`);
+                    }
+                }
+                
+                // Debug за HTML генерирането
+                if (obj.objectName === 'Bufer Service Shaft' || obj.objectName === 'Pod') {
+                    console.log(`[DEBUG] ${obj.objectName} - ГЕНЕРИРАНЕ НА HTML:`);
+                    console.log(`[DEBUG] detailsCount за HTML: ${detailsCount}`);
+                    console.log(`[DEBUG] fastenersCount за HTML: ${fastenersCount}`);
+                }
+                
+                overviewHTML += `
+                    <div class="object-card">
+                        <h3>🏢 ${translateNodeTitle(obj.objectName)}</h3>
+                        <p><strong>Източник:</strong> ${obj.sourceFile}</p>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                            <div style="text-align: center; flex: 1;">
+                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #007bff;">🔧</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #007bff;">${detailsCount}</p>
+                                <p style="margin: 0; font-size: 12px; color: #6c757d;">Детайли</p>
+                            </div>
+                            <div style="text-align: center; flex: 1;">
+                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #28a745;">⚙️</p>
+                                <p style="margin: 5px 0 0 0; font-weight: bold; color: #28a745;">${fastenersCount}</p>
+                                <p style="margin: 0; font-size: 12px; color: #6c757d;">Крепежи</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            overviewHTML += '</div>';
+            const overviewElement = document.getElementById('overviewContent');
+            
+            // АГРЕСИВНО принудително обновяване
+            if (overviewElement) {
+                // Първо изчистваме напълно
+                overviewElement.innerHTML = '';
+                overviewElement.style.display = 'none';
+                
+                // Принуждаваме браузъра да обнови
+                overviewElement.offsetHeight; // trigger reflow
+                
+                // Добавяме уникален ключ за да избегнем кеширане
+                const timestamp = new Date().getTime();
+                console.log(`[DEBUG] Обновяване на overview в ${timestamp}`);
+                
+                // След това задаваме новото съдържание
+                setTimeout(() => {
+                    overviewElement.innerHTML = overviewHTML;
+                    overviewElement.style.display = 'block';
+                    console.log(`[DEBUG] HTML обновен успешно в ${timestamp}`);
+                }, 100); // Увеличавам забавянето
+            } else {
+                console.error('[DEBUG] overviewElement не е намерен!');
+            }
+        }
+
+        function generateAllPartsContent() {
+            let allParts = [];
+            
+            // Събираме всички части от всички обекти
+            bomData.objects.forEach(obj => {
+                if (obj.allParts) {
+                    obj.allParts.forEach(part => {
+                        allParts.push({
+                            ...part,
+                            objectSource: obj.objectName
+                        });
+                    });
+                }
+            });
+            
+            const tableHTML = generatePartsTable(allParts, 'Всички части и компоненти');
+            document.getElementById('allPartsContent').innerHTML = tableHTML;
+        }
+
+        function filterPartsByObject() {
+            const selectedObject = document.getElementById('partsObjectFilter').value;
+            
+            let filteredParts = [];
+            
+            if (selectedObject === "") {
+                // Показваме всички обекти
+                bomData.objects.forEach(obj => {
+                    if (obj.allParts) {
+                        obj.allParts.forEach(part => {
+                            filteredParts.push({
+                                ...part,
+                                objectSource: obj.objectName
+                            });
+                        });
+                    }
+                });
+            } else {
+                // Показваме само избрания обект
+                const selectedObj = bomData.objects.find(obj => obj.objectName === selectedObject);
+                if (selectedObj && selectedObj.allParts) {
+                    selectedObj.allParts.forEach(part => {
+                        filteredParts.push({
+                            ...part,
+                            objectSource: selectedObj.objectName
+                        });
+                    });
+                }
+            }
+            
+            const tableHTML = generatePartsTable(filteredParts, 
+                selectedObject ? `Части от ${selectedObject}` : 'Всички части по обекти');
+            document.getElementById('allPartsContent').innerHTML = tableHTML;
+        }
+
+        function generatePartsTable(parts, title) {
+            if (parts.length === 0) {
+                return `<p>Няма данни за показване.</p>`;
+            }
+            
+            // Разделяме частите на детайли и сборки
+            const singleParts = parts.filter(part => part.partType !== 'Подасембли');
+            const assemblies = parts.filter(part => part.partType === 'Подасембли');
+            
+            let tableHTML = `<h3>${title} (${parts.length} общо: ${singleParts.length} детайла + ${assemblies.length} сборки)</h3>`;
+            
+            // Секция за детайли (единични части)
+            if (singleParts.length > 0) {
+                tableHTML += `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #007bff; margin: 20px 0 10px 0;">📦 Детайли (единични части) - ${singleParts.length} бр.</h4>
+                        <table class="bom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">✓</th>
+                                    <th>Ниво</th>
+                                    <th>Обект</th>
+                                    <th>Име на частта</th>
+                                    <th>Тип</th>
+                                    <th>Количество</th>
+                                    <th>RAL</th>
+                                    <th>Път</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                singleParts.forEach(part => {
+                    const levelClass = `level-${Math.min(part.level, 5)}`;
+                    
+                    tableHTML += `
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="checkbox" id="check_${part.name.replace(/[^a-zA-Z0-9]/g, '_')}_${part.objectSource.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                                       onchange="updatePartStatus(this)" 
+                                       style="transform: scale(1.2);">
+                            </td>
+                            <td>
+                                <span class="level-indicator ${levelClass}">${part.level}</span>
+                            </td>
+                            <td><strong>${part.objectSource}</strong></td>
+                            <td>${part.name}</td>
+                            <td><span>${part.partType}</span></td>
+                            <td><strong>${part.quantity}</strong></td>
+                            <td>
+                                ${part.hasRAL ? 
+                                    `<span class="ral-highlight">${part.ralType}</span>` : 
+                                    '<span style="color: #6c757d;">—</span>'
+                                }
+                            </td>
+                            <td><small>${part.path}</small></td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table></div>';
+            }
+            
+            // Секция за сборки
+            if (assemblies.length > 0) {
+                tableHTML += `
+                    <div style="margin-bottom: 30px;">
+                        <h4 style="color: #28a745; margin: 20px 0 10px 0;">🔧 Сборки (групи от детайли) - ${assemblies.length} бр.</h4>
+                        <table class="bom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">✓</th>
+                                    <th>Ниво</th>
+                                    <th>Обект</th>
+                                    <th>Име на частта</th>
+                                    <th>Тип</th>
+                                    <th>Количество</th>
+                                    <th>RAL</th>
+                                    <th>Път</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                assemblies.forEach(part => {
+                    const levelClass = `level-${Math.min(part.level, 5)}`;
+                    const typeClass = 'assembly-indicator';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td style="text-align: center;">
+                                <input type="checkbox" id="check_${part.name.replace(/[^a-zA-Z0-9]/g, '_')}_${part.objectSource.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                                       onchange="updatePartStatus(this)" 
+                                       style="transform: scale(1.2);">
+                            </td>
+                            <td>
+                                <span class="level-indicator ${levelClass}">${part.level}</span>
+                            </td>
+                            <td><strong>${part.objectSource}</strong></td>
+                            <td class="${typeClass}">${part.name}</td>
+                            <td><span class="${typeClass}">${part.partType}</span></td>
+                            <td><strong>${part.quantity}</strong></td>
+                            <td>
+                                ${part.hasRAL ? 
+                                    `<span class="ral-highlight">${part.ralType}</span>` : 
+                                    '<span style="color: #6c757d;">—</span>'
+                                }
+                            </td>
+                            <td><small>${part.path}</small></td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += '</tbody></table></div>';
+            }
+            
+            return tableHTML;
+        }
+
+        function generateAllItemsContent() {
+            let allAssemblies = [];
+            
+            // Събираме ВСИЧКИ елементи (включително отделните части) от flatBOM
+            bomData.objects.forEach(obj => {
+                // Използваме flatBOM вместо assemblies за да включим всички части
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        allAssemblies.push({
+                            path: item.path,
+                            name: item.name,
+                            level: item.level,
+                            quantity: item.quantity,
+                            objectSource: item.objectSource,
+                            hasRAL: item.name.includes('RAL'),
+                            ralType: item.name.includes('RAL') ? item.name.match(/RAL\d*/)?.[0] : null,
+                            isSubAssembly: item.isAssembly,
+                            cleanName: item.name
+                        });
+                    });
+                } else {
+                    // Fallback към assemblies ако няма flatBOM
+                    obj.assemblies.forEach(assembly => {
+                        allAssemblies.push({
+                            ...assembly,
+                            objectSource: obj.objectName
+                        });
+                    });
+                }
+            });
+            
+            const tableHTML = generateAssemblyTable(allAssemblies, 'Всички елементи');
+            document.getElementById('allItemsContent').innerHTML = tableHTML;
+        }
+
+        function generateRalItemsContent() {
+            // Генерираме таблица за управление на RAL цветове
+            let ralManagementHTML = `
+                <div style="margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px solid #007bff;">
+                    <h4 style="color: #007bff; margin-bottom: 15px;">🎨 Управление на RAL цветове</h4>
+                    <div style="margin-bottom: 15px;">
+                        <button onclick="addNewRalEntry()" class="admin-only-control" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            ➕ Добави нов RAL
+                        </button>
+                        <button onclick="saveRalData()" class="admin-only-control" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                            💾 Запази всички
+                        </button>
+                        <span class="user-mode-message" style="display: none; color: #6c757d; font-style: italic; padding: 8px;">
+                            ℹ️ Редакцията на RAL данни е достъпна само в админ режим
+                        </span>
+                        <!-- Премахнат бутон "Възстанови липсващи" за RAL -->
+                    </div>
+                    <table class="data-table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">RAL код</th>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Описание</th>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Избрана опция</th>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Цвят</th>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ralManagementTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            let ralAssemblies = [];
+            
+            // Събираме всички RAL елементи от flatBOM
+            bomData.objects.forEach(obj => {
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        if (item.name.includes('RAL')) {
+                            ralAssemblies.push({
+                                path: item.path,
+                                name: item.name,
+                                level: item.level,
+                                quantity: item.quantity,
+                                objectSource: item.objectSource,
+                                hasRAL: true,
+                                ralType: item.name.match(/RAL\d*/)?.[0],
+                                isSubAssembly: item.isAssembly,
+                                cleanName: item.name
+                            });
+                        }
+                    });
+                } else {
+                    // Fallback към assemblies
+                    obj.assemblies.forEach(assembly => {
+                        if (assembly.hasRAL) {
+                            ralAssemblies.push({
+                                ...assembly,
+                                objectSource: obj.objectName
+                            });
+                        }
+                    });
+                }
+            });
+            
+            const tableHTML = generateAssemblyTable(ralAssemblies, 'RAL елементи');
+            document.getElementById('ralItemsContent').innerHTML = ralManagementHTML + tableHTML;
+            
+            // Зареждаме RAL данните и попълваме таблицата
+            loadRalManagementTable();
+        }
+
+        function filterByObject() {
+            // Винаги показваме всички елементи (няма dropdown)
+            let filteredAssemblies = [];
+            
+            // Показваме всички обекти - използваме flatBOM
+            bomData.objects.forEach(obj => {
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        filteredAssemblies.push({
+                            path: item.path,
+                            name: item.name,
+                            level: item.level,
+                            quantity: item.quantity,
+                            objectSource: item.objectSource,
+                            hasRAL: item.name.includes('RAL'),
+                            ralType: item.name.includes('RAL') ? item.name.match(/RAL\d*/)?.[0] : null,
+                            isSubAssembly: item.isAssembly,
+                            cleanName: item.name,
+                            imagePath: item.imagePath || ''
+                        });
+                    });
+                } else {
+                    obj.assemblies.forEach(assembly => {
+                        filteredAssemblies.push({
+                            ...assembly,
+                            objectSource: obj.objectName
+                        });
+                    });
+                }
+            });
+            
+            const tableHTML = generateAssemblyTable(filteredAssemblies);
+            document.getElementById('byObjectContent').innerHTML = tableHTML;
+        }
+
+        function extractMainAssembly(path) {
+            // Извлича главния асембли от път като: "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/..."
+            // Връща вторият елемент (главният асембли)
+            if (!path) return '';
+            
+            const parts = path.split('/');
+            if (parts.length >= 2) {
+                return parts[1]; // Вторият елемент е главният асембли
+            }
+            return parts[0]; // Fallback ако няма "/" в пътя
+        }
+
+        function generateAssemblyTable(assemblies) {
+            if (assemblies.length === 0) {
+                return `<p>Няма данни за показване.</p>`;
+            }
+            
+            let tableHTML = `
+                <table class="bom-table">
+                    <thead>
+                        <tr>
+                            <th>Ниво</th>
+                            <th>Възел</th>
+                            <th>Име</th>
+                            <th>Път</th>
+                            <th>Количество</th>
+                            <th>RAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            assemblies.forEach(assembly => {
+                const levelClass = `level-${Math.min(assembly.level, 5)}`;
+                // Използваме createImageTooltip за всички имена, подавайки дали е асембли
+                const displayName = createImageTooltip(assembly.name, assembly.imagePath || '', assembly.isSubAssembly || false);
+                
+                // Извличаме главния асембли от пътя
+                const mainAssembly = extractMainAssembly(assembly.path);
+                
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <span class="level-indicator ${levelClass}">${assembly.level}</span>
+                        </td>
+                        <td><strong>${mainAssembly}</strong></td>
+                        <td>${displayName}</td>
+                        <td><small>${assembly.path}</small></td>
+                        <td>${assembly.quantity}</td>
+                        <td>
+                            ${assembly.hasRAL ? 
+                                `<span class="ral-highlight">${assembly.ralType}</span>` : 
+                                '<span style="color: #6c757d;">—</span>'
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            return tableHTML;
+        }
+
+        function normalizePartName(name) {
+            // Нормализация на имената на части за правилно групиране
+            if (!name) return '';
+            
+            let normalized = name.toString().trim();
+            
+            // Заменяме често срещани варианти на написание
+            const replacements = {
+                'Komplett': 'Komplekt',
+                'komplett': 'komplekt',
+                'KOMPLETT': 'KOMPLEKT'
+            };
+            
+            // Заменяме кирилски символи с латински еквиваленти
+            const cyrillicToLatin = {
+                'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ж': 'Zh', 'З': 'Z',
+                'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P',
+                'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'H', 'Ц': 'C', 'Ч': 'Ch',
+                'Ш': 'Sh', 'Щ': 'Sht', 'Ъ': 'A', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya',
+                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ж': 'zh', 'з': 'z',
+                'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p',
+                'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch',
+                'ш': 'sh', 'щ': 'sht', 'ъ': 'a', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+            };
+            
+            // Прилагаме заменените
+            for (const [from, to] of Object.entries(replacements)) {
+                normalized = normalized.replace(new RegExp(from, 'g'), to);
+            }
+            
+            // Заменяме кирилски символи
+            for (const [cyrillic, latin] of Object.entries(cyrillicToLatin)) {
+                normalized = normalized.replace(new RegExp(cyrillic, 'g'), latin);
+            }
+            
+            return normalized;
+        }
+
+        function isFastener(partName) {
+            // Използваме новата логика за крепежни части
+            return isFastenerPart(partName);
+        }
+
+        function generateDetailsParts() {
+            if (!bomData) return;
+            
+            try {
+                const mode = document.getElementById('detailsMode').value;
+                const objects = bomData.objects || [];
+            
+            if (mode === 'global') {
+                // Общо обобщение - само детайли
+                const partsSummary = {};
+                
+                objects.forEach(obj => {
+                    obj.flatBOM.forEach(item => {
+                        if (!item.isAssembly && !isFastener(item.name)) {
+                            if (!partsSummary[item.name]) {
+                                partsSummary[item.name] = {
+                                    name: item.name,
+                                    totalQuantity: 0,
+                                    objects: new Set(),
+                                    materialSpec: '',
+                                    unitPrice: '',
+                                    totalPrice: '',
+                                    imagePath: item.imagePath || item.path || ''
+                                };
+                                // Debug - виж какво съдържа item
+                                if (item.name === '04_02_R_RAL5') {
+                                    console.log('[DEBUG] item за 04_02_R_RAL5:', item);
+                                }
+                            }
+                            partsSummary[item.name].totalQuantity += item.quantity;
+                            partsSummary[item.name].objects.add(item.objectSource);
+                            // Запазваме imagePath ако все още няма
+                            if (!partsSummary[item.name].imagePath && item.imagePath) {
+                                partsSummary[item.name].imagePath = item.imagePath;
+                            }
+                        }
+                    });
+                });
+                
+                const sortedParts = Object.values(partsSummary).sort((a, b) => {
+                    // Извличаме числовата част от началото на името (например 04_09 -> 04.09)
+                    const getNumericValue = (name) => {
+                        const match = name.match(/^(\d+)_(\d+)/);
+                        if (match) {
+                            return parseFloat(match[1] + '.' + match[2]);
+                        }
+                        // Ако няма числа в началото, използваме името за азбучно сортиране
+                        return parseFloat('999.' + name.charCodeAt(0));
+                    };
+                    
+                    return getNumericValue(a.name) - getNumericValue(b.name);
+                });
+                
+                let summaryHtml = `
+                    <h4>🔧 Всички детайли</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; padding-left: 40px !important; margin-left: 20px; font-weight: bold; color: #007bff; font-size: 14px;">Име</th>
+                                <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Количество</th>
+                                <th style="text-align: center; font-weight: bold; color: #007bff; font-size: 14px;">Обекти</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sortedParts.map(part => `
+                                <tr>
+                                    <td style="padding-left: 40px;"><strong>${createImageTooltip(part.name, '', false)}</strong></td>
+                                    <td style="text-align: center; font-weight: bold; color: #333;">${part.totalQuantity}</td>
+                                    <td style="text-align: center;">${Array.from(part.objects).join(', ')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('detailsPartsContent').innerHTML = summaryHtml;
+            } else {
+                // По обекти поотделно - само детайли
+                let summaryHtml = '';
+                
+                objects.forEach(obj => {
+                    const partsSummary = {};
+                    
+                    obj.flatBOM.forEach(item => {
+                        if (!item.isAssembly && !isFastener(item.name)) {
+                            if (!partsSummary[item.name]) {
+                                partsSummary[item.name] = {
+                                    name: item.name,
+                                    totalQuantity: 0,
+                                    imagePath: item.imagePath || ''
+                                };
+                            }
+                            partsSummary[item.name].totalQuantity += item.quantity;
+                            // Запазваме imagePath ако все още няма
+                            if (!partsSummary[item.name].imagePath && item.imagePath) {
+                                partsSummary[item.name].imagePath = item.imagePath;
+                            }
+                        }
+                    });
+                    
+                    const sortedParts = Object.values(partsSummary).sort((a, b) => {
+                        // Извличаме числовата част от началото на името (например 04_09 -> 04.09)
+                        const getNumericValue = (name) => {
+                            const match = name.match(/^(\d+)_(\d+)/);
+                            if (match) {
+                                return parseFloat(match[1] + '.' + match[2]);
+                            }
+                            // Ако няма числа в началото, използваме името за азбучно сортиране
+                            return parseFloat('999.' + name.charCodeAt(0));
+                        };
+                        
+                        return getNumericValue(a.name) - getNumericValue(b.name);
+                    });
+                    
+                    if (sortedParts.length > 0) {
+                        summaryHtml += `
+                            <div class="object-summary">
+                                <h4>🔧 ${translateNodeTitle(obj.objectName)} (${sortedParts.length} уникални детайла)</h4>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="font-weight: bold; color: #007bff; font-size: 14px;">Име</th>
+                                            <th style="font-weight: bold; color: #007bff; font-size: 14px; text-align: center;">Количество</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${sortedParts.map(part => `
+                                            <tr>
+                                                <td><strong>${createImageTooltip(part.name, part.imagePath, false)}</strong></td>
+                                                <td style="text-align: center; font-weight: bold; color: #333;">${part.totalQuantity}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <br>
+                        `;
+                    }
+                });
+                
+                document.getElementById('detailsPartsContent').innerHTML = summaryHtml;
+            }
+            
+            // Възстановяваме потребителските състояния
+            setTimeout(() => restoreUserInterfaceStates(), 100);
+            } catch (error) {
+                console.error('Грешка в generateDetailsParts:', error);
+                document.getElementById('detailsPartsContent').innerHTML = '<p style="color: red;">Грешка при генериране на детайли: ' + error.message + '</p>';
+            }
+        }
+
+        function extractThreadSize(assemblyName) {
+            // Извлича размера на резбата от името (M4, M5, M6, M8, M10, M12, и т.н.)
+            // Поддържа форматите: M8x20, M10 x 40, Anker M10x80
+            const match = assemblyName.match(/M\s*(\d+)(?:\s*x\s*\d+)?/i);
+            return match ? parseInt(match[1]) : 999; // 999 за неразпознати размери (ще бъдат накрая)
+        }
+
+        function generateFastenerParts() {
+            if (!bomData) return;
+            
+            const mode = document.getElementById('fastenersMode').value;
+            const objects = bomData.objects || [];
+            
+            if (mode === 'global') {
+                // Глобален режим - извличаме САМО крепежни части от всички възли
+                const fastenerParts = {};
+                
+                objects.forEach(obj => {
+                    obj.flatBOM.forEach(item => {
+                        // Вземаме само крепежни части (не асемблита, не детайли)
+                        if (!item.isAssembly && isFastenerPart(item.name)) {
+                            const partName = item.name.trim();
+                            
+                            if (!fastenerParts[partName]) {
+                                fastenerParts[partName] = {
+                                    name: partName,
+                                    totalQuantity: 0,
+                                    objects: new Set()
+                                };
+                            }
+                            
+                            fastenerParts[partName].totalQuantity += item.quantity;
+                            fastenerParts[partName].objects.add(item.objectSource);
+                        }
+                    });
+                });
+
+                // Сортираме крепежните части
+                const sortedFasteners = Object.values(fastenerParts).sort((a, b) => {
+                    // Извличаме типа на частта (първата дума)
+                    const typeA = a.name.split(' ')[0]; // "Bolt", "Nut", "Washer", etc.
+                    const typeB = b.name.split(' ')[0];
+                    
+                    // Първо сортираме по тип (азбучен ред)
+                    if (typeA !== typeB) {
+                        return typeA.localeCompare(typeB);
+                    }
+                    
+                    // В рамките на същия тип, сортираме по размер на резбата
+                    const sizeA = extractThreadSize(a.name);
+                    const sizeB = extractThreadSize(b.name);
+                    
+                    // Ако и двете имат размер на резба, сортираме по размер
+                    if (sizeA !== 999 && sizeB !== 999) {
+                        if (sizeA !== sizeB) {
+                            return sizeA - sizeB; // M4 → M6 → M8 → M10 → M12
+                        }
+                    }
+                    
+                    // При еднакъв размер или липса на размер, сортираме по азбучен ред на цялото име
+                    return a.name.localeCompare(b.name);
+                });
+                
+                let summaryHtml = `<h4>⚙️ Всички крепежи</h4>`;
+                
+                sortedFasteners.forEach((part, index) => {
+                    const partId = part.name.replace(/[^a-zA-Z0-9]/g, '_');
+                    summaryHtml += `
+                        <div class="fastener-part-item" style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                <input type="checkbox" id="fastener_check_${partId}" 
+                                       onchange="updatePartStatus(this)" 
+                                       style="transform: scale(1.3); margin-right: 12px;">
+                                <div>
+                                    <strong>${part.name}</strong> 
+                                    <span style="color: #666; margin-left: 10px;">
+                                        (общо: ${part.totalQuantity}, обекти: ${Array.from(part.objects).join(', ')})
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <label style="font-size: 12px; color: #666; margin-right: 8px;">Забележка:</label>
+                                <input type="text" id="notes_${partId}" 
+                                       onchange="saveNote(this)"
+                                       style="width: 300px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px;">
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('fastenerPartsContent').innerHTML = summaryHtml;
+                
+                // Възстановяваме състоянието на checkbox-овете
+                setTimeout(restoreCheckboxStates, 100);
+            } else {
+                // По обекти поотделно - извличаме САМО крепежни части за всеки възел
+                console.log('[РЕЖИМ] По обекти поотделно - започвам генерирането');
+                let summaryHtml = '';
+                
+                objects.forEach(obj => {
+                    const fastenerParts = {};
+                    
+                    // Извличаме всички крепежни части от този обект
+                    obj.flatBOM.forEach(item => {
+                        if (!item.isAssembly && isFastenerPart(item.name)) {
+                            const partName = item.name.trim();
+                            
+                            if (!fastenerParts[partName]) {
+                                fastenerParts[partName] = {
+                                    name: partName,
+                                    totalQuantity: 0
+                                };
+                            }
+                            
+                            fastenerParts[partName].totalQuantity += item.quantity;
+                        }
+                    });
+                    
+                    // Сортираме крепежните части за този обект
+                    const sortedFasteners = Object.values(fastenerParts).sort((a, b) => {
+                        // Извличаме типа на частта (първата дума)
+                        const typeA = a.name.split(' ')[0]; // "Bolt", "Nut", "Washer", etc.
+                        const typeB = b.name.split(' ')[0];
+                        
+                        // Първо сортираме по тип (азбучен ред)
+                        if (typeA !== typeB) {
+                            return typeA.localeCompare(typeB);
+                        }
+                        
+                        // В рамките на същия тип, сортираме по размер на резбата
+                        const sizeA = extractThreadSize(a.name);
+                        const sizeB = extractThreadSize(b.name);
+                        
+                        // Ако и двете имат размер на резба, сортираме по размер
+                        if (sizeA !== 999 && sizeB !== 999) {
+                            if (sizeA !== sizeB) {
+                                return sizeA - sizeB; // M4 → M6 → M8 → M10 → M12
+                            }
+                        }
+                        
+                        // При еднакъв размер или липса на размер, сортираме по азбучен ред на цялото име
+                        return a.name.localeCompare(b.name);
+                    });
+                    
+                    if (sortedFasteners.length > 0) {
+                        summaryHtml += `
+                            <div class="object-summary">
+                                <h4>⚙️ ${translateNodeTitle(obj.objectName)} (${sortedFasteners.length} крепежни части)</h4>
+                                <div class="expandable-fasteners">
+                        `;
+                        
+                        sortedFasteners.forEach((part, index) => {
+                            const partId = `${obj.objectName.replace(/[^a-zA-Z0-9]/g, '_')}_${part.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                            summaryHtml += `
+                                <div class="fastener-part-item" style="margin: 5px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="node_check_${partId}" 
+                                               onchange="updatePartStatus(this)" 
+                                               style="transform: scale(1.2); margin-right: 10px;">
+                                        <div>
+                                            <strong>${part.name}</strong> 
+                                            <span style="color: #666; margin-left: 10px;">(${part.totalQuantity} бр.)</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <label style="font-size: 11px; color: #666; margin-right: 6px;">Забележка:</label>
+                                        <input type="text" id="notes_node_${partId}" 
+                                               onchange="saveNote(this)"
+                                               style="width: 250px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        summaryHtml += `
+                                </div>
+                            </div>
+                            <br>
+                        `;
+                    }
+                });
+                
+                console.log('[РЕЖИМ] По обекти поотделно - завърших генерирането, HTML дължина:', summaryHtml.length);
+                document.getElementById('fastenerPartsContent').innerHTML = summaryHtml;
+                
+                // Възстановяваме състоянието на checkbox-овете
+                setTimeout(restoreCheckboxStates, 100);
+            }
+        }
+
+        function isFastenerAssembly(assemblyName) {
+            // Определяме дали асемблито е крепежно - САМО реални крепежни асемблита
+            const fastenerAssemblies = [
+                'M8x20 Komplekt', 'M10x80 Komplekt', 'M12x30 Komplekt', 
+                'M6x10 Komplekt', 'M6x16 Komplekt', 'M6x20 Komplekt',
+                'M8x16 Komplekt', 'M8x25 Komplekt', 'M8x30 Komplekt',
+                'M10x25 Komplekt', 'M10x30 Komplekt', 'M10x40 Komplekt',
+                'M12x25 Komplekt', 'M12x35 Komplekt', 'M12x40 Komplekt',
+                'M4x10 Komplekt', 'M4x12 Komplekt', 'M4x16 Komplekt',
+                'M5x10 Komplekt', 'M5x12 Komplekt', 'M5x16 Komplekt',
+                'Anker M10x80 Komplekt', 'Anker M12x100 Komplekt',
+                'M8x20 Konus Komplekt', 'M12x30 Komplekt',
+                'M10 x 40 Komplekt Kolarski'  // Със интервали
+            ];
+            
+            // Точно съвпадение или съдържа размери на болтове
+            return fastenerAssemblies.includes(assemblyName) || 
+                   /M\d+x\d+.*Komplekt/i.test(assemblyName) ||
+                   /M\d+\s+x\s+\d+.*Komplekt/i.test(assemblyName) ||  // С интервали M10 x 40
+                   /Anker.*M\d+x\d+.*Komplekt/i.test(assemblyName) ||
+                   /Anker.*M\d+.*Komplekt/i.test(assemblyName) ||
+                   // Нови шаблони за асемблита без "Komplekt"
+                   /^Anker\s+M\d+x\d+$/i ||  // Anker M12x110
+                   /^Anker\s+M\d+x\d+\s+\w+$/i;  // Anker M12x110 kula
+        }
+
+        function isFastenerPart(partName) {
+            // За flatBOM/allParts логика: Разпознаваме крепежи по имена и шаблони
+            
+            // Изключваме специални записи
+            if (partName.startsWith('ALL ') || 
+                partName.includes('<подасембли>')) {
+                return false;
+            }
+            
+            // Крепежи: части с шаблони за болтове и крепежни елементи
+            const fastenerPatterns = [
+                /M\d+x\d+/i,                     // M8x20, M12x30
+                /M\d+\sx\s\d+/i,                 // M8 x 20
+                /Anker/i,                        // Anker части
+                /Komplekt/i,                     // Komplekt асемблита
+                /Bufer.*Komplekt/i,              // Planka Bufer Komplekt
+                /Винт|винт|Болт|болт|Гайка|гайка|Шайба|шайба/i,
+                /^DIN\d+/i,                      // DIN стандарти
+                /^ISO\d+/i,                      // ISO стандарти
+                /^hex|^socket|^cap.*screw/i,     // Hex болтове, socket screws
+                /^Nut|^nut/i,                    // Гайки (Nut M8, nut M12)
+                /^Washer|^washer/i,              // Шайби (Washer M8, washer M12)
+                /gaika|flanshova/i,              // Български термини за гайки
+                /Bolt|bolt/i,                    // Болтове (Bolt M8x20, bolt M12x30)
+                /^Bufer$/i,                      // Bufer части (точно съвпадение)
+                /Screw|screw/i,                  // Винтове (Screw, screw)
+                /Rivet|rivet/i,                  // Нитове (Rivet, rivet)
+                /Pin|pin/i,                      // Щифтове (Pin, pin)
+                /Spring|spring/i,                // Пружини (Spring, spring)
+                /Bearing|bearing/i,              // Лагери (Bearing, bearing)
+                /O-ring|o-ring/i,                // О-пръстени (O-ring)
+                /Gasket|gasket/i,                // Гарнитури (Gasket)
+                /Seal|seal/i,                    // Уплътнения (Seal)
+                /Lock|lock.*washer/i,            // Стопорни шайби (Lock washer)
+                /Flat|flat.*washer/i,            // Плоски шайби (Flat washer)
+                /Cap|cap.*screw/i,               // Капачни винтове (Cap screw)
+                /Socket|socket.*head/i,          // Имбусни винтове (Socket head)
+                /Thread|thread/i,                // Резбови части (Thread)
+                /Stud|stud/i                     // Шпилки (Stud)
+            ];
+            
+            // Проверяваме дали е крепеж по шаблон
+            if (fastenerPatterns.some(pattern => pattern.test(partName))) {
+                return true;
+            }
+            
+            // Детайли: части които започват с цифра (80_98_S, 30_01_S1, и т.н.)
+            const firstChar = partName.trim().charAt(0);
+            const startsWithDigit = !isNaN(firstChar) && firstChar !== '';
+            
+            if (startsWithDigit) {
+                return false; // Детайл
+            }
+            
+            // Специални случаи за части които не започват с цифра, но не са крепежи
+            const detailPatterns = [
+                /^Planka(?!.*Komplekt)/i,        // Planka (но не Planka...Komplekt)
+                /^Cover|^Panel|^Plate/i,         // Покривки, панели, плочи
+                /^Frame|^Base|^Support/i         // Рамки, основи, опори
+            ];
+            
+            if (detailPatterns.some(pattern => pattern.test(partName))) {
+                return false; // Детайл
+            }
+            
+            // По подразбиране неразпознати части ги третираме като детайли
+            return false;
+        }
+
+        function toggleAssembly(assemblyId) {
+            const assemblyRow = document.getElementById(assemblyId);
+            const icon = document.getElementById('icon-' + assemblyId);
+            
+            if (assemblyRow.style.display === 'none') {
+                assemblyRow.style.display = 'table-row';
+                icon.textContent = '▼';
+            } else {
+                assemblyRow.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+
+        function toggleAssemblyDetailsGlobal(assemblyIndex, assemblyName, objectsStr, totalQuantity) {
+            const detailsRow = document.getElementById(`details-row-${assemblyIndex}`);
+            const detailsContent = document.getElementById(`details-content-${assemblyIndex}`);
+            const button = document.getElementById(`expand-btn-${assemblyIndex}`);
+            
+            if (detailsRow.style.display === 'none') {
+                // Показваме детайлите
+                detailsRow.style.display = 'table-row';
+                button.innerHTML = '−';
+                button.style.background = '#dc3545';
+                
+                // Зареждаме детайлите
+                loadAssemblyDetailsGlobal(assemblyName, objectsStr.split(','), detailsContent, totalQuantity);
+            } else {
+                // Скриваме детайлите
+                detailsRow.style.display = 'none';
+                button.innerHTML = '+';
+                button.style.background = '#28a745';
+            }
+        }
+
+        function loadAssemblyDetailsGlobal(assemblyName, objectsList, container, totalQuantity) {
+            // Намираме всички части от тази сборка във всички обекти
+            const allParts = new Map();
+            const allSubAssemblies = new Map();
+            
+            console.log('🔍 Търсим детайли за сборка:', assemblyName, 'в обекти:', objectsList);
+            
+            window.bomData.forEach(bom => {
+                if (objectsList.includes(bom.objectName)) {
+                    // Търсим в flatBOM за директните деца на тази сборка
+                    bom.flatBOM.forEach(item => {
+                        const pathParts = item.path.split('/');
+                        
+                        // Намираме индекса на нашата сборка в path-а
+                        let assemblyIndex = -1;
+                        for (let i = 0; i < pathParts.length; i++) {
+                            const pathPart = pathParts[i].replace(/<\d+>/g, '').trim();
+                            if (pathPart === assemblyName) {
+                                assemblyIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        if (assemblyIndex >= 0) {
+                            // Случай 1: Path завършва точно на нашата сборка (level 2 детайли)
+                            // Пример: "...Planka Bufer Komplekt<1>" -> Bufer, 30_04_S1
+                            const lastPart = pathParts[pathParts.length - 1];
+                            const lastPartClean = lastPart.replace(/<\d+>/g, '').trim();
+                            
+                            if (lastPartClean === assemblyName && item.name !== '<подасембли>') {
+                                const cleanName = item.name.replace(/<\d+>/g, '').trim();
+                                
+                                console.log(`  ✅ Детайл (ниво ${item.level}): ${cleanName}, количество: ${item.quantity}`);
+                                
+                                if (allParts.has(cleanName)) {
+                                    const existing = allParts.get(cleanName);
+                                    allParts.set(cleanName, {
+                                        name: cleanName,
+                                        quantity: existing.quantity + item.quantity
+                                    });
+                                } else {
+                                    allParts.set(cleanName, {
+                                        name: cleanName,
+                                        quantity: item.quantity
+                                    });
+                                }
+                            }
+                            
+                            // Случай 2: Path има още един елемент след нашата сборка (подасемблита)
+                            // Пример: "...Planka Bufer Komplekt<1>/M8x20 Komplekt<1>" -> M8x20 Komplekt
+                            if (pathParts.length === assemblyIndex + 2 && item.name === '<подасембли>') {
+                                const subAssemblyPart = pathParts[assemblyIndex + 1];
+                                const subAssemblyName = subAssemblyPart.replace(/<\d+>/g, '').trim();
+                                
+                                console.log(`  ✅ Подасембли (ниво ${item.level}): ${subAssemblyName}, количество: ${item.quantity}`);
+                                
+                                if (allSubAssemblies.has(subAssemblyName)) {
+                                    const existing = allSubAssemblies.get(subAssemblyName);
+                                    allSubAssemblies.set(subAssemblyName, {
+                                        name: subAssemblyName,
+                                        quantity: existing.quantity + item.quantity
+                                    });
+                                } else {
+                                    allSubAssemblies.set(subAssemblyName, {
+                                        name: subAssemblyName,
+                                        quantity: item.quantity
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+            
+            console.log('📦 Намерени детайли:', allParts.size);
+            console.log('🏗️ Намерени подасемблита:', allSubAssemblies.size);
+            
+            // Обединяваме детайлите и подасемблитата в един списък
+            const allItems = [];
+            
+            // Добавяме детайлите
+            allParts.forEach(part => {
+                allItems.push({
+                    name: part.name,
+                    quantity: part.quantity,
+                    isAssembly: false
+                });
+            });
+            
+            // Добавяме подасемблитата
+            allSubAssemblies.forEach(subAssembly => {
+                allItems.push({
+                    name: subAssembly.name,
+                    quantity: subAssembly.quantity,
+                    isAssembly: true
+                });
+            });
+            
+            // Сортираме всички заедно
+            allItems.sort((a, b) => a.name.localeCompare(b.name));
+            
+            let html = '<div style="padding: 10px;">';
+            
+            if (allItems.length > 0) {
+                html += '<h4 style="color: #2c5aa0; margin-bottom: 10px;">🔧 Детайли:</h4>';
+                
+                allItems.forEach((item, idx) => {
+                    const subItemId = `sub-${Date.now()}-${idx}`;
+                    
+                    if (item.isAssembly) {
+                        // Подасембли с + бутон
+                        html += `
+                            <div style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <button onclick="toggleSubAssembly('${subItemId}', '${item.name.replace(/'/g, "\\'")}', '${objectsList.join(',')}', this)" 
+                                            style="background: #28a745; color: white; border: none; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 12px; flex-shrink: 0;">+</button>
+                                    <span style="font-style: italic;">🏗️ ${translateName(item.name)}</span>
+                                </div>
+                                <span style="font-weight: bold; color: #17a2b8;">${item.quantity} бр.</span>
+                            </div>
+                            <div id="${subItemId}" style="display: none; margin-left: 30px; background: #f0f0f0; padding: 10px; border-radius: 5px;">
+                                <!-- Вложените детайли ще се зареждат динамично -->
+                            </div>
+                        `;
+                    } else {
+                        // Обикновен детайл без бутон
+                        html += `<div style="padding: 8px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                            <span style="margin-left: 30px;">${createImageTooltip(translateName(item.name), '', false)}</span>
+                            <span style="font-weight: bold; color: #28a745;">${item.quantity} бр.</span>
+                        </div>`;
+                    }
+                });
+            } else {
+                html += '<p style="text-align: center; color: #6c757d; font-style: italic;">Няма детайли за показване</p>';
+            }
+            
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function toggleSubAssembly(containerId, assemblyName, objectsStr, button) {
+            const container = document.getElementById(containerId);
+            
+            if (container.style.display === 'none') {
+                // Показваме детайлите
+                container.style.display = 'block';
+                button.innerHTML = '−';
+                button.style.background = '#dc3545';
+                
+                // Зареждаме детайлите за това подасембли
+                loadAssemblyDetailsGlobal(assemblyName, objectsStr.split(','), container, 0);
+            } else {
+                // Скриваме детайлите
+                container.style.display = 'none';
+                button.innerHTML = '+';
+                button.style.background = '#28a745';
+            }
+        }
+
+        function generatePartsSummary() {
+            const mode = document.getElementById('summaryMode').value;
+            let summaryHtml = '';
+
+            if (mode === 'global') {
+                // Global summary - aggregate all parts across all objects
+                const partsSummary = {};
+                
+                // Process all parts from all objects - само първо ниво
+                window.bomData.forEach(bom => {
+                    if (bom.flatBOM && bom.flatBOM.length > 0) {
+                        // Използваме flatBOM и взимаме само level 1 елементи
+                        bom.flatBOM.forEach(item => {
+                            // Само level 1 елементи
+                            if (item.level === 1) {
+                                // За <подасембли> записи използваме cleanName от path-а
+                                let partName;
+                                if (item.name === '<подасембли>') {
+                                    // Вземаме името от последния елемент на path-а
+                                    const pathParts = item.path.split('/');
+                                    const lastPart = pathParts[pathParts.length - 1];
+                                    partName = lastPart.replace(/<\d+>/g, '').trim();
+                                } else {
+                                    partName = item.name.replace(/<\d+>/g, '').trim();
+                                }
+                                
+                                const quantity = parseFloat(item.quantity) || 0;
+                                
+                                if (partsSummary[partName]) {
+                                    partsSummary[partName].totalQuantity += quantity;
+                                    partsSummary[partName].objects.add(bom.objectName);
+                                } else {
+                                    partsSummary[partName] = {
+                                        name: partName,
+                                        totalQuantity: quantity,
+                                        objects: new Set([bom.objectName]),
+                                        materialSpec: '',
+                                        isAssembly: item.isAssembly
+                                    };
+                                }
+                            }
+                        });
+                    } else {
+                        // Fallback към allParts ако няма flatBOM
+                        bom.allParts.forEach(part => {
+                            const partName = normalizePartName(part.cleanName || part.name);
+                            const quantity = parseFloat(part.quantity) || 0;
+                            
+                            if (partsSummary[partName]) {
+                                partsSummary[partName].totalQuantity += quantity;
+                                partsSummary[partName].objects.add(bom.objectName);
+                            } else {
+                                partsSummary[partName] = {
+                                    name: partName,
+                                    totalQuantity: quantity,
+                                    objects: new Set([bom.objectName]),
+                                    materialSpec: part.materialSpec || '',
+                                    unitPrice: part.unitPrice || '',
+                                    totalPrice: part.totalPrice || ''
+                                };
+                            }
+                        });
+                    }
+                });
+
+                // Sort by total quantity descending
+                const sortedParts = Object.values(partsSummary).sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                // Разделяме на детайли и сборки
+                const singleParts = sortedParts.filter(part => !part.name.includes('Komplekt') && !part.name.includes('комплект'));
+                const assemblies = sortedParts.filter(part => part.name.includes('Komplekt') || part.name.includes('комплект'));
+
+                summaryHtml = `
+                    <div class="parts-summary-global">
+                        <h3>Общо обобщение на всички части (${sortedParts.length} общо: ${singleParts.length} детайла + ${assemblies.length} сборки)</h3>
+                `;
+                
+                // Секция за детайли (единични части)
+                if (singleParts.length > 0) {
+                    summaryHtml += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #007bff; margin: 20px 0 10px 0;">📦 Детайли (единични части) - ${singleParts.length} бр.</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Име на част</th>
+                                        <th style="text-align: center;">Общо количество</th>
+                                        <th style="text-align: center;">Брой обекти</th>
+                                        <th>Обекти</th>
+                                        <th>Спецификация материал</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${singleParts.map(part => `
+                                        <tr>
+                                            <td>${createImageTooltip(translateName(part.name), '', false)}</td>
+                                            <td class="quantity-cell" style="text-align: center;">${part.totalQuantity}</td>
+                                            <td style="text-align: center;">${part.objects.size}</td>
+                                            <td class="objects-cell">${Array.from(part.objects).join(', ')}</td>
+                                            <td>${part.materialSpec}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                // Секция за сборки
+                if (assemblies.length > 0) {
+                    summaryHtml += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="color: #28a745; margin: 20px 0 10px 0;">🔧 Сборки (групи от детайли) - ${assemblies.length} бр.</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"></th>
+                                        <th>Име на част</th>
+                                        <th style="text-align: center;">Общо количество</th>
+                                        <th style="text-align: center;">Брой обекти</th>
+                                        <th>Обекти</th>
+                                        <th>Спецификация материал</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                assemblies.forEach((part, index) => {
+                    summaryHtml += `
+                        <tr>
+                            <td style="text-align: center;">
+                                <button onclick="toggleAssemblyDetailsGlobal(${index}, '${part.name.replace(/'/g, "\\'")}', '${Array.from(part.objects).join(',')}', ${part.totalQuantity})" 
+                                        id="expand-btn-${index}"
+                                        style="background: #28a745; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-weight: bold;">+</button>
+                            </td>
+                            <td><strong>${translateName(part.name)}</strong></td>
+                            <td class="quantity-cell" style="text-align: center;">${part.totalQuantity}</td>
+                            <td style="text-align: center;">${part.objects.size}</td>
+                            <td class="objects-cell">${Array.from(part.objects).join(', ')}</td>
+                            <td>${part.materialSpec}</td>
+                        </tr>
+                        <tr id="details-row-${index}" style="display: none;">
+                            <td colspan="6" style="padding: 0; border: 1px solid #ddd;">
+                                <div id="details-content-${index}" style="padding: 15px; background: #f8f9fa;">
+                                    <!-- Детайлите ще се зареждат динамично -->
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                summaryHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+                
+                summaryHtml += `</div>`;
+            } else {
+                // By object summary - show aggregated parts for each object separately
+                summaryHtml = '<div class="parts-summary-by-object">';
+                
+                window.bomData.forEach(bom => {
+                    const partsSummary = {};
+                    
+                    // Aggregate parts for this object
+                    bom.allParts.forEach(part => {
+                        const partName = normalizePartName(part.cleanName || part.name);
+                        const quantity = parseFloat(part.quantity) || 0;
+                        
+                        if (partsSummary[partName]) {
+                            partsSummary[partName].totalQuantity += quantity;
+                        } else {
+                            partsSummary[partName] = {
+                                name: partName,
+                                totalQuantity: quantity,
+                                materialSpec: part.materialSpec || '',
+                                unitPrice: part.unitPrice || '',
+                                totalPrice: part.totalPrice || ''
+                            };
+                        }
+                    });
+
+                    const sortedParts = Object.values(partsSummary).sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+                    summaryHtml += `
+                        <div class="object-summary">
+                            <h4>🏢 ${translateNodeTitle(bom.objectName)} (${sortedParts.length} уникални части)</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Име на част</th>
+                                        <th>Общо количество</th>
+                                        <th>Спецификация материал</th>
+                                        <th>Единична цена</th>
+                                        <th>Обща цена</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${sortedParts.map(part => `
+                                        <tr>
+                                            <td><strong>${part.name}</strong></td>
+                                            <td class="quantity-cell">${part.totalQuantity}</td>
+                                            <td>${part.materialSpec}</td>
+                                            <td>${part.unitPrice}</td>
+                                            <td>${part.totalPrice}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <br>
+                    `;
+                });
+                
+                summaryHtml += '</div>';
+            }
+
+            document.getElementById('partsSummaryContent').innerHTML = summaryHtml;
+            
+            // Възстановяваме състоянието на checkbox-овете
+            setTimeout(restoreCheckboxStates, 100);
+        }
+
+        function showTab(tabName) {
+            // Скриваме всички табове
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Премахваме active класа от всички бутони
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показваме избрания таб
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Добавяме active клас на бутона
+            event.target.classList.add('active');
+            
+            // Генерираме съответното съдържание според таба
+            if (tabName === 'overview') {
+                generateOverviewContent();
+            } else if (tabName === 'partsSummary') {
+                generatePartsSummary();
+            } else if (tabName === 'detailsParts') {
+                generateDetailsParts();
+            } else if (tabName === 'fastenerParts') {
+                generateFastenerParts();
+            } else if (tabName === 'assemblyClassification') {
+                generateAssemblyClassificationTab();
+            }
+        }
+
+        // 🔄 УНИФИЦИРАНО УПРАВЛЕНИЕ НА ПОТРЕБИТЕЛСКИ ДАННИ
+        let userDataCache = {};
+        
+        // Зарежда всички потребителски данни
+        async function loadAllUserData() {
+            console.log('🔄 loadAllUserData - започва зареждане...');
+            userDataCache = await loadSharedUserData();
+            // Ако НЕ сме в споделен режим и BOM файлът вече съдържа userStates (интегриран формат), ги зареждаме
+            if (!isSharedMode && bomData && bomData.userStates && bomData.userStates.checkboxes) {
+                console.log('💾 Локален режим с интегрирани userStates в BOM файла – зареждам ги.');
+                // Обединяваме локално заредените (от файла) със съществуващите (от localStorage), като файлът има приоритет
+                userDataCache = {
+                    ...userDataCache,
+                    ...bomData.userStates.checkboxes
+                };
+            }
+            console.log('📥 Заредени потребителски данни:', userDataCache);
+            console.log('🔄 Започва възстановяване на UI състояния...');
+            restoreUserInterfaceStates();
+            return userDataCache;
+        }
+        
+        // Запазва промяна в потребителските данни
+        async function saveUserDataChange(key, value) {
+            console.log('💾 Запазване на промяна:', key, '=', value);
+            if (value === null || value === undefined || value === '') {
+                delete userDataCache[key];
+            } else {
+                userDataCache[key] = value;
+            }
+            console.log('📦 userDataCache след промяна:', userDataCache);
+            await saveSharedUserData(userDataCache);
+            console.log('✅ Данните са изпратени за запазване');
+        }
+
+        // Функция за обработка на промени в checkbox-овете
+        async function updatePartStatus(checkbox) {
+            const partRow = checkbox.closest('tr, .fastener-part-item');
+            
+            if (checkbox.checked) {
+                // Добавяме зелен фон на целия ред
+                partRow.style.backgroundColor = '#d4edda';
+                partRow.style.opacity = '0.7';
+                
+                // Зачертаваме САМО името на частта (първия <strong> елемент)
+                const partNameElement = partRow.querySelector('strong');
+                if (partNameElement) {
+                    partNameElement.style.textDecoration = 'line-through';
+                }
+                
+                // Запазваме състоянието споделено
+                await saveUserDataChange(checkbox.id, 'checked');
+                
+                console.log('Отметната част:', checkbox.id);
+            } else {
+                // Премахваме стиловете когато не е отметнато
+                partRow.style.backgroundColor = '';
+                partRow.style.opacity = '';
+                
+                // Премахваме зачертаването от името на частта
+                const partNameElement = partRow.querySelector('strong');
+                if (partNameElement) {
+                    partNameElement.style.textDecoration = '';
+                }
+                
+                // Премахваме от споделените данни
+                await saveUserDataChange(checkbox.id, null);
+                
+                console.log('Махната отметка от част:', checkbox.id);
+            }
+        }
+
+        // Функция за запазване на бележките
+        async function saveNote(noteInput) {
+            const noteText = noteInput.value.trim();
+            const noteId = noteInput.id;
+            
+            if (noteText) {
+                await saveUserDataChange(noteId, noteText);
+                console.log('Запазена бележка:', noteId, '=', noteText);
+                
+                // Добавяме визуален индикатор че има бележка
+                noteInput.style.backgroundColor = '#f8f9fa';
+                noteInput.style.borderColor = '#007bff';
+            } else {
+                await saveUserDataChange(noteId, null);
+                noteInput.style.backgroundColor = '';
+                noteInput.style.borderColor = '#ccc';
+                console.log('Премахната бележка:', noteId);
+            }
+        }
+
+        // Функция за възстановяване на състоянието на checkbox-овете и бележките при зареждане
+        function restoreCheckboxStates() {
+            console.log('📋 restoreCheckboxStates - започва с userDataCache:', userDataCache);
+            console.log('📋 Общо ключове в кеша:', Object.keys(userDataCache).length);
+            
+            const CHECKBOX_PREFIXES = ['check_', 'fastener_check_', 'node_check_', 'checkbox_'];
+            const NOTE_PREFIXES = ['note_', 'notes_', 'notes_node_'];
+            
+            Object.keys(userDataCache).forEach(key => {
+                // Checkbox-и
+                if (CHECKBOX_PREFIXES.some(p => key.startsWith(p))) {
+                    if (userDataCache[key] === 'checked') {
+                        const cb = document.getElementById(key);
+                        if (cb) {
+                            cb.checked = true;
+                            // Прилагаме визуалните ефекти без да предизвикваме повторно записване
+                            const row = cb.closest('tr, .fastener-part-item');
+                            if (row) {
+                                row.style.backgroundColor = '#d4edda';
+                                row.style.opacity = '0.7';
+                                const strongEl = row.querySelector('strong');
+                                if (strongEl) strongEl.style.textDecoration = 'line-through';
+                            }
+                        } else {
+                            console.log('❌ Липсва checkbox елемент за ключ:', key);
+                        }
+                    }
+                }
+                // Бележки / notes
+                if (NOTE_PREFIXES.some(p => key.startsWith(p))) {
+                    const noteEl = document.getElementById(key);
+                    if (noteEl && userDataCache[key]) {
+                        noteEl.value = userDataCache[key];
+                        noteEl.style.backgroundColor = '#f8f9fa';
+                        noteEl.style.borderColor = '#007bff';
+                    }
+                }
+            });
+            console.log('📋 restoreCheckboxStates завършен');
+        }
+
+        // ===== RAL УПРАВЛЕНИЕ ФУНКЦИИ =====
+        // Вече синхронизираме RAL през shared userDataCache.
+        // Формат на запис в userDataCache: ключ 'ral_<CODE>' => JSON.stringify({nodeDescription, selectedOption, colorDescription})
+        
+        // Дефиниране на опциите за всеки RAL
+        function getRalOptions(ralCode) {
+            const ralOptionsMap = {
+                'RAL': ['-', 'RAL 9005', 'RAL 5009', 'RAL 3020'],
+                'RAL1': ['-', 'RAL 3020', 'Zn'],
+                'RAL2': ['-', 'RAL 9010', 'Zn'],
+                'RAL3': ['-', 'RAL 9006', 'Zn'],
+                'RAL4': ['-', 'RAL 9006', 'Zn'],
+                'RAL5': ['-', 'RAL 9006', 'Zn'],
+                'RAL6': ['-', 'RAL 1003', 'Zn'],
+                'RAL7': ['-', 'RAL 9010', 'Zn'],
+                'RAL8': ['-', 'RAL 9010', 'RAL 9005', 'RAL 3020', 'Zn'],
+                'RAL9': ['-', 'RAL 9007', 'RAL 7024', 'Zn']
+            };
+            
+            return ralOptionsMap[ralCode] || ['-', 'RAL 9010', 'Zn']; // По подразбиране
+        }
+
+        // 🔄 Възстановява състоянията на checkbox-и и бележки от споделените данни
+        function restoreUserInterfaceStates() {
+            console.log('🎨 restoreUserInterfaceStates - userDataCache:', userDataCache);
+            console.log('🎨 Брой ключове в кеша:', Object.keys(userDataCache).length);
+            
+            // Изчакваме малко да се генерират HTML елементите
+            setTimeout(() => {
+                console.log('🎨 Възстановяване на състояния (след timeout)...');
+                
+                // Възстановява checkbox състояния
+                Object.keys(userDataCache).forEach(key => {
+                    if (key.startsWith('checkbox_') && userDataCache[key] === 'checked') {
+                        console.log('🔍 Търся checkbox:', key);
+                        const checkbox = document.getElementById(key);
+                        if (checkbox) {
+                            console.log('✅ Намерен checkbox, възстановявам състоянието');
+                            checkbox.checked = true;
+                            // Прилагаме визуалните ефекти
+                            const partRow = checkbox.closest('tr, .fastener-part-item');
+                            if (partRow) {
+                                partRow.style.backgroundColor = '#d4edda';
+                                partRow.style.opacity = '0.7';
+                                const partNameElement = partRow.querySelector('strong');
+                                if (partNameElement) {
+                                    partNameElement.style.textDecoration = 'line-through';
+                                }
+                            }
+                        } else {
+                            console.log('❌ Не е намерен checkbox с ID:', key);
+                        }
+                    }
+                    
+                    // Възстановява бележки
+                    if (key.startsWith('note_')) {
+                        const noteInput = document.getElementById(key);
+                        if (noteInput && userDataCache[key]) {
+                            noteInput.value = userDataCache[key];
+                            noteInput.style.backgroundColor = '#f8f9fa';
+                            noteInput.style.borderColor = '#007bff';
+                        }
+                    }
+                });
+                
+                console.log('🔄 Възстановени потребителски състояния');
+            }, 1000); // Изчакваме 1 секунда за генериране на HTML
+        }
+
+        // Зареждане на RAL таблицата (предпочитаме споделени данни, fallback към localStorage)
+        function loadRalManagementTable() {
+            let ralData = {};
+            const sharedRalKeys = Object.keys(userDataCache).filter(k => k.startsWith('ral_'));
+            if (sharedRalKeys.length > 0) {
+                console.log('🎨 Зареждам RAL от споделени данни:', sharedRalKeys);
+                sharedRalKeys.forEach(k => {
+                    try {
+                        const code = k.replace('ral_', '');
+                        ralData[code] = JSON.parse(userDataCache[k]);
+                    } catch (e) {
+                        console.warn('⚠️ Грешка при парсване на RAL запис', k, e);
+                    }
+                });
+            } else {
+                // Fallback към localStorage (стар режим или първо стартиране)
+                const savedRalData = localStorage.getItem('ralColorData');
+                ralData = savedRalData ? JSON.parse(savedRalData) : {};
+            }
+            // Ако празно – зареждаме default
+            if (Object.keys(ralData).length === 0) {
+                ralData = {
+                    'RAL': { nodeDescription: 'Панел за бутониера', selectedOption: 'RAL 9005', colorDescription: 'Черно' },
+                    'RAL1': { nodeDescription: 'Рифел', selectedOption: 'RAL 3020', colorDescription: 'Червено' },
+                    'RAL2': { nodeDescription: 'Лезени, Таван, Под', selectedOption: 'RAL 9010', colorDescription: 'Бяло' },
+                    'RAL3': { nodeDescription: 'Платна (Лицева част)', selectedOption: 'RAL 9006', colorDescription: 'Бяло алуминий' },
+                    'RAL4': { nodeDescription: 'Платна (Гръб)', selectedOption: 'RAL 9006', colorDescription: 'Бяло алуминий' },
+                    'RAL5': { nodeDescription: 'Врати (Платна)', selectedOption: 'RAL 9006', colorDescription: 'Бяло алуминий' },
+                    'RAL6': { nodeDescription: 'Фотобариери', selectedOption: 'RAL 1003', colorDescription: 'Сигнално жълто' },
+                    'RAL7': { nodeDescription: 'Врати (Каси, праг)', selectedOption: 'RAL 9010', colorDescription: 'Бяло' },
+                    'RAL8': { nodeDescription: 'Врати (Орнаменти)', selectedOption: 'RAL 9010', colorDescription: 'Бяло (многоцветен)' },
+                    'RAL9': { nodeDescription: 'Покрив', selectedOption: 'RAL 9007', colorDescription: 'Сиво алуминий' }
+                };
+            }
+            // Кешираме RAL в паметта за по-бърз достъп
+            window.currentRalData = ralData;
+            updateRalTable(ralData);
+            // Автоматична миграция: ако сме в споделен режим и няма споделени ключове, но има локални – мигрираме.
+            if (isSharedMode && sharedRalKeys.length === 0) {
+                const savedRalData = localStorage.getItem('ralColorData');
+                if (savedRalData) {
+                    try {
+                        const localRal = JSON.parse(savedRalData);
+                        console.log('🚚 Мигрирам локални RAL към споделени...', Object.keys(localRal));
+                        Object.keys(localRal).forEach(code => {
+                            saveUserDataChange('ral_' + code, JSON.stringify(localRal[code]));
+                        });
+                        showNotification('Локалните RAL записи са мигрирани към споделения файл.', 'success');
+                    } catch (e) {
+                        console.warn('⚠️ Грешка при миграция на локалните RAL данни', e);
+                    }
+                }
+            }
+        }
+        
+        // Обновяване на таблицата с RAL данни
+        function updateRalTable(ralData) {
+            const tbody = document.getElementById('ralManagementTableBody');
+            tbody.innerHTML = '';
+            
+            // Сортираме ключовете така че "RAL" да е първи, след това RAL1, RAL2, и т.н.
+            const sortedKeys = Object.keys(ralData).sort((a, b) => {
+                if (a === 'RAL') return -1;  // "RAL" винаги първи
+                if (b === 'RAL') return 1;   // "RAL" винаги първи
+                return a.localeCompare(b, undefined, { numeric: true }); // Numeric sort за RAL1, RAL2, и т.н.
+            });
+            
+            sortedKeys.forEach(ralCode => {
+                const options = getRalOptions(ralCode);
+                const selectedValue = ralData[ralCode].selectedOption || options[0];
+                
+                // Генериране на dropdown опции
+                const optionsHTML = options.map(option => 
+                    `<option value="${option}" ${option === selectedValue ? 'selected' : ''}>${option}</option>`
+                ).join('');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 8px; text-align: center;"><strong>${ralCode}</strong></td>
+                    <td style="padding: 8px; text-align: center;">
+                        <input type="text" 
+                               class="admin-only-control"
+                               value="${ralData[ralCode].nodeDescription || ''}" 
+                               placeholder="За кой възел е"
+                               onchange="updateRalEntry('${ralCode}', 'nodeDescription', this.value)"
+                               style="width: 180px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center;">
+                    </td>
+                    <td style="padding: 8px; text-align: center; padding-left: 20px;">
+                        <select onchange="updateRalEntry('${ralCode}', 'selectedOption', this.value)"
+                                class="admin-only-control"
+                                style="width: 120px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;">
+                            ${optionsHTML}
+                        </select>
+                    </td>
+                    <td style="padding: 8px; text-align: center;">
+                        <input type="text" 
+                               class="admin-only-control"
+                               value="${ralData[ralCode].colorDescription || ''}" 
+                               placeholder="Описание на цвета"
+                               onchange="updateRalEntry('${ralCode}', 'colorDescription', this.value)"
+                               style="width: 150px; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center;">
+                    </td>
+                    <td style="padding: 8px; text-align: center;">
+                        <button onclick="deleteRalEntry('${ralCode}')" 
+                                class="admin-only-control"
+                                style="padding: 4px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            🗑️ Изтрий
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Обновяване на RAL запис
+        function updateRalEntry(ralCode, field, value) {
+            if (!isAdminMode) {
+                alert('❌ Редакцията е достъпна само в админ режим!');
+                // Презареждаме таблицата за да се върне старата стойност
+                updateRalTable(window.currentRalData);
+                return;
+            }
+            console.log(`[DEBUG] Обновявам ${ralCode}.${field} = ${value}`);
+            if (!window.currentRalData) window.currentRalData = {};
+            if (!window.currentRalData[ralCode]) {
+                window.currentRalData[ralCode] = { nodeDescription: '', selectedOption: '', colorDescription: '' };
+            }
+            window.currentRalData[ralCode][field] = value;
+            // Запис в shared cache
+            saveUserDataChange('ral_' + ralCode, JSON.stringify(window.currentRalData[ralCode]));
+            // Локален fallback
+            if (!isSharedMode) {
+                localStorage.setItem('ralColorData', JSON.stringify(window.currentRalData));
+            }
+        }
+        
+        // Добавяне на нов RAL запис
+        function addNewRalEntry() {
+            if (!isAdminMode) {
+                alert('❌ Тази функция е достъпна само в админ режим!');
+                return;
+            }
+            const ralCode = prompt('Въведете RAL код (например RAL11):');
+            if (ralCode && ralCode.trim()) {
+                const code = ralCode.trim();
+                if (!window.currentRalData) window.currentRalData = {};
+                window.currentRalData[code] = { nodeDescription: '', selectedOption: 'RAL 9010', colorDescription: '' };
+                saveUserDataChange('ral_' + code, JSON.stringify(window.currentRalData[code]));
+                if (!isSharedMode) {
+                    localStorage.setItem('ralColorData', JSON.stringify(window.currentRalData));
+                }
+                updateRalTable(window.currentRalData);
+                console.log(`Добавен нов RAL запис (shared): ${code}`);
+            }
+        }
+        
+        // Изтриване на RAL запис
+        function deleteRalEntry(ralCode) {
+            if (!isAdminMode) {
+                alert('❌ Тази функция е достъпна само в админ режим!');
+                return;
+            }
+            if (confirm(`Сигурни ли сте, че искате да изтриете ${ralCode}?`)) {
+                if (window.currentRalData && window.currentRalData[ralCode]) {
+                    delete window.currentRalData[ralCode];
+                }
+                // Премахваме от shared данните
+                saveUserDataChange('ral_' + ralCode, null);
+                if (!isSharedMode) {
+                    localStorage.setItem('ralColorData', JSON.stringify(window.currentRalData));
+                }
+                updateRalTable(window.currentRalData);
+                console.log(`Изтрит RAL запис (shared): ${ralCode}`);
+            }
+        }
+        
+        // Запазване на всички RAL данни
+        function saveRalData() {
+            if (!isAdminMode) {
+                alert('❌ Тази функция е достъпна само в админ режим!');
+                return;
+            }
+            if (!window.currentRalData) {
+                alert('Няма RAL данни.');
+                return;
+            }
+            // Принудително изпращаме всички RAL записи към shared (ако сме в мрежов режим)
+            Object.keys(window.currentRalData).forEach(code => {
+                saveUserDataChange('ral_' + code, JSON.stringify(window.currentRalData[code]));
+            });
+            if (!isSharedMode) {
+                localStorage.setItem('ralColorData', JSON.stringify(window.currentRalData));
+            }
+            alert('RAL данните са синхронизирани!');
+            console.log('RAL (currentRalData):', window.currentRalData);
+        }
+
+        /* Премахната функция restoreMissingRalEntries() за предотвратяване на случайни презаписи */
+
+        // Добавяме event listener за възстановяване на състоянието при смяна на таб или режим
+        document.addEventListener('DOMContentLoaded', function() {
+            // Малко закъснение за да се зарежда съдържанието
+            setTimeout(restoreCheckboxStates, 500);
+        });
+
+        // ===== ФУНКЦИИ ЗА РАБОТА С ИЗОБРАЖЕНИЯ =====
+        
+        // Конвертиране на абсолютен път в относителен
+        function convertImagePath(imagePath) {
+            if (!imagePath || imagePath.trim() === '') {
+                return null;
+            }
+            
+            console.log('Оригинален път:', imagePath);
+            
+            // Ако пътят е абсолютен, конвертираме го в относителен
+            if (imagePath.includes('Screenshots\\')) {
+                // Извличаме частта след Screenshots
+                const parts = imagePath.split('Screenshots\\');
+                if (parts.length > 1) {
+                    // Заменяме обратните слешове с обикновени
+                    let relativePath = parts[1].replace(/\\/g, '/');
+                    
+                    const finalPath = `images/${relativePath}`;
+                    console.log('Конвертиран път:', finalPath);
+                    return finalPath;
+                }
+            }
+            
+            // Ако пътят вече е относителен, връщаме го както е
+            console.log('Използваме оригиналния път:', imagePath);
+            return imagePath;
+        }
+
+        // Създаване на HTML с tooltip и modal функционалност
+        // ============================================
+        // РЕЧНИК ЗА ПРЕВОД НА ИМЕНА
+        // ============================================
+        
+        const translationDictionary = {
+            // Основни компоненти
+            'Komplekt': 'Комплект',
+            'komplekt': 'комплект',
+            'Bufer': 'Буфер', 
+            'bufer': 'буфер',
+            'Planka': 'Планка',
+            'planka': 'планка',
+            'Anker': 'Анкер',
+            'anker': 'анкер', 
+            'Pizzato': 'Пизато',
+            'pizzato': 'пизато',
+            'Reze': 'Резе',
+            'reze': 'резе',
+            'Chast': 'Част',
+            'chast': 'част',
+            'Service': 'Сервиз',
+            'service': 'сервиз',
+            
+            // Винтове и крепежи - стандартни размери
+            'M4x16': 'М4х16',
+            'M4x35': 'М4х35', 
+            'M8x20': 'М8х20',
+            'M10x80': 'М10х80',
+            'M12x30': 'М12х30',
+            
+            // Общи думи
+            'ALL': 'ВСИЧКИ',
+            'GE': 'ГЕ',
+            'ot': 'от'
+        };
+
+        // Функция за превод на имена
+        function translateName(name) {
+            let translatedName = name;
+            
+            // Преводим всяка дума от речника
+            Object.keys(translationDictionary).forEach(englishWord => {
+                const bulgarianWord = translationDictionary[englishWord];
+                // Използваме регулярен израз за да заменим цялата дума (не част от друга дума)
+                const regex = new RegExp('\\b' + englishWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+                translatedName = translatedName.replace(regex, bulgarianWord);
+            });
+            
+            return translatedName;
+        }
+
+        // ============================================
+        // ФУНКЦИИ ЗА РАБОТА С ИЗОБРАЖЕНИЯ
+        // ============================================
+
+        function createImageTooltip(name, imagePath, isAssembly = false) {
+            try {
+                // Ако няма imagePath, генерираме го автоматично на базата на името
+                if (!imagePath || imagePath.trim() === '') {
+                    // Определяме папката според това дали е асембли
+                    const folder = isAssembly ? 'Assemblies' : 'Parts';
+                    imagePath = `Screenshots/${folder}/${name}.png`;
+                    console.log('[createImageTooltip] Генериран автоматичен път:', imagePath, 'за', isAssembly ? 'асембли' : 'детайл', ':', name);
+                }
+                
+                // Debug за GE - Pizzato
+                if (name.includes('Pizzato')) {
+                    console.log('[createImageTooltip DEBUG] Обработвам Pizzato - име:', name, 'път:', imagePath, 'isAssembly:', isAssembly);
+                }
+                
+                const convertedPath = convertImagePath(imagePath);
+                if (!convertedPath) {
+                    console.log('[createImageTooltip] convertImagePath върна null за:', imagePath);
+                    return name;
+                }
+                
+                console.log('[createImageTooltip] Създавам tooltip за:', name, 'с път:', convertedPath);
+                
+                // Превеждаме името за показване
+                const translatedName = translateName(name);
+                
+                // Escape-ваме кавичките в името и пътя
+                const escapedName = (name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const escapedPath = (convertedPath || '').replace(/'/g, "\\'");
+                
+                return `<span class="image-tooltip" 
+                            onmouseover="showTooltip(event, '${escapedPath}')" 
+                            onmouseout="hideTooltip()"
+                            onclick="showImageModal('${escapedName}', '${escapedPath}')"
+                            style="cursor: pointer;">
+                            ${translatedName}
+                        </span>`;
+            } catch (error) {
+                console.error('Грешка в createImageTooltip:', error, 'за име:', name);
+                return name; // Връщаме само името при грешка
+            }
+        }        // Опитва се да зареди изображение с fallback опции
+        function tryLoadImage(imagePath, callback, attempt = 1) {
+            if (attempt > 5) { // 5 опита
+                console.log('Всички опити за зареждане на снимката се провалиха:', imagePath);
+                callback(false);
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                console.log('✅ Снимката се зареди успешно:', imagePath);
+                callback(true, imagePath);
+            };
+            
+            img.onerror = function() {
+                console.log(`❌ Опит ${attempt} - не може да се зареди:`, imagePath);
+                const fileName = imagePath.split('/').pop();
+                
+                // Опит 1: Оригиналният път (Parts или Assemblies според isAssembly)
+                if (attempt === 1) {
+                    // Опит 2: Пробваме другата папка
+                    if (imagePath.includes('Parts/')) {
+                        const newPath = imagePath.replace('Parts/', 'Assemblies/');
+                        console.log('➡️ Опит 2: Пробвам в Assemblies:', newPath);
+                        tryLoadImage(newPath, callback, 2);
+                    } else if (imagePath.includes('Assemblies/')) {
+                        const newPath = imagePath.replace('Assemblies/', 'Parts/');
+                        console.log('➡️ Опит 2: Пробвам в Parts:', newPath);
+                        tryLoadImage(newPath, callback, 2);
+                    } else {
+                        callback(false);
+                    }
+                    return;
+                }
+                
+                // Опит 2: Вече сме в другата папка, пробваме с " Komplekt_1_"
+                if (attempt === 2 && !fileName.includes('Komplekt')) {
+                    const baseName = fileName.replace('.png', ' Komplekt_1_.png');
+                    const newPath = imagePath.replace(fileName, baseName);
+                    console.log('➡️ Опит 3: Пробвам с Komplekt_1_:', newPath);
+                    tryLoadImage(newPath, callback, 3);
+                    return;
+                }
+                
+                // Опит 3: Пробваме просто _1_
+                if (attempt === 3 && !fileName.includes('_1_')) {
+                    const baseName = fileName.replace('.png', '_1_.png');
+                    const newPath = imagePath.replace(fileName, baseName);
+                    console.log('➡️ Опит 4: Пробвам с _1_:', newPath);
+                    tryLoadImage(newPath, callback, 4);
+                    return;
+                }
+                
+                // Опит 4: Последна възможност - обратно в оригиналната папка с _1_
+                if (attempt === 4) {
+                    let newPath;
+                    if (imagePath.includes('Parts/')) {
+                        newPath = imagePath.replace('Parts/', 'Assemblies/');
+                    } else {
+                        newPath = imagePath.replace('Assemblies/', 'Parts/');
+                    }
+                    if (!fileName.includes('_1_')) {
+                        const baseName = fileName.replace('.png', '_1_.png');
+                        newPath = newPath.replace(fileName, baseName);
+                    }
+                    console.log('➡️ Опит 5: Последен опит:', newPath);
+                    tryLoadImage(newPath, callback, 5);
+                    return;
+                }
+                
+                callback(false);
+            };
+            
+            img.src = imagePath;
+        }
+
+        // Показва tooltip с изображение при hover
+        function showTooltip(event, imagePath) {
+            // Премахваме предишни tooltip-ури
+            hideTooltip();
+            
+            console.log('showTooltip извикан за:', imagePath);
+            
+            tryLoadImage(imagePath, function(success, finalPath) {
+                if (!success) {
+                    console.log('Няма достъпна снимка за:', imagePath);
+                    return;
+                }
+                
+                const tooltip = document.createElement('div');
+                tooltip.id = 'imageTooltip';
+                
+                // Интелигентно позициониране спрямо позицията на елемента
+                const rect = event.target.getBoundingClientRect();
+                const windowWidth = window.innerWidth;
+                const tooltipWidth = 500; // ширината на tooltip-а
+                
+                console.log('Позиция на елемента:', rect.left, rect.right, 'Ширина на прозореца:', windowWidth);
+                
+                // По-агресивна проверка - ако tooltip-ът би излязъл извън екрана
+                const tooltipLeftEdge = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+                const tooltipRightEdge = rect.left + (rect.width / 2) + (tooltipWidth / 2);
+                
+                console.log('Tooltip би бил между:', tooltipLeftEdge, 'и', tooltipRightEdge);
+                
+                // Задаваме всички стилове inline
+                tooltip.style.position = 'absolute';
+                tooltip.style.bottom = '100%';
+                tooltip.style.marginBottom = '10px';
+                tooltip.style.background = 'white';
+                tooltip.style.padding = '8px';
+                tooltip.style.borderRadius = '8px';
+                tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                tooltip.style.border = '2px solid #007bff';
+                tooltip.style.zIndex = '10000';
+                tooltip.style.display = 'none';
+                tooltip.style.width = '500px';
+                tooltip.style.pointerEvents = 'none';
+                
+                // Изчисляваме позицията в пиксели
+                const parentRect = event.target.getBoundingClientRect();
+                const offsetParent = event.target.offsetParent || document.body;
+                const offsetParentRect = offsetParent.getBoundingClientRect();
+                
+                // Относителна позиция спрямо родителя
+                const relativeLeft = parentRect.left - offsetParentRect.left;
+                const relativeWidth = parentRect.width;
+                
+                // Ако лявата част на tooltip-а би била извън екрана
+                if (tooltipLeftEdge < 0) {
+                    tooltip.style.cssText = 'left: 15px !important; right: auto !important;';
+                    console.log('[TOOLTIP] Позициониран на 15px от левия ръб (tooltipLeftEdge:', tooltipLeftEdge, ')');
+                }
+                // Ако дясната част на tooltip-а би била извън екрана
+                else if (tooltipRightEdge > windowWidth) {
+                    tooltip.style.cssText = 'left: auto !important; right: 10px !important;';
+                    console.log('[TOOLTIP] Позициониран от десния ръб (tooltipRightEdge:', tooltipRightEdge, ')');
+                }
+                // Централно позициониране с малък offset надясно
+                else {
+                    const centerPos = relativeLeft + (relativeWidth / 2) - (tooltipWidth / 2) + 10; // Само 10px offset
+                    tooltip.style.cssText = `left: ${centerPos}px !important; right: auto !important;`;
+                    console.log('[TOOLTIP] Централно позициониран на', centerPos, 'px (center + 10px offset)');
+                }
+                
+                const img = document.createElement('img');
+                img.src = finalPath || imagePath;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                
+                tooltip.appendChild(img);
+                event.target.appendChild(tooltip);
+                tooltip.style.display = 'block';
+                
+                console.log('Tooltip показан с класове:', tooltip.className);
+            });
+        }
+
+        // Скрива tooltip
+        function hideTooltip() {
+            const tooltip = document.getElementById('imageTooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        }
+
+        // Показва modal с голямо изображение при клик
+        function showImageModal(name, imagePath) {
+            const modal = document.getElementById('imageModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalImage = document.getElementById('modalImage');
+            const noImageMessage = document.getElementById('noImageMessage');
+            
+            // Превеждаме името за заглавието
+            modalTitle.textContent = translateName(name);
+            
+            if (imagePath && imagePath.trim() !== '') {
+                tryLoadImage(imagePath, function(success, finalPath) {
+                    if (success) {
+                        modalImage.src = finalPath || imagePath;
+                        modalImage.style.display = 'block';
+                        noImageMessage.style.display = 'none';
+                    } else {
+                        modalImage.style.display = 'none';
+                        noImageMessage.innerHTML = 'Няма налично изображение за този елемент<br><br><small style="color: #007bff;">💡 Съвет: Провери дали снимката е в папката <code>images/</code></small>';
+                        noImageMessage.style.display = 'block';
+                    }
+                });
+            } else {
+                modalImage.style.display = 'none';
+                noImageMessage.innerHTML = 'Няма указан път към изображение';
+                noImageMessage.style.display = 'block';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // Затваря modal прозореца
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Затваряне на modal при кликване извън него
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeImageModal();
+            }
+        };
+
+        // Затваряне на modal с ESC клавиш
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+    </script>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Изображение</h3>
+                <button class="close-btn" onclick="closeImageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Изображение на детайл">
+                <div id="noImageMessage" class="no-image" style="display: none;">
+                    Няма налично изображение за този елемент
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-modal-content">
+            <div class="password-modal-header">
+                <h2>🔐 Admin режим</h2>
+                <button class="password-modal-close" onclick="closePasswordModal()">&times;</button>
+            </div>
+            <div class="password-modal-body">
+                <p>Моля, въведете паролата за достъп до админ режим:</p>
+                <div class="password-input-group">
+                    <input type="password" 
+                           id="passwordInput" 
+                           class="password-input" 
+                           placeholder="Въведете парола..."
+                           onkeypress="handlePasswordKeyPress(event)">
+                    <div class="password-error" id="passwordError">
+                        ❌ Грешна парола. Моля, опитайте отново.
+                    </div>
+                </div>
+            </div>
+            <div class="password-modal-footer">
+                <button class="password-modal-button secondary" onclick="closePasswordModal()">Откажи</button>
+                <button class="password-modal-button primary" onclick="validatePassword()">Влез</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

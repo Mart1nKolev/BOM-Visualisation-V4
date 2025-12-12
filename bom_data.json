@@ -1,0 +1,799 @@
+{
+  "metadata": {
+    "mainAssembly": {
+      "name": "Обединени BOM данни (1 възела)",
+      "totalObjects": 1
+    },
+    "totalObjects": 1,
+    "generatedDate": "2025-12-05T16:20:48.538934",
+    "generatedBy": "CSV to JSON BOM Merger"
+  },
+  "assemblies": [
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt",
+      "name": "30_03_S1",
+      "level": 1,
+      "quantity": 1,
+      "parentPath": "",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": false,
+      "cleanName": "30_03_S1",
+      "displayName": "[Alibre_BOM_Hierarchical] 30_03_S1"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 1,
+      "quantity": 1,
+      "parentPath": "ALL Bufer Service Komplekt",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "Planka Bufer Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 2,
+      "quantity": 2,
+      "parentPath": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "M8x20 Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 2,
+      "quantity": 1,
+      "parentPath": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "M12x30 Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 1,
+      "quantity": 4,
+      "parentPath": "ALL Bufer Service Komplekt",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "Anker M10x80 Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 1,
+      "quantity": 1,
+      "parentPath": "ALL Bufer Service Komplekt",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "GE - Pizzato Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 2,
+      "quantity": 2,
+      "parentPath": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "M4x16 Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+      "name": "<подасембли>",
+      "level": 2,
+      "quantity": 2,
+      "parentPath": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "hasRAL": false,
+      "ralType": null,
+      "isSubAssembly": true,
+      "cleanName": "M4x35 Komplekt",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    }
+  ],
+  "flatBOM": [
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt",
+      "name": "30_03_S1",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] 30_03_S1"
+    },
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt",
+      "name": "30_02_S1",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] 30_02_S1"
+    },
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt",
+      "name": "30_01_S1",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] 30_01_S1"
+    },
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 1,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "name": "Bufer",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Bufer"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "name": "30_04_S1",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] 30_04_S1"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 2,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "name": "Bolt M8x20 DIN933",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Bolt M8x20 DIN933"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "name": "Washer M8 DIN125",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Washer M8 DIN125"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "name": "Nut M8 DIN6923 gaika flanshova",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Nut M8 DIN6923 gaika flanshova"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 1,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "name": "Nut M12 DIN6923 gaika flanshova",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Nut M12 DIN6923 gaika flanshova"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "name": "Washer M12 DIN125",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Washer M12 DIN125"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "name": "Bolt M12x30 DIN933",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Bolt M12x30 DIN933"
+    },
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 4,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+      "name": "Chast ot Anker 02",
+      "quantity": 4,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Chast ot Anker 02"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+      "name": "Chast ot Anker 01",
+      "quantity": 4,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Chast ot Anker 01"
+    },
+    {
+      "level": 1,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 1,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "name": "GE - Pizzato",
+      "quantity": 1,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] GE - Pizzato"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "name": "GE - Pizzato Reze",
+      "quantity": 3,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] GE - Pizzato Reze"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 2,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "name": "Nut M4 DIN934",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Nut M4 DIN934"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "name": "Bolt M4x16 DIN7985 za +otvertka",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Bolt M4x16 DIN7985 za +otvertka"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "name": "Washer M4 DIN125",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Washer M4 DIN125"
+    },
+    {
+      "level": 2,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+      "name": "<подасембли>",
+      "quantity": 2,
+      "isAssembly": true,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] <подасембли>"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+      "name": "Nut M4 DIN934",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Nut M4 DIN934"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+      "name": "Washer M4 DIN125",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Washer M4 DIN125"
+    },
+    {
+      "level": 3,
+      "path": "Alibre_BOM_Hierarchical/ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+      "name": "Bolt M4x35 DIN912  inbusen",
+      "quantity": 2,
+      "isAssembly": false,
+      "objectSource": "Alibre_BOM_Hierarchical",
+      "displayName": "[Alibre_BOM_Hierarchical] Bolt M4x35 DIN912  inbusen"
+    }
+  ],
+  "objects": [
+    {
+      "objectName": "Alibre_BOM_Hierarchical",
+      "sourceFile": "Alibre_BOM_Hierarchical.csv",
+      "filePath": "C:\\Users\\user\\Desktop\\Test\\Тест 11\\Alibre_BOM_Hierarchical.csv",
+      "processedDate": "2025-12-05T16:20:48.557956",
+      "assemblies": [
+        {
+          "path": "ALL Bufer Service Komplekt",
+          "name": "30_03_S1",
+          "level": 1,
+          "quantity": 1,
+          "parentPath": "",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": false,
+          "cleanName": "30_03_S1"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 1,
+          "quantity": 1,
+          "parentPath": "ALL Bufer Service Komplekt",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "Planka Bufer Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 2,
+          "quantity": 2,
+          "parentPath": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "M8x20 Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 2,
+          "quantity": 1,
+          "parentPath": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "M12x30 Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 1,
+          "quantity": 4,
+          "parentPath": "ALL Bufer Service Komplekt",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "Anker M10x80 Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 1,
+          "quantity": 1,
+          "parentPath": "ALL Bufer Service Komplekt",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "GE - Pizzato Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 2,
+          "quantity": 2,
+          "parentPath": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "M4x16 Komplekt"
+        },
+        {
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "name": "<подасембли>",
+          "level": 2,
+          "quantity": 2,
+          "parentPath": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "hasRAL": false,
+          "ralType": null,
+          "isSubAssembly": true,
+          "cleanName": "M4x35 Komplekt"
+        }
+      ],
+      "flatBOM": [
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt",
+          "name": "30_03_S1",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt",
+          "name": "30_02_S1",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt",
+          "name": "30_01_S1",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 1,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "name": "Bufer",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "name": "30_04_S1",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 2,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "name": "Bolt M8x20 DIN933",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "name": "Washer M8 DIN125",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "name": "Nut M8 DIN6923 gaika flanshova",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 1,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "name": "Nut M12 DIN6923 gaika flanshova",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "name": "Washer M12 DIN125",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "name": "Bolt M12x30 DIN933",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 4,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+          "name": "Chast ot Anker 02",
+          "quantity": 4,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+          "name": "Chast ot Anker 01",
+          "quantity": 4,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 1,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 1,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "name": "GE - Pizzato",
+          "quantity": 1,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "name": "GE - Pizzato Reze",
+          "quantity": 3,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 2,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "name": "Nut M4 DIN934",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "name": "Bolt M4x16 DIN7985 za +otvertka",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "name": "Washer M4 DIN125",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 2,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "name": "<подасембли>",
+          "quantity": 2,
+          "isAssembly": true,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "name": "Nut M4 DIN934",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "name": "Washer M4 DIN125",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        },
+        {
+          "level": 3,
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "name": "Bolt M4x35 DIN912  inbusen",
+          "quantity": 2,
+          "isAssembly": false,
+          "objectSource": "Alibre_BOM_Hierarchical"
+        }
+      ],
+      "stats": {
+        "totalItems": 28,
+        "totalAssemblies": 8,
+        "maxLevel": 3,
+        "ralItemsFound": 0,
+        "ralSummary": {}
+      },
+      "allParts": [
+        {
+          "name": "30_03_S1",
+          "path": "ALL Bufer Service Komplekt",
+          "level": 1,
+          "quantity": 1,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Част",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "Planka Bufer Komplekt",
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+          "level": 1,
+          "quantity": 1,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "M8x20 Komplekt",
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+          "level": 2,
+          "quantity": 2,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "M12x30 Komplekt",
+          "path": "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+          "level": 2,
+          "quantity": 1,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "Anker M10x80 Komplekt",
+          "path": "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+          "level": 1,
+          "quantity": 4,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "GE - Pizzato Komplekt",
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+          "level": 1,
+          "quantity": 1,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "M4x16 Komplekt",
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+          "level": 2,
+          "quantity": 2,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        },
+        {
+          "name": "M4x35 Komplekt",
+          "path": "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>",
+          "level": 2,
+          "quantity": 2,
+          "objectSource": "Alibre_BOM_Hierarchical",
+          "partType": "Подасембли",
+          "hasRAL": false,
+          "ralType": null
+        }
+      ]
+    }
+  ],
+  "globalStats": {
+    "totalItems": 28,
+    "totalAssemblies": 8,
+    "ralItemsFound": 0,
+    "maxLevel": 3
+  },
+  "ralSummary": {}
+}

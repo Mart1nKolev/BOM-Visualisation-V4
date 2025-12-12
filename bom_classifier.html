@@ -1,0 +1,3054 @@
+j<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOM Класификатор - Детайли и Части</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-assembly-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .main-assembly-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-assembly-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .main-assembly-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .progress-display {
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .progress-number {
+            font-size: 4em;
+            font-weight: bold;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 5px;
+            font-family: 'Arial Black', Arial, sans-serif;
+        }
+
+        .progress-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+            color: #fff;
+        }
+
+        .progress-details {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-top: 10px;
+            color: #fff;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 70vh;
+        }
+
+        .classification-panel {
+            flex: 1;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .results-panel {
+            flex: 1;
+            padding: 30px;
+            background: white;
+            border-left: 3px solid #e9ecef;
+        }
+
+        .current-item {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .item-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 15px auto;
+            display: block;
+            border: 3px solid #dee2e6;
+            background: #f8f9fa;
+        }
+
+        .item-info h3 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .item-path {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .results-section {
+            margin-bottom: 30px;
+        }
+
+        .results-section h3 {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .workshop-items {
+            border-left: 4px solid #28a745;
+        }
+
+        .external-items {
+            border-left: 4px solid #dc3545;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 2px solid #dee2e6;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .result-path {
+            font-size: 0.8em;
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        .progress {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .save-btn:hover {
+            background: linear-gradient(135deg, #5a32a3, #4a2c8a);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(111, 66, 193, 0.3);
+        }
+
+        .item-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #6c757d;
+        }
+
+        .details-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .parts-list, .subassemblies-list {
+            margin-bottom: 15px;
+        }
+
+        .part-item, .subassembly-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .part-item:last-child, .subassembly-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 1;
+            color: #495057;
+        }
+
+        .item-quantity {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .summary-stats {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .stat-value {
+            color: #0d47a1;
+        }
+
+        .final-report {
+            background: white;
+            border-radius: 0;
+            padding: 0;
+            margin: 20px 0;
+            box-shadow: none;
+            display: none;
+            font-family: Arial, sans-serif;
+            page-break-inside: avoid;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 3px solid #2c5aa0;
+            background: #f8f9fa;
+        }
+
+        .company-info {
+            font-size: 0.9em;
+            color: #2c5aa0;
+            font-weight: bold;
+        }
+
+        .company-logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c5aa0;
+            font-family: 'Arial Black', Arial, sans-serif;
+        }
+
+        .report-main {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .report-visual {
+            flex: 1;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-assembly-visual {
+            max-width: 300px;
+            max-height: 400px;
+            border: 2px solid #2c5aa0;
+            border-radius: 10px;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .report-tables {
+            flex: 1;
+            padding: 20px;
+            background: white;
+        }
+
+        .report-title {
+            font-size: 1.5em;
+            color: #2c5aa0;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .classification-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border: 2px solid #2c5aa0;
+        }
+
+        .classification-table th {
+            background: #2c5aa0;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #2c5aa0;
+        }
+
+        .classification-table td {
+            padding: 6px;
+            border: 1px solid #2c5aa0;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .workshop-row {
+            background: #d4edda;
+        }
+
+        .external-row {
+            background: #f8d7da;
+        }
+
+        .table-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            background: #2c5aa0;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5em;
+        }
+
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #6c757d;
+            font-size: 0.85em;
+        }
+
+        .parts-table th {
+            background: #6c757d;
+            color: white;
+            padding: 6px;
+            text-align: center;
+            border: 1px solid #6c757d;
+        }
+
+        .parts-table td {
+            padding: 4px 6px;
+            border: 1px solid #6c757d;
+            text-align: center !important;
+        }
+
+        .qty-column {
+            text-align: center !important;
+            font-weight: bold;
+            width: 60px;
+        }
+
+        .report-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #34495e;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-radius: 8px;
+        }
+
+        .assembly-report-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid;
+        }
+
+        .workshop-assembly {
+            border-left-color: #28a745;
+        }
+
+        .external-assembly {
+            border-left-color: #dc3545;
+        }
+
+        .assembly-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .assembly-path {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            font-family: monospace;
+        }
+
+        .parts-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .parts-column h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .auto-classification-info {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        .auto-classification-info::before {
+            content: "⚡ ";
+            font-weight: bold;
+        }
+
+        .skip-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ffc107;
+            color: #212529;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .current-item {
+            position: relative;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .file-input {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .file-input input[type="file"] {
+            margin: 10px;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .completed {
+            text-align: center;
+            padding: 40px;
+            color: #28a745;
+        }
+
+        /* Image Tooltip Styles */
+        .image-tooltip {
+            position: relative;
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .image-tooltip:hover {
+            color: #0056b3;
+        }
+
+        .tooltip-image {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            border: none;
+            z-index: 1000;
+            display: none;
+            width: 500px;
+            height: 375px;
+            pointer-events: none;
+        }
+
+        /* Алтернативно позициониране за tooltip-и близо до краищата */
+        .tooltip-image.left-aligned {
+            left: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-image.right-aligned {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 2px solid #007bff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .tooltip-image::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #007bff;
+        }
+
+        /* Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 8px;
+            width: 85%;
+            max-width: 1200px;
+            max-height: 90vh;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .modal-body {
+            padding: 15px;
+            text-align: center;
+            overflow: hidden;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .modal-body img {
+            width: 100%;
+            height: auto;
+            max-height: calc(90vh - 80px);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            object-fit: contain;
+            display: block;
+        }
+
+        .no-image {
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Color Selection Styles */
+        .color-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #6f42c1;
+        }
+
+        .color-section h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        .ral-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ral-option {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .ral-option label {
+            font-weight: bold;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .ral-option select {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .ral-option select:focus {
+            outline: none;
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.2);
+        }
+
+        .btn-color {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-color:hover {
+            background: linear-gradient(135deg, #5a32a3, #4a2c8a);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(111, 66, 193, 0.3);
+        }
+
+        .color-hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Класификатор на Детайли и Части</h1>
+            <p>Класификация на детайли и части - Производство или Закупуване</p>
+            
+            <div id="mainAssemblyDisplay" class="main-assembly-display hidden">
+                <img id="mainAssemblyImage" class="main-assembly-image" src="" alt="Главна сборка" />
+                <div class="main-assembly-info">
+                    <div class="main-assembly-name" id="mainAssemblyName">Главна сборка</div>
+                    <div class="progress-details">
+                        <div>Обработени: <span id="processedCount">0</span></div>
+                        <div>Общо сборки: <span id="totalAssemblies">0</span></div>
+                    </div>
+                </div>
+                <div class="progress-display">
+                    <div class="progress-number" id="progressPercent">0%</div>
+                    <div class="progress-label">Завършено</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-input">
+            <label for="bomFile">Изберете BOM файл (JSON или CSV):</label>
+            <input type="file" id="bomFile" accept=".json,.csv" />
+            <button onclick="loadBOM()" class="btn" style="background: #007bff; color: white;">Зареди BOM</button>
+        </div>
+
+        <!-- Добавяме таблица с обобщение -->
+        <div id="summaryTable" class="hidden" style="margin: 20px 0;">
+            <h3>📊 Обобщение на асемблитата</h3>
+            <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                <thead style="background: #4472C4; color: white;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 10px; width: 120px;">Категория</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; width: 60px;">№</th>
+                        <th style="border: 1px solid #ddd; padding: 10px;">Име на сборката</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; width: 80px;">Брой</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; width: 60px;">✓</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                    <!-- Редовете ще се генерират динамично -->
+                </tbody>
+            </table>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="startClassification()" class="btn" style="background: #28a745; color: white; padding: 12px 30px; font-size: 1.1em;">
+                    🚀 Започни класификация на асемблитата
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="classification-panel">
+                <div id="loadingMessage" class="loading">
+                    Моля, заредете BOM файл за да започнете класификацията на детайли и части...
+                </div>
+
+                <div id="classificationArea" class="hidden">
+                    <div class="stats">
+                        Прогрес: <span id="currentIndex">0</span> от <span id="totalItems">0</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+
+                    <div class="current-item">
+                        <div class="item-info">
+                            <h3 id="currentName">Име на сборката</h3>
+                            <div class="item-path" id="currentPath">Път към сборката</div>
+                        </div>
+                        <img id="currentImage" class="item-image" src="" alt="Изображение на сборката" />
+                        
+                        <div id="itemDetails" class="item-details">
+                            <div class="summary-stats">
+                                <div class="stat-row">
+                                    <span class="stat-label">Общо детайли:</span>
+                                    <span class="stat-value" id="partsCount">0</span>
+                                </div>
+                                <div class="stat-row">
+                                    <span class="stat-label">Подасемблита:</span>
+                                    <span class="stat-value" id="subAssembliesCount">0</span>
+                                </div>
+                            </div>
+                            
+                            <div id="partsList" class="parts-list"></div>
+                            <div id="subAssembliesList" class="subassemblies-list"></div>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button class="btn btn-yes" onclick="classifyItem(true)">
+                                ✅ ДА - Сглобява се в цеха
+                            </button>
+                            <button class="btn btn-no" onclick="classifyItem(false)">
+                                ❌ НЕ - Сглобява се на обекта
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="completedMessage" class="completed hidden">
+                    <h2>🎉 Класификацията е завършена!</h2>
+                    <p>Всички сборки са обработени успешно.</p>
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <div class="results-section workshop-items">
+                    <h3>🏭 Сглобява се в цеха (<span id="workshopCount">0</span>)</h3>
+                    <div id="workshopList"></div>
+                </div>
+
+                <div class="results-section external-items">
+                    <h3>🏗️ Сглобява се на обекта (<span id="externalCount">0</span>)</h3>
+                    <div id="externalList"></div>
+                </div>
+
+                <button class="btn export-btn" onclick="exportResults()">
+                    📊 Експорт на резултатите
+                </button>
+                
+                <button class="btn btn-color" onclick="openColorModal()" style="margin-top: 10px;">
+                    🎨 Настройки на RAL цветове
+                </button>
+                
+                <button class="btn export-btn" onclick="showFinalReport()" style="background: linear-gradient(135deg, #28a745, #20c997); margin-top: 10px;">
+                    📋 Покажи финален отчет
+                </button>
+            </div>
+        </div>
+
+        <!-- Финален отчет -->
+        <div id="finalReport" class="final-report">
+            <!-- Заглавие с лого -->
+            <div class="report-header">
+                <div class="company-info">
+                    гр. Русе<br>
+                    тел. 082 888 777<br>
+                    email: office@company.bg
+                </div>
+                <div class="company-logo">TREZ</div>
+            </div>
+
+            <!-- Главна секция -->
+            <div class="report-main">
+                <!-- Визуална секция -->
+                <div class="report-visual">
+                    <div class="report-title" id="reportMainTitle">Сборка + Кабина</div>
+                    <img id="reportMainImage" class="main-assembly-visual" src="" alt="Главна сборка"/>
+                    <div style="margin-top: 20px; font-size: 2em; color: #2c5aa0; font-weight: bold;">
+                        Обект <span id="reportObjectNumber">454</span>
+                    </div>
+                </div>
+
+                <!-- Таблици секция -->
+                <div class="report-tables">
+                    <!-- Класификация таблица -->
+                    <table class="classification-table">
+                        <thead>
+                            <tr>
+                                <th>Категория</th>
+                                <th>№</th>
+                                <th>Име на сборката</th>
+                                <th>Брой</th>
+                                <th>✓</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classificationTableBody">
+                        </tbody>
+                    </table>
+
+                    <!-- Цехови детайли -->
+                    <div class="table-section">
+                        <div class="section-header workshop-row">
+                            <span class="section-icon">🏭</span>
+                            <span>Детайли за цехово сглобяване</span>
+                        </div>
+                        <table class="parts-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Име на детайла</th>
+                                    <th>Брой</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workshopPartsTable">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Външни детайли -->
+                    <div class="table-section">
+                        <div class="section-header external-row">
+                            <span class="section-icon">🚚</span>
+                            <span>Детайли за външно сглобяване</span>
+                        </div>
+                        <table class="parts-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Име на детайла</th>
+                                    <th>Брой</th>
+                                </tr>
+                            </thead>
+                            <tbody id="externalPartsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Номер на страница -->
+            <div style="text-align: center; padding: 10px; color: #6c757d; border-top: 1px solid #dee2e6;">
+                1
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn print-btn" onclick="printReport()">
+                    🖨️ Принтирай отчета
+                </button>
+                
+                <button class="btn export-btn" onclick="exportDetailedResults()">
+                    📊 Експорт на подробните резултати
+                </button>
+                
+                <button class="btn save-btn" onclick="saveClassifications()">
+                    💾 Запази класификациите в JSON
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bomData = [];
+        let allItemsData = []; // Всички елементи включително части
+        let currentIndex = 0;
+        let workshopItems = [];
+        let externalItems = [];
+        let workshopPaths = new Set(); // Пътища на сборки класифицирани за цех
+        let externalPaths = new Set(); // Пътища на сборки класифицирани като външни
+
+        // Речник за превод от английски/немски на български
+        const translationDictionary = {
+            // Основни компоненти
+            'Komplekt': 'Комплект',
+            'komplekt': 'комплект',
+            'Bufer': 'Буфер', 
+            'bufer': 'буфер',
+            'Planka': 'Планка',
+            'planka': 'планка',
+            'Anker': 'Анкер',
+            'anker': 'анкер', 
+            'Pizzato': 'Пизато',
+            'pizzato': 'пизато',
+            'Reze': 'Резе',
+            'reze': 'резе',
+            'Chast': 'Част',
+            'chast': 'част',
+            'Service': 'Сервиз',
+            'service': 'сервиз',
+            
+            // Винтове и крепежи - стандартни размери
+            'M4x16': 'М4х16',
+            'M4x35': 'М4х35', 
+            'M8x20': 'М8х20',
+            'M10x80': 'М10х80',
+            'M12x30': 'М12х30',
+            
+            // Общи думи
+            'ALL': 'ВСИЧКИ',
+            'GE': 'ГЕ',
+            'ot': 'от'
+        };
+
+        // Функция за превод на имена
+        function translateName(name) {
+            let translatedName = name;
+            
+            // Преводим всяка дума от речника
+            Object.keys(translationDictionary).forEach(englishWord => {
+                const bulgarianWord = translationDictionary[englishWord];
+                // Използваме регулярен израз за да заменим цялата дума (не част от друга дума)
+                const regex = new RegExp('\\b' + englishWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+                translatedName = translatedName.replace(regex, bulgarianWord);
+            });
+            
+            return translatedName;
+        }
+
+        // Общa функция за сортиране на имена (числа първо, после букви азбучно)
+        function sortByName(items, nameProperty = 'name') {
+            return items.sort((a, b) => {
+                const nameA = a[nameProperty].toLowerCase();
+                const nameB = b[nameProperty].toLowerCase();
+                
+                // Проверяваме дали имената започват с числа
+                const startsWithNumberA = /^\d/.test(nameA);
+                const startsWithNumberB = /^\d/.test(nameB);
+                
+                // Ако и двете започват с числа
+                if (startsWithNumberA && startsWithNumberB) {
+                    // Извличаме числовата част
+                    const numberA = parseInt(nameA.match(/^\d+/)[0]);
+                    const numberB = parseInt(nameB.match(/^\d+/)[0]);
+                    
+                    // Сравняваме числата
+                    if (numberA !== numberB) {
+                        return numberA - numberB;
+                    }
+                    // Ако числата са еднакви, сравняваме целите имена
+                    return nameA.localeCompare(nameB);
+                }
+                
+                // Ако само едното започва с число, то е първо
+                if (startsWithNumberA && !startsWithNumberB) {
+                    return -1;
+                }
+                if (!startsWithNumberA && startsWithNumberB) {
+                    return 1;
+                }
+                
+                // И двете започват с букви - сортираме азбучно
+                return nameA.localeCompare(nameB, 'bg', { numeric: true });
+            });
+        }
+
+        function unifyAssemblies(assemblies) {
+            const unifiedAssemblies = new Map();
+            
+            assemblies.forEach((assembly, index) => {
+                // Премахваме <1>, <2> и т.н. от името на асемблито
+                const cleanName = assembly.name.replace(/<\d+>$/, '').trim();
+                console.log(`Обработвам асембли ${index + 1}: "${assembly.name}" → "${cleanName}", количество: ${assembly.quantity}`);
+                
+                if (unifiedAssemblies.has(cleanName)) {
+                    // Ако асемблито вече съществува, увеличаваме количеството му
+                    const existingAssembly = unifiedAssemblies.get(cleanName);
+                    const oldQuantity = existingAssembly.quantity;
+                    existingAssembly.quantity += assembly.quantity || 1;
+                    console.log(`  → Обединявам с съществуващо: ${oldQuantity} + ${assembly.quantity} = ${existingAssembly.quantity}`);
+                    
+                    // Обединяваме частите - обединяваме по име и сумираме количествата
+                    if (assembly.parts && assembly.parts.length > 0) {
+                        assembly.parts.forEach(part => {
+                            const cleanPartName = part.name.replace(/<\d+>$/, '').trim();
+                            const existingPart = existingAssembly.parts.find(p => 
+                                p.name.replace(/<\d+>$/, '').trim() === cleanPartName
+                            );
+                            if (existingPart) {
+                                existingPart.quantity += part.quantity || 1;
+                                existingPart.name = cleanPartName;
+                            } else {
+                                existingAssembly.parts.push({
+                                    ...part,
+                                    name: cleanPartName
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Обединяваме подасемблитата
+                    if (assembly.subAssemblies && assembly.subAssemblies.length > 0) {
+                        assembly.subAssemblies.forEach(subAsm => {
+                            const cleanSubName = subAsm.name.replace(/<\d+>$/, '').trim();
+                            const existingSubAsm = existingAssembly.subAssemblies.find(s => 
+                                s.name.replace(/<\d+>$/, '').trim() === cleanSubName
+                            );
+                            if (existingSubAsm) {
+                                existingSubAsm.quantity += subAsm.quantity || 1;
+                                existingSubAsm.name = cleanSubName;
+                            } else {
+                                existingAssembly.subAssemblies.push({
+                                    ...subAsm,
+                                    name: cleanSubName
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    // Създаваме ново асембли с почистено име
+                    console.log(`  → Създавам ново асембли: "${cleanName}", количество: ${assembly.quantity || 1}`);
+                    const newAssembly = {
+                        ...assembly,
+                        name: cleanName,
+                        originalName: assembly.name,
+                        quantity: assembly.quantity || 1, // Важно: запазваме количеството
+                        parts: assembly.parts ? assembly.parts.map(part => ({
+                            ...part,
+                            name: part.name.replace(/<\d+>$/, '').trim()
+                        })) : [],
+                        subAssemblies: assembly.subAssemblies ? assembly.subAssemblies.map(sub => ({
+                            ...sub,
+                            name: sub.name.replace(/<\d+>$/, '').trim()
+                        })) : []
+                    };
+                    unifiedAssemblies.set(cleanName, newAssembly);
+                }
+            });
+            
+            const result = Array.from(unifiedAssemblies.values());
+            console.log('Резултат от обединяване:');
+            result.forEach((asm, index) => {
+                console.log(`${index + 1}. "${asm.name}" - количество: ${asm.quantity}`);
+            });
+            
+            return result;
+        }
+
+        function showSummaryTable() {
+            const tableBody = document.getElementById('summaryTableBody');
+            const summaryDiv = document.getElementById('summaryTable');
+            
+            tableBody.innerHTML = '';
+            
+            // Сортираме асемблитата преди показване
+            const sortedBomData = sortByName([...bomData]);
+            
+            sortedBomData.forEach((assembly, index) => {
+                const row = document.createElement('tr');
+                row.style.backgroundColor = index % 2 === 0 ? '#E7F3E7' : '#F0F8F0';
+                
+                // Категория колона (със зелен фон)
+                const categoryCell = document.createElement('td');
+                categoryCell.style.cssText = 'background: #70AD47; color: white; text-align: center; padding: 8px; border: 1px solid #ddd; font-weight: bold;';
+                categoryCell.rowSpan = 1; // За сега всяко асембли е отделна категория
+                categoryCell.innerHTML = '<div style="writing-mode: vertical-lr; text-orientation: mixed;">ЦЕХ</div>';
+                
+                // Номер
+                const numberCell = document.createElement('td');
+                numberCell.style.cssText = 'border: 1px solid #ddd; padding: 8px; text-align: center;';
+                numberCell.textContent = index + 1;
+                
+                // Име на сборката с бутон за разгръщане
+                const nameCell = document.createElement('td');
+                nameCell.style.cssText = 'border: 1px solid #ddd; padding: 8px; text-align: left;';
+                
+                // Създаваме контейнер за името и бутона
+                const nameContainer = document.createElement('div');
+                nameContainer.style.cssText = 'display: flex; align-items: center; justify-content: space-between;';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.innerHTML = createImageTooltip(translateName(assembly.name), assembly.imagePath);
+                
+                const expandButton = document.createElement('button');
+                expandButton.innerHTML = '+';
+                expandButton.style.cssText = 'background: #28a745; color: white; border: none; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-weight: bold; margin-left: 10px;';
+                expandButton.onclick = () => toggleAssemblyDetails(index, assembly);
+                
+                nameContainer.appendChild(nameSpan);
+                nameContainer.appendChild(expandButton);
+                nameCell.appendChild(nameContainer);
+                
+                // Брой
+                const quantityCell = document.createElement('td');
+                quantityCell.style.cssText = 'border: 1px solid #ddd; padding: 8px; text-align: center; font-weight: bold;';
+                quantityCell.textContent = assembly.quantity || 1;
+                
+                // Чекбокс
+                const checkCell = document.createElement('td');
+                checkCell.style.cssText = 'border: 1px solid #ddd; padding: 8px; text-align: center; color: #70AD47; font-size: 18px;';
+                checkCell.innerHTML = '✓';
+                
+                row.appendChild(categoryCell);
+                row.appendChild(numberCell);
+                row.appendChild(nameCell);
+                row.appendChild(quantityCell);
+                row.appendChild(checkCell);
+                
+                tableBody.appendChild(row);
+                
+                // Добавяме скрит ред с детайлите
+                const detailsRow = document.createElement('tr');
+                detailsRow.id = `details-row-${index}`;
+                detailsRow.style.display = 'none';
+                detailsRow.innerHTML = `
+                    <td colspan="5" style="padding: 0; border: 1px solid #ddd;">
+                        <div id="details-content-${index}" style="padding: 15px; background: #f8f9fa;">
+                            <!-- Детайлите ще се зареждат динамично -->
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(detailsRow);
+            });
+            
+            summaryDiv.classList.remove('hidden');
+        }
+
+        function toggleAssemblyDetails(assemblyIndex, assembly) {
+            const detailsRow = document.getElementById(`details-row-${assemblyIndex}`);
+            const detailsContent = document.getElementById(`details-content-${assemblyIndex}`);
+            const button = event.target;
+            
+            if (detailsRow.style.display === 'none') {
+                // Показваме детайлите
+                detailsRow.style.display = 'table-row';
+                button.innerHTML = '−';
+                button.style.background = '#dc3545';
+                
+                // Зареждаме детайлите (подаваме директно assembly обекта)
+                loadAssemblyDetails(assembly, detailsContent);
+            } else {
+                // Скриваме детайлите
+                detailsRow.style.display = 'none';
+                button.innerHTML = '+';
+                button.style.background = '#28a745';
+            }
+        }
+
+        function loadAssemblyDetails(assembly, container) {
+            const parts = assembly.parts || [];
+            const subAssemblies = assembly.subAssemblies || [];
+            
+            // Обединяваме частите
+            const unifiedParts = new Map();
+            parts.forEach(part => {
+                const cleanName = part.name.replace(/<\d+>/g, '').trim();
+                if (unifiedParts.has(cleanName)) {
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: unifiedParts.get(cleanName).quantity + part.quantity,
+                        imagePath: unifiedParts.get(cleanName).imagePath || part.imagePath // Запазваме първия imagePath
+                    });
+                } else {
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: part.quantity,
+                        imagePath: part.imagePath
+                    });
+                }
+            });
+            
+            // Обединяваме подасемблитата
+            const unifiedSubAssemblies = new Map();
+            subAssemblies.forEach(subAssembly => {
+                const cleanName = subAssembly.name.replace(/<\d+>/g, '').trim();
+                if (unifiedSubAssemblies.has(cleanName)) {
+                    unifiedSubAssemblies.set(cleanName, {
+                        name: cleanName,
+                        quantity: unifiedSubAssemblies.get(cleanName).quantity + subAssembly.quantity,
+                        imagePath: unifiedSubAssemblies.get(cleanName).imagePath || subAssembly.imagePath
+                    });
+                } else {
+                    unifiedSubAssemblies.set(cleanName, {
+                        name: cleanName,
+                        quantity: subAssembly.quantity,
+                        imagePath: subAssembly.imagePath
+                    });
+                }
+            });
+            
+            let html = '<div style="display: flex; gap: 30px;">';
+            
+            // Детайли колона
+            if (unifiedParts.size > 0) {
+                html += '<div style="flex: 1;"><h4 style="color: #2c5aa0; margin-bottom: 10px;">🔧 Детайли:</h4>';
+                
+                // Сортираме детайлите
+                const sortedParts = sortByName(Array.from(unifiedParts.values()));
+                sortedParts.forEach(part => {
+                    html += `<div style="padding: 5px 0; border-bottom: 1px solid #eee; text-align: center;">
+                        <span>${createImageTooltip(translateName(part.name), part.imagePath)}</span>
+                        <span style="float: right; font-weight: bold; color: #28a745;">${part.quantity} бр.</span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            // Подасемблита колона
+            if (unifiedSubAssemblies.size > 0) {
+                html += '<div style="flex: 1;"><h4 style="color: #2c5aa0; margin-bottom: 10px;">🏗️ Подасемблита:</h4>';
+                
+                // Сортираме подасемблитата
+                const sortedSubAssemblies = sortByName(Array.from(unifiedSubAssemblies.values()));
+                sortedSubAssemblies.forEach(subAssembly => {
+                    html += `<div style="padding: 5px 0; border-bottom: 1px solid #eee; text-align: center;">
+                        <span style="font-style: italic;">${createImageTooltip(translateName(subAssembly.name), subAssembly.imagePath)}</span>
+                        <span style="float: right; font-weight: bold; color: #17a2b8;">${subAssembly.quantity} бр.</span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            
+            if (unifiedParts.size === 0 && unifiedSubAssemblies.size === 0) {
+                html = '<p style="text-align: center; color: #6c757d; font-style: italic;">Няма детайли за показване</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function startClassification() {
+            // Скриваме средната таблица (classification-table)
+            const classificationTable = document.querySelector('.classification-table');
+            if (classificationTable) {
+                classificationTable.style.display = 'none';
+            }
+            
+            // Показваме класификационната част
+            document.getElementById('classificationArea').classList.remove('hidden');
+            // Започваме класификационния процес
+            showCurrentItem();
+            // Скроливаме до класификационната част
+            document.getElementById('classificationArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function parseCSVToBOMData(csvContent) {
+            const lines = csvContent.split('\n').map(line => line.trim()).filter(line => line);
+            if (lines.length === 0) {
+                throw new Error('CSV файлът е празен');
+            }
+
+            // Премахваме BOM marker ако съществува
+            if (lines[0].startsWith('\ufeff')) {
+                lines[0] = lines[0].substring(1);
+            }
+
+            const assemblies = [];
+            const processedAssemblies = new Set();
+            let mainAssemblyName = '';
+            const headerLine = lines[0].toLowerCase();
+
+            // Проверяваме дали е подробен CSV (с колони за тип, файлов път, изображение, детайли, подасемблита)
+            const isEnhancedCSV = headerLine.includes('тип') || headerLine.includes('файлов път') || headerLine.includes('изображение');
+
+            // Обработваме всеки ред
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line) continue;
+
+                // Парсираме CSV реда (с учет на кавички)
+                const columns = parseCSVLine(line);
+                if (columns.length < 4) continue;
+
+                const depth = parseInt(columns[0]) || 0;
+                const path = columns[1].replace(/"/g, '');
+                const name = columns[2].replace(/"/g, '').trim();
+                const quantity = parseInt(columns[3]) || 1;
+
+                // Ако е основното асембли (ниво 0), го запазваме
+                if (depth === 0 && !mainAssemblyName) {
+                    mainAssemblyName = name;
+                }
+
+                if (isEnhancedCSV && columns.length >= 9) {
+                    // Обработваме подробен CSV с допълнителни колони
+                    const type = columns[4].replace(/"/g, '');
+                    const filePath = columns[5].replace(/"/g, '');
+                    const imagePath = columns[6].replace(/"/g, '');
+                    const partsInfo = columns[7].replace(/"/g, '');
+                    const subAssembliesInfo = columns[8].replace(/"/g, '');
+
+                    // Прескачаме редове, които не са асемблита
+                    if (type !== 'assembly' && type !== 'main_assembly') {
+                        continue;
+                    }
+
+                    // Проверяваме дали това асембли вече е обработено
+                    const assemblyKey = `${path}_${depth}`;
+                    if (processedAssemblies.has(assemblyKey)) {
+                        continue;
+                    }
+                    processedAssemblies.add(assemblyKey);
+
+                    // Парсираме детайлите и подасемблитата
+                    const parts = partsInfo ? partsInfo.split(';').map(part => {
+                        const match = part.trim().match(/^(.+)\((\d+)\)$/);
+                        return match ? {
+                            name: match[1],
+                            quantity: parseInt(match[2]),
+                            type: 'part'
+                        } : null;
+                    }).filter(p => p) : [];
+
+                    const subAssemblies = subAssembliesInfo ? subAssembliesInfo.split(';').map(sub => {
+                        const match = sub.trim().match(/^(.+)\((\d+)\)$/);
+                        return match ? {
+                            name: match[1],
+                            quantity: parseInt(match[2]),
+                            type: 'subassembly'
+                        } : null;
+                    }).filter(s => s) : [];
+
+                    // Създаваме обект за асемблито
+                    const assemblyItem = {
+                        name: name,
+                        path: path,
+                        depth: depth,
+                        quantity: quantity,
+                        filePath: filePath,
+                        imagePath: imagePath,
+                        type: type,
+                        parts: parts,
+                        subAssemblies: subAssemblies
+                    };
+
+                    assemblies.push(assemblyItem);
+
+                } else {
+                    // Обработваме стандартен CSV (стара логика)
+                    
+                    // Обработваме само асемблита (подасемблита), не отделните детайли
+                    if (name === '<подасембли>' || name.startsWith('    ')) {
+                        continue; // Прескачаме подасемблита маркери и индентирани детайли
+                    }
+
+                    // Извличаме името на асемблито от пътя
+                    const pathParts = path.split('/');
+                    const assemblyName = pathParts[pathParts.length - 1] || name;
+
+                    // Проверяваме дали това асембли вече е обработено
+                    const assemblyKey = `${path}_${depth}`;
+                    if (processedAssemblies.has(assemblyKey)) {
+                        continue;
+                    }
+                    processedAssemblies.add(assemblyKey);
+
+                    // Създаваме обект за асемблито
+                    const assemblyItem = {
+                        name: assemblyName,
+                        path: path,
+                        depth: depth,
+                        quantity: quantity,
+                        filePath: '', // Няма информация за файловия път в стандартния CSV
+                        imagePath: '', // Няма информация за изображения в стандартния CSV
+                        type: depth === 0 ? 'main_assembly' : 'assembly',
+                        parts: [], // Празен списък - няма детайлна информация в стандартния CSV
+                        subAssemblies: [] // Празен списък - няма детайлна информация в стандартния CSV
+                    };
+
+                    assemblies.push(assemblyItem);
+                }
+            }
+
+            return {
+                metadata: {
+                    mainAssembly: mainAssemblyName || 'Неизвестна сборка',
+                    totalAssemblies: assemblies.length,
+                    exportDate: new Date().toISOString().split('T')[0],
+                    version: '1.0',
+                    source: isEnhancedCSV ? 'Enhanced CSV' : 'Standard CSV'
+                },
+                assemblies: assemblies
+            };
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        // Escaped quote
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // Toggle quote state
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ';' && !inQuotes) {
+                    // Field separator
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            // Add the last field
+            result.push(current);
+            
+            return result;
+        }
+
+        function loadBOM() {
+            const fileInput = document.getElementById('bomFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Моля, изберете JSON или CSV файл!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const fileName = file.name.toLowerCase();
+                    let data;
+
+                    if (fileName.endsWith('.json')) {
+                        data = JSON.parse(content);
+                        originalJsonData = data; // Запазваме оригиналните данни
+                        
+                        // Проверяваме различните JSON формати
+                        if (data.metadata && data.metadata.version === '2.0') {
+                            if (data.items) {
+                                // Нов пълен формат - използваме всички елементи (асемблита И части)
+                                bomData = data.items.filter(item => item.type === 'assembly' || item.type === 'main_assembly');
+                                allItemsData = data.items;
+                            } else if (data.assemblies) {
+                                // Вашият формат - версия 2.0 но с части вътре в асемблитата
+                                console.log('Оригинални асемблита:', data.assemblies.length);
+                                
+                                bomData = unifyAssemblies(data.assemblies || []);
+                                allItemsData = bomData; // Частите са вече в асемблитата
+                                
+                                console.log('Обединени асемблита:', bomData.length);
+                                bomData.forEach((asm, index) => {
+                                    console.log(`${index + 1}. ${asm.name} - количество: ${asm.quantity}`);
+                                });
+                            } else {
+                                bomData = data.assemblies || [];
+                                allItemsData = bomData;
+                            }
+                        } else {
+                            // Стар формат (версия 1.0) - само асемблита
+                            bomData = data.assemblies || [];
+                            allItemsData = bomData;
+                        }
+                    } else if (fileName.endsWith('.csv')) {
+                        data = parseCSVToBOMData(content);
+                        bomData = data.assemblies || [];
+                        allItemsData = bomData; // CSV данни
+                    } else {
+                        alert('Неподдържан формат на файл! Моля, изберете JSON или CSV файл.');
+                        return;
+                    }
+                    
+                    currentIndex = 0;
+                    workshopItems = [];
+                    externalItems = [];
+                    workshopPaths = new Set();
+                    externalPaths = new Set();
+                    
+                    if (bomData.length === 0) {
+                        alert('Няма намерени сборки в файла!');
+                        return;
+                    }
+
+                    // Показване на главната сборка
+                    setupMainAssemblyDisplay(data);
+                    
+                    // Показване на обобщената таблица
+                    showSummaryTable();
+                    
+                    document.getElementById('loadingMessage').classList.add('hidden');
+                    // Не показваме класификационната част по подразбиране
+                    // document.getElementById('classificationArea').classList.remove('hidden');
+                    document.getElementById('totalItems').textContent = bomData.length;
+                    
+                    showCurrentItem();
+                } catch (error) {
+                    alert('Грешка при четене на файла: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function setupMainAssemblyDisplay(data) {
+            const mainAssembly = bomData.find(item => item.type === 'main_assembly') || bomData[0];
+            
+            document.getElementById('mainAssemblyName').textContent = mainAssembly.name;
+            document.getElementById('totalAssemblies').textContent = bomData.length;
+            document.getElementById('processedCount').textContent = '0';
+            document.getElementById('progressPercent').textContent = '0%';
+            
+            const mainImg = document.getElementById('mainAssemblyImage');
+            if (mainAssembly.imagePath && mainAssembly.imagePath !== '') {
+                mainImg.src = mainAssembly.imagePath;
+                mainImg.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNykiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qk9C70LDQstC90LAg0KHQsdC+0YDQutCwPC90ZXh0Pjwvc3ZnPg==';
+                };
+            } else {
+                mainImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjMpIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuNykiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qk9C70LDQstC90LAg0KHQsdC+0YDQutCwPC90ZXh0Pjwvc3ZnPg==';
+            }
+            
+            document.getElementById('mainAssemblyDisplay').classList.remove('hidden');
+        }
+
+        function showCurrentItem() {
+            // Прескачаме елементи, които вече са автоматично класифицирани
+            while (currentIndex < bomData.length) {
+                const item = bomData[currentIndex];
+                const autoClassified = checkAutoClassification(item);
+                
+                if (autoClassified) {
+                    // Автоматично класифицираме и преминаваме към следващия
+                    if (autoClassified === 'workshop') {
+                        workshopItems.push(item);
+                        workshopPaths.add(item.path);
+                    } else if (autoClassified === 'external') {
+                        externalItems.push(item);
+                        externalPaths.add(item.path);
+                    }
+                    updateResults();
+                    currentIndex++;
+                    updateProgress();
+                } else {
+                    break; // Намерихме елемент, който трябва да бъде ръчно класифициран
+                }
+            }
+
+            if (currentIndex >= bomData.length) {
+                showCompleted();
+                return;
+            }
+
+            const item = bomData[currentIndex];
+            document.getElementById('currentName').textContent = translateName(item.name);
+            document.getElementById('currentPath').textContent = item.path;
+            document.getElementById('currentIndex').textContent = currentIndex + 1;
+            
+            // Показване дали е автоматично наследена класификация
+            const inheritanceStatus = getInheritanceStatus(item);
+            if (inheritanceStatus) {
+                document.getElementById('currentPath').innerHTML = 
+                    item.path + '<br><small style="color: #28a745; font-weight: bold;">⚡ ' + inheritanceStatus + '</small>';
+            }
+            
+            // Зареждане на изображение
+            const img = document.getElementById('currentImage');
+            if (item.imagePath && item.imagePath !== '') {
+                img.src = item.imagePath;
+                img.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+                };
+            } else {
+                img.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+            }
+
+            // Показване на детайли и подасемблита
+            showItemDetails(item);
+            
+            updateProgress();
+        }
+
+        function checkAutoClassification(item) {
+            // Проверяваме дали родителската сборка е класифицирана за цех
+            const pathParts = item.path.split('/');
+            
+            // Проверяваме всички родителски пътища
+            for (let i = pathParts.length - 1; i > 0; i--) {
+                const parentPath = pathParts.slice(0, i).join('/');
+                
+                if (workshopPaths.has(parentPath)) {
+                    return 'workshop'; // Родителят е в цеха, автоматично и това е в цеха
+                }
+                
+                if (externalPaths.has(parentPath)) {
+                    // Родителят е външен, но подсборките може да са цехови
+                    // Оставяме това за ръчно решение
+                    return null;
+                }
+            }
+            
+            return null; // Няма автоматична класификация
+        }
+
+        function getInheritanceStatus(item) {
+            const pathParts = item.path.split('/');
+            
+            for (let i = pathParts.length - 1; i > 0; i--) {
+                const parentPath = pathParts.slice(0, i).join('/');
+                const parentName = pathParts[i - 1];
+                
+                if (workshopPaths.has(parentPath)) {
+                    return `Автоматично: родителят "${parentName}" е в цеха`;
+                }
+            }
+            
+            return null;
+        }
+
+        function showItemDetails(item) {
+            let parts = item.parts || [];
+            let subAssemblies = item.subAssemblies || [];
+            
+            // Ако използваме пълен JSON формат с отделни елементи
+            if (allItemsData && allItemsData.length > 0 && allItemsData !== bomData) {
+                // Намираме всички части, които принадлежат на това асембли
+                const directParts = allItemsData.filter(dataItem => 
+                    dataItem.type === 'part' && 
+                    dataItem.parentAssembly === item.name
+                );
+                
+                if (directParts.length > 0) {
+                    parts = directParts.map(part => ({
+                        name: part.name,
+                        quantity: part.quantity,
+                        type: part.type
+                    }));
+                }
+            }
+            // Иначе частите са вече в асемблито (вашия формат)
+            
+            // Обединяваме частите за точно броене
+            const unifiedParts = new Map();
+            parts.forEach(part => {
+                const cleanName = part.name.replace(/<\d+>/g, '').trim();
+                if (unifiedParts.has(cleanName)) {
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: unifiedParts.get(cleanName).quantity + part.quantity,
+                        imagePath: unifiedParts.get(cleanName).imagePath || part.imagePath
+                    });
+                } else {
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: part.quantity,
+                        imagePath: part.imagePath
+                    });
+                }
+            });
+            
+            // Обединяваме подасемблитата за точно броене
+            const unifiedSubAssemblies = new Map();
+            subAssemblies.forEach(subAssembly => {
+                const cleanName = subAssembly.name.replace(/<\d+>/g, '').trim();
+                if (unifiedSubAssemblies.has(cleanName)) {
+                    unifiedSubAssemblies.set(cleanName, {
+                        name: cleanName,
+                        quantity: unifiedSubAssemblies.get(cleanName).quantity + subAssembly.quantity,
+                        imagePath: unifiedSubAssemblies.get(cleanName).imagePath || subAssembly.imagePath
+                    });
+                } else {
+                    unifiedSubAssemblies.set(cleanName, {
+                        name: cleanName,
+                        quantity: subAssembly.quantity,
+                        imagePath: subAssembly.imagePath
+                    });
+                }
+            });
+            
+            // Обновяване на статистиките с обединените бройки
+            document.getElementById('partsCount').textContent = unifiedParts.size;
+            document.getElementById('subAssembliesCount').textContent = unifiedSubAssemblies.size;
+            
+            // Показване на детайлите
+            const partsList = document.getElementById('partsList');
+            partsList.innerHTML = '';
+            if (unifiedParts.size > 0) {
+                const title = document.createElement('div');
+                title.className = 'details-title';
+                title.textContent = '🔧 Детайли в сборката:';
+                partsList.appendChild(title);
+                
+                // Сортираме детайлите преди показване
+                const sortedParts = sortByName(Array.from(unifiedParts.values()));
+                sortedParts.forEach(part => {
+                    const div = document.createElement('div');
+                    div.className = 'part-item';
+                    div.innerHTML = `
+                        <span class="item-name">${createImageTooltip(translateName(part.name), part.imagePath)}</span>
+                        <span class="item-quantity">${part.quantity} бр.</span>
+                    `;
+                    partsList.appendChild(div);
+                });
+            }
+            
+            // Показване на подасемблитата
+            const subAssembliesList = document.getElementById('subAssembliesList');
+            subAssembliesList.innerHTML = '';
+            if (unifiedSubAssemblies.size > 0) {
+                const title = document.createElement('div');
+                title.className = 'details-title';
+                title.textContent = '🏗️ Подасемблита:';
+                subAssembliesList.appendChild(title);
+                
+                // Сортираме подасемблитата преди показване
+                const sortedSubAssemblies = sortByName(Array.from(unifiedSubAssemblies.values()));
+                sortedSubAssemblies.forEach(subAssembly => {
+                    const div = document.createElement('div');
+                    div.className = 'subassembly-item';
+                    div.innerHTML = `
+                        <span class="item-name">${createImageTooltip(translateName(subAssembly.name), subAssembly.imagePath)}</span>
+                        <span class="item-quantity">${subAssembly.quantity} бр.</span>
+                    `;
+                    subAssembliesList.appendChild(div);
+                });
+            }
+        }
+
+        function classifyItem(isWorkshop) {
+            const item = bomData[currentIndex];
+            
+            if (isWorkshop) {
+                workshopItems.push(item);
+                workshopPaths.add(item.path);
+                
+                // Показваме съобщение за автоматичната класификация на подсборките
+                const subAssembliesCount = countSubAssemblies(item.path);
+                if (subAssembliesCount > 0) {
+                    showAutoClassificationMessage(item.name, subAssembliesCount);
+                }
+            } else {
+                externalItems.push(item);
+                externalPaths.add(item.path);
+            }
+
+            updateResults();
+            currentIndex++;
+            showCurrentItem();
+        }
+
+        function countSubAssemblies(parentPath) {
+            let count = 0;
+            for (let i = currentIndex + 1; i < bomData.length; i++) {
+                const item = bomData[i];
+                if (item.path.startsWith(parentPath + '/')) {
+                    count++;
+                } else if (!item.path.startsWith(parentPath)) {
+                    break; // Излязохме от поддървото
+                }
+            }
+            return count;
+        }
+
+        function showAutoClassificationMessage(parentName, count) {
+            if (count === 0) return;
+            
+            // Създаваме временно съобщение
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+                font-size: 1.1em;
+                max-width: 400px;
+            `;
+            
+            message.innerHTML = `
+                <div style="font-size: 1.3em; margin-bottom: 10px;">⚡ Автоматична класификация</div>
+                <div>"${parentName}" → Цех</div>
+                <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.9;">
+                    ${count} подсборки също ще бъдат класифицирани за цеха автоматично
+                </div>
+            `;
+            
+            document.body.appendChild(message);
+            
+            // Премахваме съобщението след 3 секунди
+            setTimeout(() => {
+                if (message.parentNode) {
+                    message.parentNode.removeChild(message);
+                }
+            }, 3000);
+        }
+
+        function updateResults() {
+            // Цехови сборки
+            document.getElementById('workshopCount').textContent = workshopItems.length;
+            const workshopList = document.getElementById('workshopList');
+            workshopList.innerHTML = '';
+            
+            workshopItems.forEach(item => {
+                workshopList.appendChild(createResultItem(item));
+            });
+
+            // Външни сборки
+            document.getElementById('externalCount').textContent = externalItems.length;
+            const externalList = document.getElementById('externalList');
+            externalList.innerHTML = '';
+            
+            externalItems.forEach(item => {
+                externalList.appendChild(createResultItem(item));
+            });
+        }
+
+        function createResultItem(item) {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            
+            // Проверяваме дали е автоматично класифициран
+            const isAutoClassified = checkIfAutoClassified(item);
+            if (isAutoClassified) {
+                div.style.borderLeft = '4px solid #ffc107';
+                div.style.background = 'linear-gradient(90deg, #fff3cd, #f8f9fa)';
+            }
+            
+            const img = document.createElement('img');
+            img.className = 'result-image';
+            img.src = item.imagePath || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+            img.onerror = function() {
+                this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+            };
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'result-info';
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'result-name';
+            nameDiv.innerHTML = item.name + (isAutoClassified ? ' <span style="color: #ffc107;">⚡</span>' : '');
+            
+            const pathDiv = document.createElement('div');
+            pathDiv.className = 'result-path';
+            pathDiv.textContent = item.path;
+            
+            if (isAutoClassified) {
+                const autoDiv = document.createElement('div');
+                autoDiv.style.cssText = 'font-size: 0.8em; color: #856404; font-style: italic; margin-top: 2px;';
+                autoDiv.textContent = '⚡ Автоматично класифициран';
+                infoDiv.appendChild(autoDiv);
+            }
+            
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(pathDiv);
+            
+            div.appendChild(img);
+            div.appendChild(infoDiv);
+            
+            return div;
+        }
+
+        function checkIfAutoClassified(item) {
+            // Проверяваме дали има родител в същата категория
+            const pathParts = item.path.split('/');
+            
+            for (let i = pathParts.length - 1; i > 0; i--) {
+                const parentPath = pathParts.slice(0, i).join('/');
+                
+                if (workshopPaths.has(parentPath)) {
+                    return true; // Има родител в цеха
+                }
+            }
+            
+            return false;
+        }
+
+        function updateProgress() {
+            const progress = (currentIndex / bomData.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Обновяване на главния дисплей
+            document.getElementById('processedCount').textContent = currentIndex;
+            document.getElementById('progressPercent').textContent = Math.round(progress) + '%';
+            
+            // Промяна на цвета на процентите в зависимост от напредъка
+            const progressElement = document.getElementById('progressPercent');
+            if (progress < 30) {
+                progressElement.style.color = '#ff6b6b';
+            } else if (progress < 70) {
+                progressElement.style.color = '#feca57';
+            } else {
+                progressElement.style.color = '#48dbfb';
+            }
+            
+            if (progress === 100) {
+                progressElement.style.color = '#00d2d3';
+                progressElement.textContent = '✅ 100%';
+            }
+        }
+
+        function showCompleted() {
+            document.getElementById('classificationArea').classList.add('hidden');
+            document.getElementById('completedMessage').classList.remove('hidden');
+        }
+
+        function exportResults() {
+            const results = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total: bomData.length,
+                    workshop: workshopItems.length,
+                    external: externalItems.length
+                },
+                workshopAssemblies: workshopItems,
+                externalAssemblies: externalItems
+            };
+
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bom_classification_results.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function showFinalReport() {
+            generateReport();
+            document.getElementById('finalReport').style.display = 'block';
+            document.getElementById('finalReport').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateReport() {
+            // Главна сборка
+            const mainAssembly = bomData.find(item => item.type === 'main_assembly') || bomData[0];
+            document.getElementById('reportMainTitle').textContent = mainAssembly.name;
+            
+            // Главно изображение
+            const mainImg = document.getElementById('reportMainImage');
+            if (mainAssembly.imagePath && mainAssembly.imagePath !== '') {
+                mainImg.src = mainAssembly.imagePath;
+            } else {
+                mainImg.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIiBzdHJva2U9IiMyYzVhYTAiIHN0cm9rZS13aWR0aD0iMiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiMyYzVhYTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Qk9C70LDQstC90LAg0KHQsdC+0YDQutCwPC90ZXh0Pjwvc3ZnPg==';
+            }
+
+            // Генериране на класификационна таблица
+            generateClassificationTable();
+            
+            // Генериране на таблици с детайли
+            generatePartsTable('workshop', workshopItems, 'workshopPartsTable');
+            generatePartsTable('external', externalItems, 'externalPartsTable');
+        }
+
+        function generateClassificationTable() {
+            const tbody = document.getElementById('classificationTableBody');
+            tbody.innerHTML = '';
+            
+            let counter = 1;
+            
+            // Цехови сборки
+            workshopItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'workshop-row';
+                row.innerHTML = `
+                    <td rowspan="${workshopItems.length}" style="writing-mode: vertical-rl; text-orientation: mixed; background: #28a745; color: white; font-weight: bold;">🏭 ЦЕХ</td>
+                    <td>${counter++}</td>
+                    <td style="text-align: center;">${item.name}</td>
+                    <td>1</td>
+                    <td style="color: #28a745; font-weight: bold; font-size: 1.2em;">✓</td>
+                `;
+                tbody.appendChild(row);
+                
+                // Премахваме rowspan за следващите редове
+                if (counter > 2) {
+                    row.children[0].remove();
+                }
+            });
+            
+            // Външни сборки  
+            externalItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'external-row';
+                row.innerHTML = `
+                    <td rowspan="${externalItems.length}" style="writing-mode: vertical-rl; text-orientation: mixed; background: #dc3545; color: white; font-weight: bold;">🚚 ВЪНШНО</td>
+                    <td>${counter++}</td>
+                    <td style="text-align: center;">${item.name}</td>
+                    <td>1</td>
+                    <td style="color: #dc3545; font-weight: bold; font-size: 1.2em;">✓</td>
+                `;
+                tbody.appendChild(row);
+                
+                // Премахваме rowspan за следващите редове
+                if (counter > workshopItems.length + 2) {
+                    row.children[0].remove();
+                }
+            });
+        }
+
+        function generatePartsTable(type, items, tableId) {
+            const tbody = document.getElementById(tableId);
+            tbody.innerHTML = '';
+            
+            // Обединяваме всички parts и subassemblies в един списък
+            const allParts = [];
+            
+            items.forEach(assembly => {
+                // Добавяме всички parts
+                const parts = assembly.parts || [];
+                parts.forEach(part => {
+                    allParts.push({
+                        name: part.name,
+                        quantity: part.quantity,
+                        imagePath: part.imagePath,
+                        isSubAssembly: false
+                    });
+                });
+                
+                // Добавяме подасемблитата като детайли
+                const subAssemblies = assembly.subAssemblies || [];
+                subAssemblies.forEach(sub => {
+                    allParts.push({
+                        name: sub.name + ' (подасембли)',
+                        quantity: sub.quantity,
+                        imagePath: sub.imagePath,
+                        isSubAssembly: true
+                    });
+                });
+            });
+            
+            // Обединяваме еднаквите детайли
+            const unifiedParts = new Map();
+            
+            allParts.forEach(part => {
+                // Почистваме името от <1>, <2> и т.н.
+                const cleanName = part.name.replace(/<\d+>/g, '').trim();
+                
+                if (unifiedParts.has(cleanName)) {
+                    // Ако съществува, увеличаваме количеството
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: unifiedParts.get(cleanName).quantity + part.quantity,
+                        imagePath: unifiedParts.get(cleanName).imagePath || part.imagePath,
+                        isSubAssembly: part.isSubAssembly
+                    });
+                } else {
+                    // Ако не съществува, го добавяме
+                    unifiedParts.set(cleanName, {
+                        name: cleanName,
+                        quantity: part.quantity,
+                        imagePath: part.imagePath,
+                        isSubAssembly: part.isSubAssembly
+                    });
+                }
+            });
+            
+            // Сортиране на унифицираните детайли
+            const sortedParts = sortByName(Array.from(unifiedParts.values()));
+            
+            // Генерираме таблицата със сортираните детайли
+            let counter = 1;
+            sortedParts.forEach(part => {
+                const row = document.createElement('tr');
+                if (part.isSubAssembly) {
+                    row.style.backgroundColor = '#f8f9fa';
+                    row.innerHTML = `
+                        <td class="qty-column">${counter++}</td>
+                        <td style="font-style: italic;">${createImageTooltip(translateName(part.name), part.imagePath)}</td>
+                        <td class="qty-column">${part.quantity}</td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td class="qty-column">${counter++}</td>
+                        <td>${createImageTooltip(translateName(part.name), part.imagePath)}</td>
+                        <td class="qty-column">${part.quantity}</td>
+                    `;
+                }
+                tbody.appendChild(row);
+            });
+            
+            // Ако няма елементи, добавяме празен ред
+            if (counter === 1) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="3" style="text-align: center; color: #6c757d; font-style: italic;">Няма елементи</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        function createAssemblyReportItem(item, type) {
+            const div = document.createElement('div');
+            div.className = `assembly-report-item ${type}-assembly`;
+            
+            const parts = item.parts || [];
+            const subAssemblies = item.subAssemblies || [];
+            
+            div.innerHTML = `
+                <div class="assembly-name">${item.name}</div>
+                <div class="assembly-path">${item.path}</div>
+                <div class="parts-summary">
+                    <div class="parts-column">
+                        <h4>🔧 Детайли (${parts.length}):</h4>
+                        ${parts.map(part => `<div>• ${part.name} - ${part.quantity} бр.</div>`).join('')}
+                    </div>
+                    <div class="parts-column">
+                        <h4>🏗️ Подасемблита (${subAssemblies.length}):</h4>
+                        ${subAssemblies.map(sub => `<div>• ${sub.name} - ${sub.quantity} бр.</div>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function printReport() {
+            const printWindow = window.open('', '_blank');
+            const reportContent = document.getElementById('finalReport').innerHTML;
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Технически отчет - Класификация на сборки</title>
+                    <style>
+                        @page { 
+                            size: A4; 
+                            margin: 10mm; 
+                        }
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 0; 
+                            padding: 0;
+                            font-size: 12px;
+                        }
+                        .report-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 15px;
+                            border-bottom: 3px solid #2c5aa0;
+                            background: #f8f9fa;
+                        }
+                        .company-info { font-size: 10px; color: #2c5aa0; font-weight: bold; }
+                        .company-logo { font-size: 24px; font-weight: bold; color: #2c5aa0; }
+                        .report-main { display: flex; min-height: 500px; }
+                        .report-visual {
+                            flex: 1;
+                            padding: 15px;
+                            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .report-title { 
+                            font-size: 18px; 
+                            color: #2c5aa0; 
+                            text-align: center; 
+                            margin-bottom: 15px; 
+                            font-weight: bold; 
+                        }
+                        .main-assembly-visual {
+                            max-width: 200px;
+                            max-height: 300px;
+                            border: 2px solid #2c5aa0;
+                            border-radius: 10px;
+                            background: white;
+                            padding: 10px;
+                        }
+                        .report-tables { flex: 1; padding: 15px; background: white; }
+                        .classification-table, .parts-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 15px;
+                            border: 2px solid #2c5aa0;
+                            font-size: 10px;
+                        }
+                        .classification-table th, .parts-table th {
+                            background: #2c5aa0;
+                            color: white;
+                            padding: 6px;
+                            text-align: center;
+                            font-weight: bold;
+                            border: 1px solid #2c5aa0;
+                        }
+                        .classification-table td, .parts-table td {
+                            padding: 4px;
+                            border: 1px solid #2c5aa0;
+                            text-align: center;
+                        }
+                        .workshop-row { background: #d4edda; }
+                        .external-row { background: #f8d7da; }
+                        .section-header {
+                            background: #2c5aa0;
+                            color: white;
+                            padding: 8px;
+                            text-align: center;
+                            font-weight: bold;
+                            font-size: 11px;
+                        }
+                        .parts-table { border: 2px solid #6c757d; }
+                        .parts-table th { background: #6c757d; border: 1px solid #6c757d; }
+                        .parts-table td { border: 1px solid #6c757d; }
+                        button { display: none !important; }
+                        .qty-column { text-align: center !important; font-weight: bold; }
+                    </style>
+                </head>
+                <body>${reportContent}</body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function exportDetailedResults() {
+            const detailedResults = {
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    mainAssembly: bomData.find(item => item.type === 'main_assembly')?.name || 'Unknown',
+                    totalAssemblies: bomData.length,
+                    workshopAssemblies: workshopItems.length,
+                    externalAssemblies: externalItems.length,
+                    totalParts: bomData.reduce((total, item) => total + (item.parts || []).length, 0)
+                },
+                classification: {
+                    workshopAssemblies: workshopItems.map(item => ({
+                        ...item,
+                        classification: 'workshop',
+                        partsCount: (item.parts || []).length,
+                        subAssembliesCount: (item.subAssemblies || []).length
+                    })),
+                    externalAssemblies: externalItems.map(item => ({
+                        ...item,
+                        classification: 'external',
+                        partsCount: (item.parts || []).length,
+                        subAssembliesCount: (item.subAssemblies || []).length
+                    }))
+                },
+                summary: {
+                    workshopParts: workshopItems.reduce((total, item) => total + (item.parts || []).length, 0),
+                    externalParts: externalItems.reduce((total, item) => total + (item.parts || []).length, 0),
+                    workshopSubAssemblies: workshopItems.reduce((total, item) => total + (item.subAssemblies || []).length, 0),
+                    externalSubAssemblies: externalItems.reduce((total, item) => total + (item.subAssemblies || []).length, 0)
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(detailedResults, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'detailed_bom_classification_report.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (currentIndex < bomData.length) {
+                if (e.key === '1' || e.key === 'y' || e.key === 'Y') {
+                    classifyItem(true);
+                } else if (e.key === '2' || e.key === 'n' || e.key === 'N') {
+                    classifyItem(false);
+                }
+            }
+        });
+
+        // Image functionality
+        function convertImagePath(imagePath) {
+            if (!imagePath || imagePath.trim() === '') {
+                return null;
+            }
+            
+            console.log('Оригинален път:', imagePath);
+            
+            // Ако пътят е абсолютен, конвертираме го в относителен
+            if (imagePath.includes('Screenshots\\')) {
+                // Извличаме частта след Screenshots
+                const parts = imagePath.split('Screenshots\\');
+                if (parts.length > 1) {
+                    // Заменяме обратните слешове с обикновени
+                    let relativePath = parts[1].replace(/\\/g, '/');
+                    
+                    // Ако завършва с _1_.png, _2_.png и т.н., махаме подчертавките
+                    // Пример: "Parts/30_02_S1_1_.png" -> "Parts/30_02_S1_1_.png" (оставяме както е)
+                    
+                    const finalPath = `images/${relativePath}`;
+                    console.log('Конвертиран път:', finalPath);
+                    return finalPath;
+                }
+            }
+            
+            // Ако пътят вече е относителен, връщаме го както е
+            console.log('Използваме оригиналния път:', imagePath);
+            return imagePath;
+        }
+
+        function createImageTooltip(name, imagePath) {
+            if (!imagePath) return name;
+            
+            const convertedPath = convertImagePath(imagePath);
+            if (!convertedPath) return name;
+            
+            return `<span class="image-tooltip" 
+                        onmouseover="showTooltip(event, '${convertedPath}')" 
+                        onmouseout="hideTooltip()"
+                        onclick="showImageModal('${name}', '${convertedPath}')">
+                        ${name}
+                    </span>`;
+        }
+
+        function tryLoadImage(imagePath, callback, attempt = 1) {
+            if (attempt > 3) {
+                console.log('Всички опити за зареждане на снимката се провалиха:', imagePath);
+                callback(false);
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                console.log('Снимката се зареди успешно:', imagePath);
+                callback(true, imagePath);
+            };
+            
+            img.onerror = function() {
+                console.log(`Опит ${attempt} - не може да се зареди:`, imagePath);
+                
+                if (attempt === 1 && imagePath.includes('Parts/')) {
+                    // За части с _1_, _2_, опитай без тях
+                    const fileName = imagePath.split('/').pop();
+                    if (fileName.includes('_') && fileName.endsWith('.png')) {
+                        const baseName = fileName.replace(/_\d+_\.png$/, '.png');
+                        const newPath = imagePath.replace(fileName, baseName);
+                        console.log('Опитвам алтернативен път:', newPath);
+                        tryLoadImage(newPath, callback, attempt + 1);
+                        return;
+                    }
+                }
+                
+                if (attempt === 2 && imagePath.includes('Parts/')) {
+                    // Опитай с _1_ ако основното име не работи
+                    const fileName = imagePath.split('/').pop();
+                    if (!fileName.includes('_1_')) {
+                        const baseName = fileName.replace('.png', '_1_.png');
+                        const newPath = imagePath.replace(fileName, baseName);
+                        console.log('Опитвам с _1_:', newPath);
+                        tryLoadImage(newPath, callback, attempt + 1);
+                        return;
+                    }
+                }
+                
+                callback(false);
+            };
+            
+            img.src = imagePath;
+        }
+
+        function showTooltip(event, imagePath) {
+            // Премахваме предишни tooltip-ури
+            hideTooltip();
+            
+            console.log('showTooltip извикан за:', imagePath);
+            
+            tryLoadImage(imagePath, function(success, finalPath) {
+                if (!success) {
+                    console.log('Няма достъпна снимка за:', imagePath);
+                    return;
+                }
+                
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip-image';
+                tooltip.id = 'imageTooltip';
+                
+                // Интелигентно позициониране спрямо позицията на елемента
+                const rect = event.target.getBoundingClientRect();
+                const windowWidth = window.innerWidth;
+                const tooltipWidth = 500; // ширината на tooltip-а
+                
+                console.log('Позиция на елемента:', rect.left, rect.right, 'Ширина на прозореца:', windowWidth);
+                
+                // По-агресивна проверка - ако tooltip-ът би излязъл извън екрана
+                const tooltipLeftEdge = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+                const tooltipRightEdge = rect.left + (rect.width / 2) + (tooltipWidth / 2);
+                
+                console.log('Tooltip би бил между:', tooltipLeftEdge, 'и', tooltipRightEdge);
+                
+                // Ако лявата част на tooltip-а би била извън екрана
+                if (tooltipLeftEdge < 0) {
+                    tooltip.classList.add('left-aligned');
+                    console.log('Добавен left-aligned клас - tooltip би излязъл вляво');
+                }
+                // Ако дясната част на tooltip-а би била извън екрана
+                else if (tooltipRightEdge > windowWidth) {
+                    tooltip.classList.add('right-aligned');
+                    console.log('Добавен right-aligned клас - tooltip би излязъл вдясно');
+                }
+                // Иначе използваме централното позициониране (по подразбиране)
+                else {
+                    console.log('Използвано централно позициониране - tooltip се събира в екрана');
+                }
+                
+                const img = document.createElement('img');
+                img.src = finalPath || imagePath;
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                
+                tooltip.appendChild(img);
+                event.target.appendChild(tooltip);
+                tooltip.style.display = 'block';
+                
+                console.log('Tooltip показан с класове:', tooltip.className);
+            });
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('imageTooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        }
+
+        function showImageModal(name, imagePath) {
+            const modal = document.getElementById('imageModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalImage = document.getElementById('modalImage');
+            const noImageMessage = document.getElementById('noImageMessage');
+            
+            modalTitle.textContent = translateName(name);
+            
+            if (imagePath && imagePath.trim() !== '') {
+                tryLoadImage(imagePath, function(success, finalPath) {
+                    if (success) {
+                        modalImage.src = finalPath || imagePath;
+                        modalImage.style.display = 'block';
+                        noImageMessage.style.display = 'none';
+                    } else {
+                        modalImage.style.display = 'none';
+                        noImageMessage.innerHTML = 'Няма налично изображение за този елемент<br><br><small style="color: #007bff;">💡 Съвет: Провери дали снимката е в папката <code>images/</code></small>';
+                        noImageMessage.style.display = 'block';
+                    }
+                });
+            } else {
+                modalImage.style.display = 'none';
+                noImageMessage.innerHTML = 'Няма указан път към изображение';
+                noImageMessage.style.display = 'block';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Затваряне на modal при кликване извън него
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeImageModal();
+            }
+        };
+
+        // Затваряне на modal с ESC клавиш
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        // Запазване на класификациите обратно в JSON файла
+        function saveClassifications() {
+            console.log('saveClassifications() функцията е извикана!');
+            console.log('originalJsonData:', originalJsonData);
+            console.log('workshopItems:', workshopItems);
+            console.log('externalItems:', externalItems);
+            
+            if (!originalJsonData || (!workshopItems.length && !externalItems.length)) {
+                console.log('Няма данни за запазване!');
+                alert('Няма класификации за запазване!');
+                return;
+            }
+
+            console.log('Започваме запазването на класификациите...');
+
+            // Създаваме копие на оригиналните данни
+            const updatedData = JSON.parse(JSON.stringify(originalJsonData));
+            console.log('Създадено копие на данните');
+            
+            // Добавяме класификационна информация към всеки елемент
+            function addClassificationToItems(items, classificationType) {
+                console.log(`Добавяме ${classificationType} класификация към:`, items.map(i => i.name));
+                
+                items.forEach(classifiedItem => {
+                    console.log(`Търсим: path="${classifiedItem.path}", name="${classifiedItem.name}"`);
+                    
+                    // Търсим в items ако съществуват
+                    if (updatedData.items) {
+                        const matchingItem = updatedData.items.find(item => 
+                            (item.path === classifiedItem.path && item.name === classifiedItem.name) ||
+                            (item.path === classifiedItem.path && item.originalName === classifiedItem.name) ||
+                            (item.name === classifiedItem.name)
+                        );
+                        if (matchingItem) {
+                            console.log(`Намерен в items: ${matchingItem.name}`);
+                            matchingItem.classification = classificationType;
+                            matchingItem.classificationDate = new Date().toISOString();
+                        }
+                    }
+                    
+                    // Търсим в assemblies
+                    if (updatedData.assemblies) {
+                        // Първо опитваме точно съвпадение
+                        let matchingAssembly = updatedData.assemblies.find(asm => 
+                            (asm.path === classifiedItem.path && asm.name === classifiedItem.name)
+                        );
+                        
+                        // Ако не намерим, опитваме с originalName
+                        if (!matchingAssembly) {
+                            matchingAssembly = updatedData.assemblies.find(asm => 
+                                (asm.path === classifiedItem.path && asm.originalName === classifiedItem.name)
+                            );
+                        }
+                        
+                        // Ако пак не намерим, опитваме да намерим асембли със същото базово име
+                        if (!matchingAssembly) {
+                            matchingAssembly = updatedData.assemblies.find(asm => {
+                                // Проверяваме дали пътят съдържа класифицираното име
+                                const pathContainsName = asm.path && asm.path.includes(classifiedItem.name);
+                                // Проверяваме дали името започва със същото базово име
+                                const nameStartsWithBase = asm.name && asm.name.startsWith(classifiedItem.name);
+                                
+                                return pathContainsName || nameStartsWithBase;
+                            });
+                        }
+                        
+                        if (matchingAssembly) {
+                            console.log(`Намерен в assemblies: "${matchingAssembly.name}" (търсен: "${classifiedItem.name}")`);
+                            matchingAssembly.classification = classificationType;
+                            matchingAssembly.classificationDate = new Date().toISOString();
+                        } else {
+                            console.log(`НЕ е намерен в assemblies: "${classifiedItem.name}"`);
+                            console.log('Налични assemblies:', updatedData.assemblies.map(a => `"${a.name}" (path: "${a.path}")`));
+                        }
+                    }
+                    
+                    // Търсим в unifiedAssemblies ако съществуват
+                    if (updatedData.unifiedAssemblies) {
+                        const matchingUnified = updatedData.unifiedAssemblies.find(asm => 
+                            (asm.name === classifiedItem.name) ||
+                            (asm.originalName === classifiedItem.name)
+                        );
+                        if (matchingUnified) {
+                            console.log(`Намерен в unifiedAssemblies: ${matchingUnified.name}`);
+                            matchingUnified.classification = classificationType;
+                            matchingUnified.classificationDate = new Date().toISOString();
+                        }
+                    }
+                });
+            }
+
+            // Добавяме класификации
+            addClassificationToItems(workshopItems, 'workshop');
+            addClassificationToItems(externalItems, 'external');
+
+            // Добавяме метаданни за класификацията
+            updatedData.classificationMetadata = {
+                classifiedBy: 'HTML Classifier',
+                classificationDate: new Date().toISOString(),
+                version: '1.0',
+                totalClassified: workshopItems.length + externalItems.length,
+                workshopCount: workshopItems.length,
+                externalCount: externalItems.length
+            };
+
+            // Добавяме глобалните RAL настройки ако има такива
+            if (Object.keys(globalRalSettings).length > 0) {
+                updatedData.globalRalSettings = globalRalSettings;
+                console.log('Добавени глобални RAL настройки:', globalRalSettings);
+            }
+
+            // Записваме файла
+            const dataStr = JSON.stringify(updatedData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `${updatedData.mainAssembly?.name || 'BOM'}_classified.json`;
+            link.click();
+
+            // Показваме съобщение за успех
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 9999;
+                font-weight: bold;
+            `;
+            message.innerHTML = `
+                ✅ Класификациите са запазени!<br>
+                <small>Файл: ${updatedData.mainAssembly?.name || 'BOM'}_classified.json</small>
+            `;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 4000);
+        }
+
+        // Запазваме оригиналните данни когато се зареждат
+        let originalJsonData = null;
+
+        // Глобални променливи за цветовете
+        let globalRalSettings = {};
+
+        // Отваряне на цветовия модал
+        function openColorModal() {
+            const modal = document.getElementById('colorModal');
+            
+            // Зареждаме запазените глобални настройки
+            loadGlobalRalSettings();
+            
+            modal.style.display = 'flex';
+        }
+
+        // Затваряне на цветовия модал
+        function closeColorModal() {
+            const modal = document.getElementById('colorModal');
+            modal.style.display = 'none';
+        }
+
+        // Зареждане на глобални RAL настройки
+        function loadGlobalRalSettings() {
+            const ralSelects = ['ral-main', 'ral1', 'ral2', 'ral3', 'ral4', 'ral5', 'ral6', 'ral7', 'ral8', 'ral9'];
+            
+            // Първо изчистваме всички селектори
+            ralSelects.forEach(selectId => {
+                const selectElement = document.getElementById(selectId);
+                if (selectElement) {
+                    selectElement.value = '';
+                }
+            });
+
+            // Зареждаме запазените настройки ако има такива
+            if (Object.keys(globalRalSettings).length > 0) {
+                Object.keys(globalRalSettings).forEach(ralKey => {
+                    const selectId = ralKey === 'RAL' ? 'ral-main' : ralKey.toLowerCase();
+                    const selectElement = document.getElementById(selectId);
+                    if (selectElement) {
+                        selectElement.value = globalRalSettings[ralKey];
+                    }
+                });
+            }
+        }
+
+        // Запазване на глобалните RAL настройки
+        function saveGlobalRalSettings() {
+            const ralSelects = ['ral-main', 'ral1', 'ral2', 'ral3', 'ral4', 'ral5', 'ral6', 'ral7', 'ral8', 'ral9'];
+            
+            globalRalSettings = {};
+            
+            ralSelects.forEach(selectId => {
+                const selectElement = document.getElementById(selectId);
+                if (selectElement && selectElement.value) {
+                    // Преобразуваме ID-то обратно в правилния ключ
+                    let ralKey = selectId === 'ral-main' ? 'RAL' : selectId.toUpperCase();
+                    globalRalSettings[ralKey] = selectElement.value;
+                }
+            });
+
+            // Показваме съобщение за успех
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #6f42c1, #5a32a3);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 9999;
+                font-weight: bold;
+            `;
+            
+            message.innerHTML = `
+                🎨 Глобалните RAL настройки са запазени!<br>
+                <small>Настроени ${Object.keys(globalRalSettings).length} RAL кода</small>
+            `;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+
+            console.log('Глобални RAL настройки:', globalRalSettings);
+            
+            // Затваряме модала
+            closeColorModal();
+        }
+    </script>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Изображение</h3>
+                <button class="close-btn" onclick="closeImageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Изображение на детайл">
+                <div id="noImageMessage" class="no-image" style="display: none;">
+                    Няма налично изображение за този елемент
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RAL Color Modal -->
+    <div id="colorModal" class="image-modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh;">
+            <div class="modal-header">
+                <h3>🎨 Глобални настройки на RAL цветове</h3>
+                <button class="close-btn" onclick="closeColorModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; overflow-y: auto;">
+                <div class="color-selection-container">
+                    <div style="margin-bottom: 20px; text-align: center; color: #6c757d;">
+                        <p>Задайте стойностите за всеки RAL код, които ще се използват в проекта</p>
+                    </div>
+                    
+                    <div class="ral-options">
+                        <div class="ral-option">
+                            <label>RAL:</label>
+                            <select id="ral-main">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9005">RAL 9005</option>
+                                <option value="RAL 5009">RAL 5009</option>
+                                <option value="RAL 3020">RAL 3020</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL1:</label>
+                            <select id="ral1">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 3020">RAL 3020</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL2:</label>
+                            <select id="ral2">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9010">RAL 9010</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL3:</label>
+                            <select id="ral3">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9006">RAL 9006</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL4:</label>
+                            <select id="ral4">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9006">RAL 9006</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL5:</label>
+                            <select id="ral5">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9006">RAL 9006</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL6:</label>
+                            <select id="ral6">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 1003">RAL 1003</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL7:</label>
+                            <select id="ral7">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9010">RAL 9010</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL8:</label>
+                            <select id="ral8">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9010">RAL 9010</option>
+                                <option value="RAL 9005">RAL 9005</option>
+                                <option value="RAL 3020">RAL 3020</option>
+                                <option value="Zn">Zn</option>
+                            </select>
+                        </div>
+                        <div class="ral-option">
+                            <label>RAL9:</label>
+                            <select id="ral9">
+                                <option value="">-- Избери --</option>
+                                <option value="RAL 9007">RAL 9007</option>
+                                <option value="RAL 7024">RAL 7024</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-color" onclick="saveGlobalRalSettings()">
+                            💾 Запази глобалните RAL настройки
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1645,3 +1645,290 @@ function showTab(tabName) {
 **Фаза 3:** Имплементация на modal wizard за класификация на level 1 сборки с автоматично наследяване за level 2+
 
 ---
+
+## 🎯 Интеграция #9: Modal wizard за класификация на сборки (Фаза 3)
+
+**Дата:** 12 декември 2025  
+**Статус:** ✅ Завършена и работеща
+
+### Описание
+Добавена е пълна функционалност за класификация на сборки чрез интерактивен wizard:
+- Modal прозорец с прогрес бар и навигация
+- Класификация на level 1 сборки с два бутона: "🏭 В цеха" / "🏗️ На обекта"
+- Автоматично наследяване на класификацията за всички деца (level 2+)
+- Запазване в localStorage/мрежа с real-time споделяне
+- Извличане на реални имена от пътища (fix за `<подасембли>`)
+- Премахване на CORS грешки при file:// протокол
+
+### Файлове променени
+- `unified_bom_viewer.html`
+
+### Детайлни промени
+
+#### 1. HTML структура за wizard modal (преди `</body>`)
+```html
+<!-- Classification Wizard Modal -->
+<div class="wizard-modal" id="classificationWizard">
+    <div class="wizard-modal-content">
+        <!-- Header -->
+        <div class="wizard-header">
+            <h2>🏭 Класификация на сборки</h2>
+            <button class="wizard-close-btn" onclick="closeClassificationWizard()">&times;</button>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="wizard-progress-container">
+            <div class="wizard-progress-text">
+                Сборка <span id="wizardCurrentIndex">1</span> от <span id="wizardTotalCount">0</span>
+            </div>
+            <div class="wizard-progress-bar">
+                <div class="wizard-progress-fill" id="wizardProgressFill"></div>
+            </div>
+        </div>
+        
+        <!-- Body - динамично съдържание -->
+        <div class="wizard-body" id="wizardBody"></div>
+        
+        <!-- Footer - Navigation -->
+        <div class="wizard-footer">
+            <button class="wizard-nav-btn" id="wizardPrevBtn" onclick="wizardPrevious()">← Назад</button>
+            <button class="wizard-nav-btn wizard-skip-btn" id="wizardSkipBtn" onclick="wizardSkip()">Прескочи</button>
+            <button class="wizard-nav-btn" id="wizardNextBtn" onclick="wizardNext()">Напред →</button>
+        </div>
+    </div>
+</div>
+```
+
+#### 2. CSS стилове за wizard (~280 реда)
+```css
+/* Wizard Modal Styles */
+.wizard-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+
+.wizard-modal.active { display: flex; }
+
+.wizard-modal-content {
+    background: white;
+    border-radius: 15px;
+    width: 90%; max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: wizardSlideIn 0.3s ease-out;
+}
+
+@keyframes wizardSlideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Progress bar, buttons, styling... */
+```
+
+#### 3. JavaScript функции
+
+**`getLevel1Assemblies()`** - Извличане на главни сборки
+```javascript
+function getLevel1Assemblies() {
+    const level1Assemblies = [];
+    
+    // Обхожда всички обекти и филтрира level 1 елементи
+    bomData.objects.forEach(obj => {
+        if (obj.flatBOM && obj.flatBOM.length > 0) {
+            obj.flatBOM.forEach(item => {
+                if (item.level === 1) {
+                    // Извлича име от път ако е <подасембли>
+                    let displayName = item.name;
+                    if (!displayName || displayName === '<подасембли>') {
+                        displayName = extractNameFromPath(item.path);
+                    }
+                    
+                    level1Assemblies.push({
+                        path: item.path,
+                        cleanName: displayName,
+                        objectName: obj.name,
+                        quantity: item.quantity || 1
+                    });
+                }
+            });
+        }
+    });
+    
+    return level1Assemblies;
+}
+```
+
+**`startClassificationWizard()`** - Стартиране на wizard
+- Получава всички level 1 сборки
+- Инициализира индекси и класификации
+- Показва modal-а
+- Зарежда първата сборка
+
+**`showWizardAssembly(index)`** - Показване на сборка
+- Обновява прогрес бара
+- Генерира HTML със снимка, име, детайли
+- Показва два големи бутона за избор
+- Контролира навигационните бутони
+
+**`classifyAssembly(category)`** - Класифициране на сборка
+- Запазва избора (workshop/external)
+- Извиква `autoClassifyChildren()` за автоматично класифициране на деца
+- Активира бутон "Напред"
+- Автоматично преминава към следващата сборка
+- При последна сборка → завършва wizard-а
+
+**`autoClassifyChildren(parentPath, category)`** - Автоматична класификация
+- Обхожда всички елементи в flatBOM
+- Намира деца със `startsWith(parentPath + '/')` и `level > 1`
+- Класифицира всички деца в същата категория
+- Логва броя класифицирани деца
+
+**`completeWizard()`** - Финален екран
+- Показва резултати (X в цеха, Y на обекта)
+- Бутон "Запази и затвори"
+
+**`saveAndCloseWizard()`** - Запазване на класификациите
+```javascript
+async function saveAndCloseWizard() {
+    // Групира по категория
+    const classificationData = { workshop: [], external: [] };
+    Object.keys(wizardClassifications).forEach(path => {
+        const category = wizardClassifications[path];
+        if (category === 'workshop') classificationData.workshop.push(path);
+        else if (category === 'external') classificationData.external.push(path);
+    });
+    
+    // Запазва всяка класификация поотделно
+    for (const path of classificationData.workshop) {
+        await saveUserDataChange('classification_' + path, 'workshop');
+    }
+    for (const path of classificationData.external) {
+        await saveUserDataChange('classification_' + path, 'external');
+    }
+    
+    // Затваря wizard-а и презарежда таба
+    closeClassificationWizard();
+    await loadAssemblyClassification();
+    generateAssemblyClassificationTab();
+}
+```
+
+**Навигационни функции:**
+- `wizardPrevious()` - Връща към предишната сборка
+- `wizardNext()` - Преминава към следващата
+- `wizardSkip()` - Прескача сборка (с confirmation)
+- `closeClassificationWizard()` - Затваря modal-а
+
+#### 4. Подобрения на съществуващи функции
+
+**`findAssemblyByPath(path)`** - Поправка за `<подасембли>`
+```javascript
+function findAssemblyByPath(path) {
+    // Помощна функция за извличане на име от път
+    function extractNameFromPath(path) {
+        const lastPart = path.split('/').pop();
+        return lastPart.replace(/<\d+>$/, ''); // Премахва <1>, <2> и т.н.
+    }
+    
+    // Търси в flatBOM
+    for (let item of obj.flatBOM) {
+        if (item.path === path) {
+            // Ако името е <подасембли>, извлича го от пътя
+            let displayName = item.name;
+            if (!displayName || displayName === '<подасембли>') {
+                displayName = extractNameFromPath(item.path);
+            }
+            return { name: displayName, path, quantity, level };
+        }
+    }
+}
+```
+
+**`detectSharedMode()`** - Премахване на CORS грешки
+```javascript
+async function detectSharedMode() {
+    // Проверка за file:// протокол ПРЕДИ fetch
+    if (window.location.protocol === 'file:') {
+        isSharedMode = false;
+        updateNetworkStatus(false, "Локален режим");
+        console.log('📱 Локален режим - файлът е отворен директно (file://)');
+        console.log('💡 За мрежов режим отворете файла през HTTP сървър');
+        return; // Без fetch заявка!
+    }
+    
+    // Продължава с HTTP/HTTPS проверка...
+}
+```
+
+### Как работи
+
+**1. Стартиране на wizard:**
+- Admin влиза в таб "🏭 Сглобяване"
+- Кликва "🏭 Започни класификация"
+- Wizard modal се отваря с първата level 1 сборка
+
+**2. Класификация на сборка:**
+- Виж име, обект, количество
+- Кликни "🏭 В цеха" ИЛИ "🏗️ На обекта"
+- Автоматично се класифицират ВСИЧКИ деца (level 2, 3, 4...)
+- Прогрес барът се обновява
+- Автоматично преминава към следващата
+
+**3. Навигация:**
+- "← Назад" - връща към предишна сборка
+- "Прескочи" - оставя некласифицирана
+- "Напред →" - към следващата (активен след класификация)
+
+**4. Завършване:**
+- Показва резултати: X в цеха, Y на обекта
+- "Запази и затвори" → запазва в localStorage/мрежата
+- Таб "🏭 Сглобяване" се обновява с резултатите
+
+**5. Persistence:**
+- Всяка класификация се запазва като `classification_{path}` = category
+- При refresh - данните се зареждат автоматично
+- В мрежов режим - споделят се real-time между потребители
+
+### Тестване
+
+✅ Wizard modal се отваря правилно  
+✅ Прогрес бар показва "Сборка X от Y"  
+✅ **Реални имена** вместо `<подасембли>` (извлечени от път)  
+✅ Бутони "В цеха" / "На обекта" работят  
+✅ Автоматична класификация на деца (22+ елемента)  
+✅ Навигация (Назад/Напред/Прескочи) работи  
+✅ Финален екран показва резултати  
+✅ Запазване в localStorage/мрежа работи  
+✅ След refresh - данните се запазват  
+✅ Таб "🏭 Сглобяване" показва класифицираните сборки  
+✅ **Без CORS грешки** в конзолата при file:// протокол  
+
+### Ключови подобрения
+
+1. **Извличане на име от път:**
+   - Проблем: BOM данните съдържат `<подасембли>` вместо реално име
+   - Решение: Извличаме последната част от пътя и премахваме `<1>`, `<2>` и т.н.
+   - Пример: `ALL Bufer/Planka Bufer<1>` → `Planka Bufer`
+
+2. **Премахване на CORS грешки:**
+   - Проблем: При отваряне на file:// fetch към `/get_user_data` хвърля грешка
+   - Решение: Проверка на протокола ПРЕДИ fetch заявка
+   - Резултат: Чиста конзола без червени грешки
+
+3. **Автоматична класификация на деца:**
+   - Ефективност: Един клик класифицира главна сборка + всички подсборки
+   - Логика: `path.startsWith(parentPath + '/')` и `level > 1`
+   - Лог: Показва колко деца са класифицирани
+
+### Следваща стъпка
+**Фаза 4:** Йерархично дърво с [+] expand/collapse бутони за визуализация на подсборки
+
+---

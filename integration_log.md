@@ -1932,3 +1932,119 @@ async function detectSharedMode() {
 **Фаза 4:** Йерархично дърво с [+] expand/collapse бутони за визуализация на подсборки
 
 ---
+
+## 🎯 Интеграция #10: Йерархично дърво за класификация - Стъпка 1 (Фаза 4)
+
+**Дата:** 23 декември 2025  
+**Статус:** ⏳ В процес - Стъпка 1/5 завършена
+
+### Описание
+Започната имплементация на йерархично дърво с expand/collapse функционалност за визуализация на детайли и подсборки в класифицираните сборки.
+
+**Цел на Фаза 4:** Вместо прост flat списък със сборки, показваме йерархична структура с възможност за разгъване/сгъване на подсборки и преместване между категории.
+
+### Файлове променени
+- `unified_bom_viewer.html`
+
+### Детайлни промени
+
+#### Стъпка 1: Анализ на данните и функция за извличане на деца ✅
+
+**`getAssemblyChildren(parentPath)`** - Нова функция за анализ на структурата
+```javascript
+function getAssemblyChildren(parentPath) {
+    const children = {
+        details: [],      // Детайли (няма деца)
+        subassemblies: [] // Подсборки (има деца)
+    };
+    
+    // 1. Намира родителя и неговото ниво в flatBOM
+    // 2. Извлича всички директни деца (level = parentLevel + 1)
+    // 3. За всяко дете проверява дали има собствени деца
+    // 4. Разделя на details (няма деца) и subassemblies (има деца)
+    // 5. Извлича реални имена от пътища (fix за <подасембли>)
+    
+    return children;
+}
+```
+
+**Логика за разделяне:**
+- **Детайл** = елемент БЕЗ деца в flatBOM (обикновени части: болтове, плочи, и т.н.)
+- **Подсборка** = елемент С деца в flatBOM (komplekt-и които имат собствени части)
+
+**Филтриране на деца:**
+```javascript
+// Намира директни деца
+item.path.startsWith(parentPath + '/') && 
+item.level === parentLevel + 1
+
+// Проверява дали елемент има деца (подсборка)
+const hasChildren = bomData.objects.some(obj => 
+    obj.flatBOM.some(item => 
+        item.path.startsWith(child.path + '/') && 
+        item.level === child.level + 1
+    )
+);
+```
+
+**Извличане на имена:**
+```javascript
+function extractNameFromPath(path) {
+    const lastPart = path.split('/').pop();
+    return lastPart.replace(/<\d+>$/, ''); // Премахва <1>, <2> и т.н.
+}
+```
+
+**Връщан резултат:**
+```javascript
+{
+    details: [
+        { path: '...', name: 'Planka буфер', quantity: 1, level: 2 },
+        { path: '...', name: 'Anker M10x80', quantity: 1, level: 2 },
+        ...
+    ],
+    subassemblies: [
+        { path: '...', name: 'Planka буфер Komplekt', quantity: 1, level: 2 },
+        { path: '...', name: 'GE - Pizzato Komplekt', quantity: 1, level: 2 },
+        ...
+    ]
+}
+```
+
+### Тестване на Стъпка 1
+
+**Команда в конзолата:**
+```javascript
+const testPath = "ALL Bufer Service Komplekt";
+const children = getAssemblyChildren(testPath);
+console.log("Детайли:", children.details);
+console.log("Подсборки:", children.subassemblies);
+```
+
+**Очакван резултат:**
+```
+📊 Деца на ALL Bufer Service Komplekt: {детайли: 6, подсборки: 4}
+
+Детайли: Array(6)
+  0: {path: "ALL Bufer Service Komplekt/Planka буфер<1>", name: "Planka буфер", quantity: 1, level: 2}
+  1: {path: "ALL Bufer Service Komplekt/Anker M10x80<1>", name: "Anker M10x80", quantity: 1, level: 2}
+  ...
+
+Подсборки: Array(4)
+  0: {path: "ALL Bufer Service Komplekt/Planka буфер Komplekt<1>", name: "Planka буфер Komplekt", quantity: 1, level: 2}
+  1: {path: "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>", name: "GE - Pizzato Komplekt", quantity: 1, level: 2}
+  ...
+```
+
+### Тестове проведени
+
+✅ Функцията намира правилно директните деца на родителска сборка  
+✅ Правилно разделя на детайли (6 елемента) и подсборки (4 елемента)  
+✅ Извлича реални имена от пътища (няма `<подасембли>`)  
+✅ Връща структуриран обект готов за HTML генерация  
+✅ Логва информация в конзолата за debugging  
+
+### Следваща стъпка
+**Стъпка 2/5:** HTML генериране на йерархично дърво с [+] бутони за expand/collapse
+
+---

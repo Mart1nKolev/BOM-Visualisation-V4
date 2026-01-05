@@ -665,6 +665,164 @@
             border-left-color: #dc3545;
         }
 
+        /* ============================================
+           🌲 ФАЗА 4 СТЪПКА 2: ЙЕРАРХИЧНО ДЪРВО СТИЛОВЕ
+           ============================================ */
+        
+        .assembly-tree-item {
+            margin: 10px 0;
+        }
+        
+        .assembly-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            transition: all 0.2s;
+        }
+        
+        .assembly-header:hover {
+            background: #e9ecef;
+        }
+        
+        .workshop-section .assembly-header {
+            border-left-color: #28a745;
+        }
+        
+        .external-section .assembly-header {
+            border-left-color: #dc3545;
+        }
+        
+        .expand-btn {
+            width: 24px;
+            height: 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .expand-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+        
+        .expand-btn.expanded {
+            background: #28a745;
+        }
+        
+        .expand-btn-spacer {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+        
+        .assembly-name {
+            font-weight: 500;
+            color: #2c3e50;
+            flex-grow: 1;
+        }
+        
+        .assembly-count {
+            color: #6c757d;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        .assembly-children {
+            margin-left: 40px;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px solid #dee2e6;
+        }
+        
+        .assembly-details-section,
+        .assembly-subassemblies-section {
+            margin: 10px 0;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin: 10px 0 8px 0;
+        }
+        
+        .details-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .detail-item {
+            padding: 6px 10px;
+            margin: 4px 0;
+            background: #ffffff;
+            border-radius: 4px;
+            border-left: 3px solid #6c757d;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .detail-name {
+            color: #495057;
+        }
+        
+        .detail-quantity {
+            color: #6c757d;
+            font-size: 13px;
+        }
+        
+        .subassembly-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #fff3cd;
+            border-radius: 4px;
+            border-left: 3px solid #ffc107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subassembly-name {
+            font-weight: 500;
+            color: #856404;
+            flex-grow: 1;
+        }
+        
+        .subassembly-quantity {
+            color: #856404;
+            font-size: 13px;
+        }
+        
+        .sub-move-button {
+            padding: 4px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .sub-move-button:hover {
+            background: #0056b3;
+        }
+
         /* Admin Mode Toggle Switch */
         .admin-toggle-container {
             position: absolute;
@@ -1514,6 +1672,13 @@
         // ============================================
         // 🏭 ASSEMBLY CLASSIFICATION FUNCTIONS (ФАЗА 2)
         // ============================================
+
+        // Debug логове за таба "Сглобяване" (Фаза 4 дърво и класификация).
+        // Изключено по подразбиране, за да не пълни конзолата.
+        const DEBUG_ASSEMBLY_CLASSIFICATION = false;
+        function acLog(...args) {
+            if (DEBUG_ASSEMBLY_CLASSIFICATION) console.log(...args);
+        }
         
         // Глобална променлива за класификация
         let assemblyClassification = {
@@ -1524,7 +1689,7 @@
         
         // Зареждане на класификация от localStorage/network
         async function loadAssemblyClassification() {
-            console.log('📥 Зареждане на класификация...');
+            acLog('📥 Зареждане на класификация...');
             
             try {
                 // Опитваме се да заредим от споделените данни
@@ -1553,9 +1718,9 @@
                         external: external,
                         timestamp: new Date().toISOString()
                     };
-                    console.log('✅ Класификация заредена:', assemblyClassification);
+                    acLog('✅ Класификация заредена:', assemblyClassification);
                 } else {
-                    console.log('ℹ️ Няма запазена класификация');
+                    acLog('ℹ️ Няма запазена класификация');
                 }
             } catch (error) {
                 console.error('❌ Грешка при зареждане на класификация:', error);
@@ -1566,7 +1731,7 @@
         
         // Запазване на класификация
         async function saveAssemblyClassification(data) {
-            console.log('💾 Запазване на класификация...', data);
+            acLog('💾 Запазване на класификация...', data);
             
             // Запазваме всяка сборка отделно в споделените данни
             // Първо изчистваме старите classification_* записи
@@ -1588,12 +1753,15 @@
             }
             
             assemblyClassification = data;
-            console.log('✅ Класификация запазена');
+            acLog('✅ Класификация запазена');
         }
         
         // Генериране на таба с класификация
         async function generateAssemblyClassificationTab() {
-            console.log('🏭 Генериране на таб за класификация...');
+            acLog('🏭 Генериране на таб за класификация...');
+
+            // Reset уникалните id-та за дървото при всеки рендер
+            assemblyTreeNodeCounter = 0;
             
             // Зареждаме класификацията
             await loadAssemblyClassification();
@@ -1624,52 +1792,179 @@
                 return;
             }
             
-            // Генерираме съдържание за workshop сборките
+            // Фаза 4 Стъпка 2: Генерираме йерархично дърво за workshop сборките
             let workshopHTML = '';
+            const processedPaths = new Set(); // За да не дублираме siblings
+
+            // 1) Детайли на root (siblings)
+            const workshopRootDetails = [];
+            // 2) Komplekts (ще ги разделим на крепежни и некрепежни)
+            const workshopKomplekts = [];
+
             assemblyClassification.workshop.forEach(path => {
                 const assembly = findAssemblyByPath(path);
-                if (assembly) {
-                    workshopHTML += `
-                        <div class="assembly-item">
-                            <div>
-                                <span class="assembly-item-name">${assembly.name}</span>
-                                ${assembly.quantity ? `<span class="assembly-item-count"> (${assembly.quantity} бр)</span>` : ''}
-                            </div>
-                            ${isAdminMode ? `
-                                <button class="move-button admin-only-control" onclick="moveAssemblyToExternal('${path}')">
-                                    → На обекта
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
+                if (!assembly) return;
+
+                if (isKomplektAssemblyName(assembly.name)) {
+                    workshopKomplekts.push({ assembly, path });
+                    return;
                 }
+
+                // Non-komplekt: показваме всички siblings за този path (само веднъж)
+                if (processedPaths.has(path)) return;
+
+                bomData.objects.forEach(obj => {
+                    if (!obj.flatBOM) return;
+                    obj.flatBOM.forEach(item => {
+                        if (
+                            item.path === path &&
+                            item.level === assembly.level &&
+                            item.name !== '<подасембли>' &&
+                            item.name.trim() !== ''
+                        ) {
+                            workshopRootDetails.push({
+                                name: item.name,
+                                path: item.path,
+                                quantity: item.quantity,
+                                level: item.level
+                            });
+                        }
+                    });
+                });
+
+                processedPaths.add(path);
             });
+
+            // Рендер: root детайли (графа)
+            smartSort(workshopRootDetails, 'name');
+            if (workshopRootDetails.length > 0) {
+                workshopHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        🔧 Детайли:
+                    </div>
+                `;
+                workshopRootDetails.forEach(d => {
+                    workshopHTML += renderAssemblyTreeItem(d, d.path, 'workshop');
+                });
+            }
+
+            // Рендер: Komplekts (подсборки, после крепежи)
+            smartSort(workshopKomplekts, (item) => item.assembly.name);
+            const workshopFastenerKomplekts = workshopKomplekts.filter(k => isFastenerAssemblyName(k.assembly.name));
+            const workshopOtherKomplekts = workshopKomplekts.filter(k => !isFastenerAssemblyName(k.assembly.name));
+
+            if (workshopOtherKomplekts.length > 0) {
+                workshopHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        🏗️ Подсборки:
+                    </div>
+                `;
+                workshopOtherKomplekts.forEach(({ assembly, path }) => {
+                    workshopHTML += renderAssemblyTreeItem(assembly, path, 'workshop');
+                });
+            }
+
+            if (workshopFastenerKomplekts.length > 0) {
+                workshopHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        ⚙️ Крепежи необходими за сглобяването:
+                    </div>
+                `;
+                workshopFastenerKomplekts.forEach(({ assembly, path }) => {
+                    workshopHTML += renderAssemblyTreeItem(assembly, path, 'workshop');
+                });
+            }
             
-            // Генерираме съдържание за external сборките
+            // Фаза 4 Стъпка 2: Генерираме йерархично дърво за external сборките
             let externalHTML = '';
+            const processedPathsExt = new Set(); // За да не дублираме siblings
+
+            const externalRootDetails = [];
+            const externalKomplekts = [];
+
             assemblyClassification.external.forEach(path => {
                 const assembly = findAssemblyByPath(path);
-                if (assembly) {
-                    externalHTML += `
-                        <div class="assembly-item">
-                            <div>
-                                <span class="assembly-item-name">${assembly.name}</span>
-                                ${assembly.quantity ? `<span class="assembly-item-count"> (${assembly.quantity} бр)</span>` : ''}
-                            </div>
-                            ${isAdminMode ? `
-                                <button class="move-button admin-only-control" onclick="moveAssemblyToWorkshop('${path}')">
-                                    → В цеха
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
+                if (!assembly) return;
+
+                if (isKomplektAssemblyName(assembly.name)) {
+                    externalKomplekts.push({ assembly, path });
+                    return;
                 }
+
+                if (processedPathsExt.has(path)) return;
+
+                bomData.objects.forEach(obj => {
+                    if (!obj.flatBOM) return;
+                    obj.flatBOM.forEach(item => {
+                        if (
+                            item.path === path &&
+                            item.level === assembly.level &&
+                            item.name !== '<подасембли>' &&
+                            item.name.trim() !== ''
+                        ) {
+                            externalRootDetails.push({
+                                name: item.name,
+                                path: item.path,
+                                quantity: item.quantity,
+                                level: item.level
+                            });
+                        }
+                    });
+                });
+
+                processedPathsExt.add(path);
             });
+
+            smartSort(externalRootDetails, 'name');
+            if (externalRootDetails.length > 0) {
+                externalHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        🔧 Детайли:
+                    </div>
+                `;
+                externalRootDetails.forEach(d => {
+                    externalHTML += renderAssemblyTreeItem(d, d.path, 'external');
+                });
+            }
+
+            smartSort(externalKomplekts, (item) => item.assembly.name);
+            const externalFastenerKomplekts = externalKomplekts.filter(k => isFastenerAssemblyName(k.assembly.name));
+            const externalOtherKomplekts = externalKomplekts.filter(k => !isFastenerAssemblyName(k.assembly.name));
+
+            if (externalOtherKomplekts.length > 0) {
+                externalHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        🏗️ Подсборки:
+                    </div>
+                `;
+                externalOtherKomplekts.forEach(({ assembly, path }) => {
+                    externalHTML += renderAssemblyTreeItem(assembly, path, 'external');
+                });
+            }
+
+            if (externalFastenerKomplekts.length > 0) {
+                externalHTML += `
+                    <div class="section-title" style="margin: 12px 0 6px 0;">
+                        ⚙️ Крепежи необходими за сглобяването:
+                    </div>
+                `;
+                externalFastenerKomplekts.forEach(({ assembly, path }) => {
+                    externalHTML += renderAssemblyTreeItem(assembly, path, 'external');
+                });
+            }
             
             workshopContent.innerHTML = workshopHTML || '<p style="color: #6c757d; padding: 20px; text-align: center;">Няма сборки</p>';
             externalContent.innerHTML = externalHTML || '<p style="color: #6c757d; padding: 20px; text-align: center;">Няма сборки</p>';
             workshopCount.textContent = assemblyClassification.workshop.length;
             externalCount.textContent = assemblyClassification.external.length;
+        }
+
+        // Уникални id-та за DOM елементите на дървото.
+        // Не можем да ползваме path като id, защото един и същ path може да се рендерира на повече от едно място.
+        var assemblyTreeNodeCounter = 0;
+        function nextAssemblyTreeNodeId() {
+            assemblyTreeNodeCounter += 1;
+            return `tree_${assemblyTreeNodeCounter}`;
         }
         
         // Помощна функция за намиране на сборка по път
@@ -1688,27 +1983,36 @@
                 return cleanName;
             }
             
-            // Търсим точно съвпадение
+            // Търсим всички записи със същия path и вземаме този с най-ниско ниво
+            let bestMatch = null;
+            
             for (let obj of bomData.objects) {
                 if (obj.flatBOM) {
                     for (let item of obj.flatBOM) {
                         if (item.path === path) {
-                            // Ако името е <подасембли> или празно, извличаме го от пътя
-                            let displayName = item.name;
-                            if (!displayName || displayName === '<подасембли>' || displayName.trim() === '') {
-                                displayName = extractNameFromPath(item.path);
+                            // Ако това е първото намерено или има по-ниско ниво, запазваме го
+                            if (!bestMatch || item.level < bestMatch.level) {
+                                bestMatch = item;
                             }
-                            
-                            console.log(`✅ Намерена сборка: ${displayName} (${path})`);
-                            return {
-                                name: displayName,
-                                path: item.path,
-                                quantity: item.quantity,
-                                level: item.level
-                            };
                         }
                     }
                 }
+            }
+            
+            if (bestMatch) {
+                // Извличаме читаемо име от пътя
+                let displayName = bestMatch.name;
+                if (!displayName || displayName === '<подасембли>' || displayName.trim() === '') {
+                    displayName = extractNameFromPath(bestMatch.path);
+                }
+                
+                acLog(`✅ Намерена сборка: ${displayName}, level ${bestMatch.level}, path: ${path}`);
+                return {
+                    name: displayName,
+                    path: bestMatch.path,
+                    quantity: bestMatch.quantity,
+                    level: bestMatch.level
+                };
             }
             
             // Ако не намерим точно съвпадение, търсим по име в края на пътя
@@ -1725,7 +2029,7 @@
                                 displayName = extractNameFromPath(item.path);
                             }
                             
-                            console.log(`⚠️ Намерена сборка по частичен път: ${displayName} (${item.path})`);
+                            acLog(`⚠️ Намерена сборка по частичен път: ${displayName} (${item.path})`);
                             return {
                                 name: displayName,
                                 path: item.path,
@@ -1780,8 +2084,380 @@
                 }
             });
             
-            console.log(`✅ Намерени ${level1Assemblies.length} level 1 сборки:`, level1Assemblies);
+            acLog(`✅ Намерени ${level1Assemblies.length} level 1 сборки:`, level1Assemblies);
             return level1Assemblies;
+        }
+        
+        // Фаза 4: Функция за интелигентно сортиране (числа + азбука)
+        function smartSort(items, nameKey = 'name') {
+            return items.sort((a, b) => {
+                // Извличаме името - nameKey може да е string или function
+                const nameA = typeof nameKey === 'function' ? nameKey(a) : (a[nameKey] || '');
+                const nameB = typeof nameKey === 'function' ? nameKey(b) : (b[nameKey] || '');
+                
+                // Извличаме числата и текста
+                const matchA = nameA.match(/^(\d+)(.*)$/);
+                const matchB = nameB.match(/^(\d+)(.*)$/);
+                
+                // Ако и двете започват с число
+                if (matchA && matchB) {
+                    const numA = parseInt(matchA[1]);
+                    const numB = parseInt(matchB[1]);
+                    
+                    if (numA !== numB) {
+                        return numA - numB; // Сортиране по число
+                    } else {
+                        // Ако числата са равни, сортираме по остатъка
+                        return matchA[2].localeCompare(matchB[2], 'bg');
+                    }
+                }
+                
+                // Ако само едното започва с число, числото отива първо
+                if (matchA && !matchB) return -1;
+                if (!matchA && matchB) return 1;
+                
+                // И двете са текст - азбучен ред
+                return nameA.localeCompare(nameB, 'bg');
+            });
+        }
+
+        // Фаза 4: Разпознаване на крепежи (по правила)
+        // - Крепежни СБОРКИ: започват с "M" (напр. M8x20, M12x30, M4x16...) или започват с "Anker/Анкер"
+        // - Крепежни ДЕТАЙЛИ: Bolt, Washer, Nut, Nabit anker, Spring washer
+        function isKomplektAssemblyName(name) {
+            const n = (name || '').toLowerCase();
+            return n.includes('komplekt') || n.includes('комплект');
+        }
+
+        function isFastenerAssemblyName(name) {
+            const lower = (name || '').toLowerCase();
+
+            // Премахваме "komplekt/комплект" за по-чисто разпознаване (не е критерий)
+            const base = lower
+                .replace(/\bkomplekt\b/g, '')
+                .replace(/\bкомплект\b/g, '')
+                .trim();
+
+            // Нормализация за lookalike кирилица (само за разпознаване, не променя изписването в UI)
+            // - М/м (кирилица) -> m
+            // - х (кирилица) -> x
+            // - А/а Н/н К/к Е/е Р/р -> a n k e r (за смесено изписване на "Anker")
+            const norm = base
+                .replace(/м/g, 'm')
+                .replace(/х/g, 'x')
+                .replace(/а/g, 'a')
+                .replace(/н/g, 'n')
+                .replace(/к/g, 'k')
+                .replace(/е/g, 'e')
+                .replace(/р/g, 'r');
+
+            // 1) Всичко, което започва с M/М (лат/кир) се счита за крепеж
+            // Поддържа и формати като: M12x30, M 12 x 30, M12×30, M8-20 и др.
+            if (/^m/.test(norm)) return true;
+
+            // 2) Anker / Анкер (вкл. смесено изписване)
+            if (/^anker\b/.test(norm) || /^анкер\b/.test(base)) return true;
+
+            // 3) Други ключови думи за крепежи
+            const needles = ['bolt', 'washer', 'nut', 'nabit anker', 'spring washer'];
+            if (needles.some(n => norm.includes(n))) return true;
+
+            return false;
+        }
+
+        function isFastenerDetailName(name) {
+            const lower = (name || '').toLowerCase();
+            const needles = ['bolt', 'washer', 'nut', 'nabit anker', 'spring washer'];
+            return needles.some(n => lower.includes(n));
+        }
+        
+        // Фаза 4: Функция за извличане на деца на сборка (детайли и подсборки)
+        function getAssemblyChildren(parentPath) {
+            const children = {
+                details: [],      // Детайли (няма деца)
+                subassemblies: [] // Подсборки (има деца)
+            };
+            
+            if (!bomData || !bomData.objects) {
+                console.warn('⚠️ getAssemblyChildren: Няма BOM данни');
+                return children;
+            }
+            
+            // Помощна функция за извличане на име от път
+            function extractNameFromPath(path) {
+                const lastPart = path.split('/').pop();
+                return lastPart.replace(/<\d+>$/, '');
+            }
+            
+            // Намираме родителя и неговото ниво (най-ниско ниво за този path)
+            let parentLevel = null;
+            bomData.objects.forEach(obj => {
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        if (item.path === parentPath) {
+                            // Вземаме най-ниското ниво (това е самата сборка, не крепежите вътре)
+                            if (parentLevel === null || item.level < parentLevel) {
+                                parentLevel = item.level;
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (parentLevel === null) {
+                console.warn(`⚠️ Не е намерен родител за път: ${parentPath}`);
+                return children;
+            }
+            
+            // Намираме всички директни деца (level = parentLevel + 1)
+            // В данните децата имат СЪЩИЯ path като родителя, но по-високо ниво!
+            const directChildren = [];
+            
+            acLog(`🔍 Търсим деца за: ${parentPath}, level ${parentLevel}`);
+            
+            bomData.objects.forEach(obj => {
+                if (obj.flatBOM) {
+                    obj.flatBOM.forEach(item => {
+                        // Debug: показваме ВСИЧКИ елементи със същия path
+                        if (item.path === parentPath) {
+                            acLog(`  📍 Същия path: level=${item.level}, име="${item.name}"`);
+                        }
+                        
+                        // Деца могат да бъдат:
+                        // 1. Същия path, СЪЩОТО ниво, различно име (детайли на сборката)
+                        // 2. Същия path, по-високо ниво (крепежи в Komplekt)
+                        // 3. Path започва с parentPath/ и level +1 (подсборки)
+                        // 4. ParentPath === parentPath и level +1 (деца с parentPath поле)
+                        
+                        const isSameLevelChild = item.path === parentPath && 
+                                                item.level === parentLevel && 
+                                                item.name !== '<подасембли>' &&
+                                                item.name.trim() !== '';
+                        
+                        const isHigherLevelChild = item.path === parentPath && 
+                                                  item.level > parentLevel;
+                        
+                        const isSubpathChild = item.path.startsWith(parentPath + '/') && 
+                                              item.level === parentLevel + 1;
+                        
+                        const isDirectParent = item.parentPath === parentPath && 
+                                              item.level === parentLevel + 1;
+                        
+                        if (isSameLevelChild || isHigherLevelChild || isSubpathChild || isDirectParent) {
+                            acLog(`  ✅ Добавяме дете: ${item.name}, path: ${item.path}, parentPath: ${item.parentPath || 'N/A'}`);
+                            
+                            // Извличаме име
+                            let displayName = item.name;
+                            if (!displayName || displayName === '<подасембли>' || displayName.trim() === '') {
+                                displayName = extractNameFromPath(item.path);
+                            }
+                            
+                            directChildren.push({
+                                path: item.path,
+                                name: displayName,
+                                quantity: item.quantity || 1,
+                                level: item.level
+                            });
+                        }
+                    });
+                }
+            });
+            
+            acLog(`🎯 Намерени ${directChildren.length} директни деца`);
+            
+            // Разделяме на детайли и подсборки
+            // Подсборка = съдържа "Komplekt" или "Комплект" в името (само сборките са подсборки)
+            // Детайл = всичко останало
+            directChildren.forEach(child => {
+                const isKomplekt = child.name.toLowerCase().includes('komplekt') || 
+                                  child.name.toLowerCase().includes('комплект');
+                
+                acLog(`  📝 Класифициране: ${child.name} → ${isKomplekt ? 'ПОДСБОРКА' : 'ДЕТАЙЛ'}`);
+                
+                if (isKomplekt) {
+                    children.subassemblies.push(child);
+                } else {
+                    children.details.push(child);
+                }
+            });
+            
+            // Сортираме детайлите и подсборките
+            smartSort(children.details, 'name');
+            smartSort(children.subassemblies, 'name');
+            
+            acLog(`📊 Деца на ${parentPath}:`, {
+                детайли: children.details.map(d => d.name),
+                подсборки: children.subassemblies.map(s => s.name)
+            });
+            
+            return children;
+        }
+        
+        // Фаза 4 Стъпка 2: Генериране на HTML за един елемент от дървото
+        function renderAssemblyTreeItem(assembly, path, category) {
+            // Получаваме децата
+            const children = getAssemblyChildren(path);
+            const hasChildren = children.details.length > 0 || children.subassemblies.length > 0;
+            
+            // Проверка дали е сборка (Komplekt) - САМО сборките имат [+] бутон
+            const isAssembly = assembly.name.toLowerCase().includes('komplekt') || 
+                              assembly.name.toLowerCase().includes('комплект');
+            
+            // Показваме [+] САМО ако е сборка (дори детайлите с крепежи нямат [+])
+            const showExpandButton = isAssembly;
+            
+            // Debug лог
+            acLog(`🌲 Render tree item: ${assembly.name}`, {
+                path: path,
+                isAssembly: isAssembly,
+                hasChildren: hasChildren,
+                showExpandButton: showExpandButton,
+                детайли: children.details.length,
+                подсборки: children.subassemblies.length
+            });
+            
+            // Уникално ID за DOM (path не е уникален при рекурсивно рендериране)
+            const itemId = nextAssemblyTreeNodeId();
+            
+            // Определяме бутона за преместване
+            const moveButton = isAdminMode ? 
+                (category === 'workshop' ? 
+                    `<button class="move-button admin-only-control" onclick="moveAssemblyToExternal('${path.replace(/'/g, "\\'")}')">→ На обекта</button>` :
+                    `<button class="move-button admin-only-control" onclick="moveAssemblyToWorkshop('${path.replace(/'/g, "\\'")}')">→ В цеха</button>`
+                ) : '';
+            
+            // Генерираме HTML
+            let html = `
+                <div class="assembly-tree-item" data-path="${path}" data-node-id="${itemId}">
+                    <div class="assembly-header">
+                        ${showExpandButton ? 
+                            `<button class="expand-btn" onclick="toggleAssemblyExpand('${itemId}')" id="btn_${itemId}">+</button>` : 
+                            `<span class="expand-btn-spacer"></span>`
+                        }
+                        <span class="assembly-name">${assembly.name}</span>
+                        ${assembly.quantity ? `<span class="assembly-count">(${assembly.quantity} бр)</span>` : ''}
+                        ${moveButton}
+                    </div>
+            `;
+            
+            // Ако има деца или е сборка, генерираме секция (скрита по подразбиране)
+            if (showExpandButton) {
+                html += `
+                    <div class="assembly-children" id="children_${itemId}" style="display: none;">
+                `;
+                
+                // Ако няма реални деца, показваме съобщение
+                if (!hasChildren) {
+                    html += `
+                        <div style="padding: 15px; text-align: center; color: #6c757d; font-style: italic;">
+                            Тази сборка няма детайли или подсборки на този обект
+                        </div>
+                    `;
+                } else {
+                    // Детайли
+                    if (children.details.length > 0) {
+                        html += `
+                            <div class="assembly-details-section">
+                                <h4 class="section-title">🔧 Детайли (${children.details.length} ${children.details.length === 1 ? 'елемент' : 'елемента'}):</h4>
+                                <ul class="details-list">
+                        `;
+                        children.details.forEach(detail => {
+                            html += `
+                                    <li class="detail-item">
+                                        <span class="detail-name">${detail.name}</span>
+                                        <span class="detail-quantity">(${detail.quantity} бр)</span>
+                                    </li>
+                            `;
+                        });
+                        html += `
+                                </ul>
+                            </div>
+                        `;
+                    }
+                    
+                    // Подсборки - разделяме на крепежни и останалите
+                    if (children.subassemblies.length > 0) {
+                        const fastenerSubs = children.subassemblies.filter(s => isFastenerAssemblyName(s.name));
+                        const otherSubs = children.subassemblies.filter(s => !isFastenerAssemblyName(s.name));
+
+                        smartSort(fastenerSubs, 'name');
+                        smartSort(otherSubs, 'name');
+
+                        if (otherSubs.length > 0) {
+                            html += `
+                                <div class="assembly-subassemblies-section">
+                                    <h4 class="section-title">🏗️ Подсборки (${otherSubs.length} ${otherSubs.length === 1 ? 'елемент' : 'елемента'}):</h4>
+                            `;
+                            otherSubs.forEach(sub => {
+                                html += renderAssemblyTreeItem({
+                                    name: sub.name,
+                                    quantity: sub.quantity,
+                                    level: sub.level
+                                }, sub.path, category);
+                            });
+                            html += `
+                                </div>
+                            `;
+                        }
+
+                        if (fastenerSubs.length > 0) {
+                            html += `
+                                <div class="assembly-subassemblies-section">
+                                    <h4 class="section-title">⚙️ Крепежи необходими за сглобяването (${fastenerSubs.length} ${fastenerSubs.length === 1 ? 'елемент' : 'елемента'}):</h4>
+                            `;
+                            fastenerSubs.forEach(sub => {
+                                html += renderAssemblyTreeItem({
+                                    name: sub.name,
+                                    quantity: sub.quantity,
+                                    level: sub.level
+                                }, sub.path, category);
+                            });
+                            html += `
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
+                html += `
+                    </div>
+                `;
+            }
+            
+            html += `
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        // Фаза 4 Стъпка 2: Toggle expand/collapse на сборка
+        function toggleAssemblyExpand(itemId) {
+            acLog('🔄 toggleAssemblyExpand извикана с itemId:', itemId);
+            
+            const childrenDiv = document.getElementById('children_' + itemId);
+            const button = document.getElementById('btn_' + itemId);
+            
+            acLog('  🔍 children_' + itemId + ':', childrenDiv ? 'Намерен' : 'НЕ е намерен');
+            acLog('  🔍 btn_' + itemId + ':', button ? 'Намерен' : 'НЕ е намерен');
+            
+            if (!childrenDiv || !button) {
+                console.warn('⚠️ Не са намерени елементи за:', itemId);
+                return;
+            }
+            
+            // Превключваме visibility
+            if (childrenDiv.style.display === 'none') {
+                childrenDiv.style.display = 'block';
+                button.textContent = '−';
+                button.classList.add('expanded');
+                console.log('  ✅ Разширен');
+            } else {
+                childrenDiv.style.display = 'none';
+                button.textContent = '+';
+                button.classList.remove('expanded');
+                console.log('  ✅ Свит');
+            }
         }
         
         // Placeholder функции за Фаза 3-6
@@ -3964,6 +4640,9 @@
             
             const CHECKBOX_PREFIXES = ['check_', 'fastener_check_', 'node_check_', 'checkbox_'];
             const NOTE_PREFIXES = ['note_', 'notes_', 'notes_node_'];
+
+            let missingCheckboxCount = 0;
+            const missingCheckboxSamples = [];
             
             Object.keys(userDataCache).forEach(key => {
                 // Checkbox-и
@@ -3981,7 +4660,9 @@
                                 if (strongEl) strongEl.style.textDecoration = 'line-through';
                             }
                         } else {
-                            console.log('❌ Липсва checkbox елемент за ключ:', key);
+                            // Нормално при смяна на таб/режим (напр. "По възли" vs "Всички") - DOM не съдържа всички checkbox-и наведнъж.
+                            missingCheckboxCount += 1;
+                            if (missingCheckboxSamples.length < 5) missingCheckboxSamples.push(key);
                         }
                     }
                 }
@@ -3995,6 +4676,10 @@
                     }
                 }
             });
+
+            if (missingCheckboxCount > 0) {
+                console.debug(`ℹ️ restoreCheckboxStates: пропуснати ${missingCheckboxCount} checkbox(а) (вероятно от друг таб/режим). Примери:`, missingCheckboxSamples);
+            }
             console.log('📋 restoreCheckboxStates завършен');
         }
 

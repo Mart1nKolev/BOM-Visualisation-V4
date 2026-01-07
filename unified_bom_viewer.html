@@ -2302,6 +2302,9 @@
             // Проверка дали е сборка (Komplekt) - САМО сборките имат [+] бутон
             const isAssembly = assembly.name.toLowerCase().includes('komplekt') || 
                               assembly.name.toLowerCase().includes('комплект');
+
+            // Показваме името като „линк“ с tooltip+modal за снимка (както в таб „Детайли“)
+            const displayName = createImageTooltip(assembly.name, '', isAssembly);
             
             // Показваме [+] САМО ако е сборка (дори детайлите с крепежи нямат [+])
             const showExpandButton = isAssembly;
@@ -2334,7 +2337,7 @@
                             `<button class="expand-btn" onclick="toggleAssemblyExpand('${itemId}')" id="btn_${itemId}">+</button>` : 
                             `<span class="expand-btn-spacer"></span>`
                         }
-                        <span class="assembly-name">${assembly.name}</span>
+                        <span class="assembly-name">${displayName}</span>
                         ${assembly.quantity ? `<span class="assembly-count">(${assembly.quantity} бр)</span>` : ''}
                         ${moveButton}
                     </div>
@@ -2364,7 +2367,7 @@
                         children.details.forEach(detail => {
                             html += `
                                     <li class="detail-item">
-                                        <span class="detail-name">${detail.name}</span>
+                                        <span class="detail-name">${createImageTooltip(detail.name, '', false)}</span>
                                         <span class="detail-quantity">(${detail.quantity} бр)</span>
                                     </li>
                             `;
@@ -5083,80 +5086,84 @@
                 console.error('Грешка в createImageTooltip:', error, 'за име:', name);
                 return name; // Връщаме само името при грешка
             }
-        }        // Опитва се да зареди изображение с fallback опции
+        }
+
+        // Опитва се да зареди изображение с fallback опции.
+        // Забележка: В Screenshots/Assemblies често има файлове с суфикс "_1_" (напр. "GE - Pizzato Komplekt_1_.png").
+        // Затова първо пробваме варианти в същата папка, после в другата.
         function tryLoadImage(imagePath, callback, attempt = 1) {
-            if (attempt > 5) { // 5 опита
+            function buildCandidates(path) {
+                const p = (path || '').toString().replace(/\\/g, '/');
+                const fileName = p.split('/').pop();
+                if (!fileName) return [];
+
+                const isPng = fileName.toLowerCase().endsWith('.png');
+                const baseName = isPng ? fileName.slice(0, -4) : fileName;
+                const hasKomplektWord = /komplekt|комплект/i.test(baseName);
+
+                const addSuffix = (fullPath, suffix) => {
+                    const fn = fullPath.split('/').pop();
+                    if (!fn) return null;
+                    if (!fn.toLowerCase().endsWith('.png')) return null;
+                    const bn = fn.slice(0, -4);
+                    return fullPath.slice(0, -fn.length) + (bn + suffix + '.png');
+                };
+
+                const swapFolder = (fullPath) => {
+                    if (fullPath.includes('Screenshots/Parts/')) return fullPath.replace('Screenshots/Parts/', 'Screenshots/Assemblies/');
+                    if (fullPath.includes('Screenshots/Assemblies/')) return fullPath.replace('Screenshots/Assemblies/', 'Screenshots/Parts/');
+                    return null;
+                };
+
+                const candidates = [];
+                const seen = new Set();
+                const push = (v) => {
+                    if (!v) return;
+                    if (seen.has(v)) return;
+                    seen.add(v);
+                    candidates.push(v);
+                };
+
+                // 1) Оригинал
+                push(p);
+
+                // 2) Вариант с _1_
+                if (!/_1_/.test(baseName)) push(addSuffix(p, '_1_'));
+
+                // 3) Вариант с " Komplekt_1_" (само ако името НЕ съдържа Komplekt/Комплект)
+                if (!hasKomplektWord) push(addSuffix(p, ' Komplekt_1_'));
+
+                // 4) Другата папка (Parts <-> Assemblies)
+                const swapped = swapFolder(p);
+                if (swapped) {
+                    push(swapped);
+                    if (!/_1_/.test(baseName)) push(addSuffix(swapped, '_1_'));
+                    if (!hasKomplektWord) push(addSuffix(swapped, ' Komplekt_1_'));
+                }
+
+                return candidates.filter(Boolean);
+            }
+
+            const candidates = buildCandidates(imagePath);
+            const index = attempt - 1;
+
+            if (index < 0 || index >= candidates.length) {
                 console.log('Всички опити за зареждане на снимката се провалиха:', imagePath);
                 callback(false);
                 return;
             }
 
+            const candidatePath = candidates[index];
             const img = new Image();
             img.onload = function() {
-                console.log('✅ Снимката се зареди успешно:', imagePath);
-                callback(true, imagePath);
+                console.log('✅ Снимката се зареди успешно:', candidatePath);
+                callback(true, candidatePath);
             };
-            
             img.onerror = function() {
-                console.log(`❌ Опит ${attempt} - не може да се зареди:`, imagePath);
-                const fileName = imagePath.split('/').pop();
-                
-                // Опит 1: Оригиналният път (Parts или Assemblies според isAssembly)
-                if (attempt === 1) {
-                    // Опит 2: Пробваме другата папка
-                    if (imagePath.includes('Parts/')) {
-                        const newPath = imagePath.replace('Parts/', 'Assemblies/');
-                        console.log('➡️ Опит 2: Пробвам в Assemblies:', newPath);
-                        tryLoadImage(newPath, callback, 2);
-                    } else if (imagePath.includes('Assemblies/')) {
-                        const newPath = imagePath.replace('Assemblies/', 'Parts/');
-                        console.log('➡️ Опит 2: Пробвам в Parts:', newPath);
-                        tryLoadImage(newPath, callback, 2);
-                    } else {
-                        callback(false);
-                    }
-                    return;
-                }
-                
-                // Опит 2: Вече сме в другата папка, пробваме с " Komplekt_1_"
-                if (attempt === 2 && !fileName.includes('Komplekt')) {
-                    const baseName = fileName.replace('.png', ' Komplekt_1_.png');
-                    const newPath = imagePath.replace(fileName, baseName);
-                    console.log('➡️ Опит 3: Пробвам с Komplekt_1_:', newPath);
-                    tryLoadImage(newPath, callback, 3);
-                    return;
-                }
-                
-                // Опит 3: Пробваме просто _1_
-                if (attempt === 3 && !fileName.includes('_1_')) {
-                    const baseName = fileName.replace('.png', '_1_.png');
-                    const newPath = imagePath.replace(fileName, baseName);
-                    console.log('➡️ Опит 4: Пробвам с _1_:', newPath);
-                    tryLoadImage(newPath, callback, 4);
-                    return;
-                }
-                
-                // Опит 4: Последна възможност - обратно в оригиналната папка с _1_
-                if (attempt === 4) {
-                    let newPath;
-                    if (imagePath.includes('Parts/')) {
-                        newPath = imagePath.replace('Parts/', 'Assemblies/');
-                    } else {
-                        newPath = imagePath.replace('Assemblies/', 'Parts/');
-                    }
-                    if (!fileName.includes('_1_')) {
-                        const baseName = fileName.replace('.png', '_1_.png');
-                        newPath = newPath.replace(fileName, baseName);
-                    }
-                    console.log('➡️ Опит 5: Последен опит:', newPath);
-                    tryLoadImage(newPath, callback, 5);
-                    return;
-                }
-                
-                callback(false);
+                console.log(`❌ Опит ${attempt}/${candidates.length} - не може да се зареди:`, candidatePath);
+                tryLoadImage(imagePath, callback, attempt + 1);
             };
-            
-            img.src = imagePath;
+            img.src = candidatePath;
         }
 
         // Показва tooltip с изображение при hover

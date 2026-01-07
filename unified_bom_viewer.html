@@ -823,6 +823,132 @@
             background: #0056b3;
         }
 
+        /* ============================================
+           🔗 ФАЗА 5 СТЪПКА 3: ВИЗУАЛНА ВРЪЗКА СТИЛОВЕ
+           ============================================ */
+        
+        .assembly-orphan-icon {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 18px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .assembly-trace-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+        
+        .assembly-trace-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #2c3e50;
+        }
+        
+        .assembly-orphan-icon:hover .assembly-trace-tooltip {
+            opacity: 1;
+        }
+        
+        .assembly-trace {
+            margin: 15px 0;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-left: 3px solid #ffc107;
+            border-radius: 4px;
+        }
+        
+        .assembly-trace-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .assembly-trace-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .assembly-trace-item {
+            padding: 6px 10px;
+            margin: 4px 0;
+            background: white;
+            border-radius: 4px;
+            border-left: 2px solid #ffc107;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .assembly-trace-name {
+            color: #495057;
+            flex-grow: 1;
+        }
+        
+        .assembly-trace-category {
+            font-size: 12px;
+            color: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .assembly-view-btn {
+            padding: 4px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .assembly-view-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        
+        .assembly-highlight {
+            animation: highlightPulse 3s ease-out;
+        }
+        
+        @keyframes highlightPulse {
+            0% {
+                background: #ffc107;
+                transform: scale(1.02);
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+            }
+            50% {
+                background: #fff3cd;
+                transform: scale(1.01);
+                box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+            }
+            100% {
+                background: transparent;
+                transform: scale(1);
+                box-shadow: none;
+            }
+        }
+
         /* Admin Mode Toggle Switch */
         .admin-toggle-container {
             position: absolute;
@@ -1729,6 +1855,63 @@
             return assemblyClassification;
         }
         
+        // Валидира и изчиства класификацията спрямо текущия BOM
+        async function validateAndCleanClassification() {
+            acLog('🧹 Валидиране на класификация спрямо текущия BOM...');
+            
+            // Събираме всички валидни assembly paths от текущия BOM
+            const validPaths = new Set();
+            if (window.bomData) {
+                const objects = window.bomData.objects || window.bomData;
+                objects.forEach(obj => {
+                    if (obj.assemblies) {
+                        obj.assemblies.forEach(asm => {
+                            if (asm.path) {
+                                validPaths.add(asm.path);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            acLog('📋 Валидни пътища в BOM:', validPaths.size);
+            
+            // Филтрираме класификацията - премахваме невалидни пътища
+            const cleanedWorkshop = assemblyClassification.workshop.filter(path => {
+                const isValid = validPaths.has(path);
+                if (!isValid) {
+                    acLog(`🗑️ Премахвам невалиден workshop път: ${path}`);
+                }
+                return isValid;
+            });
+            
+            const cleanedExternal = assemblyClassification.external.filter(path => {
+                const isValid = validPaths.has(path);
+                if (!isValid) {
+                    acLog(`🗑️ Премахвам невалиден external път: ${path}`);
+                }
+                return isValid;
+            });
+            
+            // Проверяваме дали има промени
+            const hasChanges = 
+                cleanedWorkshop.length !== assemblyClassification.workshop.length ||
+                cleanedExternal.length !== assemblyClassification.external.length;
+            
+            if (hasChanges) {
+                acLog(`⚠️ Намерени невалидни класификации! Workshop: ${assemblyClassification.workshop.length} → ${cleanedWorkshop.length}, External: ${assemblyClassification.external.length} → ${cleanedExternal.length}`);
+                
+                // Актуализираме класификацията
+                assemblyClassification.workshop = cleanedWorkshop;
+                assemblyClassification.external = cleanedExternal;
+                
+                // Запазваме изчистената класификация
+                await saveAssemblyClassification(assemblyClassification);
+            } else {
+                acLog('✅ Всички класификации са валидни');
+            }
+        }
+        
         // Запазване на класификация
         async function saveAssemblyClassification(data) {
             acLog('💾 Запазване на класификация...', data);
@@ -2306,6 +2489,17 @@
             // Показваме името като „линк“ с tooltip+modal за снимка (както в таб „Детайли“)
             const displayName = createImageTooltip(assembly.name, '', isAssembly);
             
+            const parentInfo = findParentAssembly(path);
+            const orphanChildren = findOrphanAssemblies(path);
+            
+            // Показваме ⚠️ САМО ако:
+            // 1) Има родител (parentInfo)
+            // 2) Родителят Е класифициран (category е 'workshop' или 'external')
+            // 3) Категорията на родителя е различна от тази на детето
+            const isOrphan = parentInfo && 
+                           (parentInfo.category === 'workshop' || parentInfo.category === 'external') && 
+                           parentInfo.category !== category;
+            
             // Показваме [+] САМО ако е сборка (дори детайлите с крепежи нямат [+])
             const showExpandButton = isAssembly;
             
@@ -2329,6 +2523,19 @@
                     `<button class="move-button admin-only-control" onclick="moveAssemblyToWorkshop('${path.replace(/'/g, "\\'")}')">→ В цеха</button>`
                 ) : '';
             
+            let orphanTooltip = '';
+            if (isOrphan) {
+                const parentCategoryText = parentInfo.category === 'workshop' ? 'в цеха' : 'на обекта';
+                orphanTooltip = `
+                    <span class="assembly-orphan-icon">
+                        ⚠️
+                        <span class="assembly-trace-tooltip">
+                            Част от "${parentInfo.name}" (${parentCategoryText})
+                        </span>
+                    </span>
+                `;
+            }
+            
             // Генерираме HTML
             let html = `
                 <div class="assembly-tree-item" data-path="${path}" data-node-id="${itemId}">
@@ -2338,6 +2545,7 @@
                             `<span class="expand-btn-spacer"></span>`
                         }
                         <span class="assembly-name">${displayName}</span>
+                        ${orphanTooltip}
                         ${assembly.quantity ? `<span class="assembly-count">(${assembly.quantity} бр)</span>` : ''}
                         ${moveButton}
                     </div>
@@ -2420,6 +2628,28 @@
                             `;
                         }
                     }
+                    
+                    if (orphanChildren.length > 0) {
+                        html += `
+                            <div class="assembly-trace">
+                                <div class="assembly-trace-title">⚠️ Свързани подсборки в друга категория:</div>
+                                <ul class="assembly-trace-list">
+                        `;
+                        orphanChildren.forEach(orphan => {
+                            const orphanCategoryText = orphan.childCategory === 'workshop' ? '🏭 В цеха' : '🏗️ На обекта';
+                            html += `
+                                <li class="assembly-trace-item">
+                                    <span class="assembly-trace-name">${orphan.childName}</span>
+                                    <span class="assembly-trace-category">${orphanCategoryText}</span>
+                                    <button class="assembly-view-btn" onclick="scrollToAssembly('${orphan.childPath.replace(/'/g, "\\'")}', '${orphan.childCategory}')">👁️ Виж</button>
+                                </li>
+                            `;
+                        });
+                        html += `
+                                </ul>
+                            </div>
+                        `;
+                    }
                 }
                 
                 html += `
@@ -2499,12 +2729,295 @@
             alert('📤 Импорт на класификация ще бъде имплементиран във Фаза 6');
         }
         
-        function moveAssemblyToExternal(path) {
-            alert('→ Преместване ще бъде имплементирано във Фаза 4');
+        /**
+         * Премества сборка от workshop към external категория
+         * @param {string} path - Път на сборката за преместване
+         */
+        async function moveAssemblyToExternal(path) {
+            acLog(`🔄 Преместване към external: ${path}`);
+            
+            // Проверка дали сборката съществува в workshop
+            const index = assemblyClassification.workshop.indexOf(path);
+            if (index === -1) {
+                console.error(`❌ Сборката не е намерена в workshop: ${path}`);
+                return;
+            }
+            
+            // Премахваме от workshop
+            assemblyClassification.workshop.splice(index, 1);
+            
+            // Добавяме в external (ако вече не е там)
+            if (!assemblyClassification.external.includes(path)) {
+                assemblyClassification.external.push(path);
+            }
+            
+            // Запазваме промените
+            await saveAssemblyClassification(assemblyClassification);
+            
+            // Refresh на UI
+            await generateAssemblyClassificationTab();
+            
+            acLog(`✅ Сборката е преместена към external`);
         }
         
-        function moveAssemblyToWorkshop(path) {
-            alert('⚠ Преместването ще бъде имплементирано във фаза 4');
+        /**
+         * Премества сборка от external към workshop категория
+         * @param {string} path - Път на сборката за преместване
+         */
+        async function moveAssemblyToWorkshop(path) {
+            acLog(`🔄 Преместване към workshop: ${path}`);
+            
+            // Проверка дали сборката съществува в external
+            const index = assemblyClassification.external.indexOf(path);
+            if (index === -1) {
+                console.error(`❌ Сборката не е намерена в external: ${path}`);
+                return;
+            }
+            
+            // Премахваме от external
+            assemblyClassification.external.splice(index, 1);
+            
+            // Добавяме в workshop (ако вече не е там)
+            if (!assemblyClassification.workshop.includes(path)) {
+                assemblyClassification.workshop.push(path);
+            }
+            
+            // Запазваме промените
+            await saveAssemblyClassification(assemblyClassification);
+            
+            // Refresh на UI
+            await generateAssemblyClassificationTab();
+            
+            acLog(`✅ Сборката е преместена към workshop`);
+        }
+        
+        // ============================================
+        // 🔗 ФАЗА 5 СТЪПКА 2: ФУНКЦИИ ЗА ОТКРИВАНЕ НА ВРЪЗКИ
+        // ============================================
+        
+        /**
+         * Намира родителската сборка за дадена сборка.
+         * @param {string} assemblyPath - Път на сборката (напр. "ALL Bufer/Planka<1>")
+         * @returns {Object|null} - { path, name, category } или null ако няма родител
+         */
+        function findParentAssembly(assemblyPath) {
+            // Проверка дали има родител (съдържа '/')
+            if (!assemblyPath || !assemblyPath.includes('/')) {
+                return null; // Това е root сборка
+            }
+            
+            // Извличаме parent path (премахваме последния сегмент)
+            const pathParts = assemblyPath.split('/');
+            pathParts.pop(); // Премахваме последната част
+            const parentPath = pathParts.join('/');
+            
+            if (!parentPath) {
+                return null; // Няма валиден родител
+            }
+            
+            // КРИТИЧНО: Ако родителят е root level (няма '/'), не показваме orphan warning
+            // Root level сборките не се визуализират в UI
+            if (!parentPath.includes('/')) {
+                acLog(`ℹ️ Родителят "${parentPath}" е root level - skip orphan check`);
+                return null;
+            }
+            
+            // Извличаме име от път
+            function extractNameFromPath(path) {
+                const lastPart = path.split('/').pop();
+                return lastPart.replace(/<\d+>$/, '');
+            }
+            
+            const parentName = extractNameFromPath(parentPath);
+            
+            // Проверяваме в коя категория е родителят
+            let parentCategory = null;
+            if (assemblyClassification.workshop.includes(parentPath)) {
+                parentCategory = 'workshop';
+            } else if (assemblyClassification.external.includes(parentPath)) {
+                parentCategory = 'external';
+            }
+            
+            // КЛЮЧОВА ЛОГИКА: Ако родителят НЕ Е в нито една категория (не е видим в UI),
+            // връщаме null за да не показваме orphan warning
+            if (!parentCategory) {
+                acLog(`ℹ️ Родителят "${parentName}" не е визуализиран - skip orphan check`);
+                return null;
+            }
+            
+            return {
+                path: parentPath,
+                name: parentName,
+                category: parentCategory
+            };
+        }
+        
+        /**
+         * Намира "сирачетата" (деца в различна категория) за дадена родителска сборка.
+         * @param {string} assemblyPath - Път на родителската сборка
+         * @returns {Array} - Масив от обекти { childPath, childName, childCategory, parentCategory }
+         */
+        function findOrphanAssemblies(assemblyPath) {
+            const orphans = [];
+            
+            // Намираме категорията на родителя
+            let parentCategory = null;
+            if (assemblyClassification.workshop.includes(assemblyPath)) {
+                parentCategory = 'workshop';
+            } else if (assemblyClassification.external.includes(assemblyPath)) {
+                parentCategory = 'external';
+            }
+            
+            // Ако родителят не е класифициран, няма "сирачета"
+            // (orphan е само ако родителят Е класифициран, но в различна категория)
+            if (!parentCategory) {
+                acLog(`ℹ️ Родителят ${assemblyPath} не е класифициран - няма orphans`);
+                return orphans;
+            }
+            
+            // Извличаме децата на тази сборка
+            const children = getAssemblyChildren(assemblyPath);
+            
+            // Помощна функция за проверка на категория
+            function getAssemblyCategory(path) {
+                if (assemblyClassification.workshop.includes(path)) {
+                    return 'workshop';
+                } else if (assemblyClassification.external.includes(path)) {
+                    return 'external';
+                }
+                return null;
+            }
+            
+            // Проверяваме подсборките (само те могат да бъдат класифицирани отделно)
+            children.subassemblies.forEach(subassembly => {
+                const childCategory = getAssemblyCategory(subassembly.path);
+                
+                // Ако детето е класифицирано в различна категория от родителя
+                if (childCategory && childCategory !== parentCategory) {
+                    orphans.push({
+                        childPath: subassembly.path,
+                        childName: subassembly.name,
+                        childCategory: childCategory,
+                        parentCategory: parentCategory
+                    });
+                }
+            });
+            
+            acLog(`🔍 Открити ${orphans.length} "сирачета" за ${assemblyPath}:`, orphans);
+            return orphans;
+        }
+        
+        // Фаза 5 Стъпка 4: Scroll към сборка с разгъване на ancestors
+        function scrollToAssembly(assemblyPath, targetCategory) {
+            acLog('👁️ Scroll към:', assemblyPath, 'в категория:', targetCategory);
+            
+            // Намираме правилната секция според категорията
+            let containerSelector = '';
+            if (targetCategory === 'workshop') {
+                containerSelector = '#workshopContent';
+            } else if (targetCategory === 'external') {
+                containerSelector = '#externalContent';
+            }
+            
+            // Търсим елемента САМО в правилната секция
+            let targetElement = null;
+            if (containerSelector) {
+                const container = document.querySelector(containerSelector);
+                if (container) {
+                    targetElement = container.querySelector(`[data-path="${assemblyPath}"]`);
+                }
+            } else {
+                // Fallback - търсим във всички секции
+                targetElement = document.querySelector(`[data-path="${assemblyPath}"]`);
+            }
+            
+            if (!targetElement) {
+                console.warn('⚠️ Не е намерен DOM елемент за:', assemblyPath, 'в', targetCategory);
+                return;
+            }
+            
+            // Разгъваме всички ancestors (родители)
+            expandAncestors(assemblyPath, containerSelector);
+            
+            // Изчакваме малко за да се приложат DOM промените от expand
+            setTimeout(() => {
+                // Scroll до елемента (smooth)
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // Highlight анимация след scroll
+                setTimeout(() => {
+                    highlightAssembly(targetElement);
+                }, 500);
+            }, 100);
+        }
+        
+        // Фаза 5 Стъпка 4: Разгъване на всички родителски nodes
+        function expandAncestors(assemblyPath, containerSelector) {
+            // Извличаме всички родителски пътища
+            const pathParts = assemblyPath.split('/');
+            const ancestorPaths = [];
+            
+            for (let i = 1; i < pathParts.length; i++) {
+                ancestorPaths.push(pathParts.slice(0, i).join('/'));
+            }
+            
+            acLog('📂 Разгъване на ancestors:', ancestorPaths);
+            
+            // За всеки ancestor, намираме неговия DOM елемент и го разгъваме
+            ancestorPaths.forEach(ancestorPath => {
+                let ancestorElement = null;
+                
+                // Търсим в правилната секция, ако е зададена
+                if (containerSelector) {
+                    const container = document.querySelector(containerSelector);
+                    if (container) {
+                        ancestorElement = container.querySelector(`[data-path="${ancestorPath}"]`);
+                    }
+                } else {
+                    ancestorElement = document.querySelector(`[data-path="${ancestorPath}"]`);
+                }
+                
+                if (ancestorElement) {
+                    const nodeId = ancestorElement.getAttribute('data-node-id');
+                    const childrenDiv = document.getElementById(`children_${nodeId}`);
+                    const expandBtn = document.getElementById(`btn_${nodeId}`);
+                    
+                    // Ако е сгънат, разгъваме го
+                    if (childrenDiv && childrenDiv.style.display === 'none') {
+                        childrenDiv.style.display = 'block';
+                        if (expandBtn) {
+                            expandBtn.textContent = '−';
+                            expandBtn.classList.add('expanded');
+                        }
+                        acLog('✅ Разгънат:', ancestorPath);
+                    }
+                }
+            });
+        }
+        
+        // Фаза 5 Стъпка 4: Highlight анимация за 3 секунди
+        function highlightAssembly(element) {
+            // Намираме header-а на assembly-то
+            const header = element.querySelector('.assembly-header');
+            
+            if (!header) {
+                console.warn('⚠️ Не е намерен assembly-header за highlight');
+                return;
+            }
+            
+            // Добавяме клас за анимация
+            header.classList.add('assembly-highlight');
+            
+            acLog('✨ Highlight приложен за 3 секунди');
+            
+            // Премахваме класа след 3 секунди
+            setTimeout(() => {
+                header.classList.remove('assembly-highlight');
+                acLog('✅ Highlight завършен');
+            }, 3000);
         }
         
         // Показване на сборка в wizard
@@ -3073,6 +3586,9 @@
             
             // Зареждаме споделените потребителски данни
             await loadAllUserData();
+            
+            // КРИТИЧНО: Валидираме и изчистваме класификацията спрямо новия BOM
+            await validateAndCleanClassification();
             
             // Проверяваме структурата на данните и конвертираме ако е необходимо
             if (bomData.objects) {

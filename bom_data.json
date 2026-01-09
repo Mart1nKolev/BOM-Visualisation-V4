@@ -795,5 +795,35 @@
     "ralItemsFound": 0,
     "maxLevel": 3
   },
-  "ralSummary": {}
+  "ralSummary": {},
+  "classification": {
+    "workshop": [
+      "ALL Bufer Service Komplekt"
+    ],
+    "external": [
+      "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>",
+      "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M8x20 Komplekt<1>",
+      "ALL Bufer Service Komplekt/Planka Bufer Komplekt<1>/M12x30 Komplekt<1>",
+      "ALL Bufer Service Komplekt/Anker M10x80 Komplekt<1>",
+      "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>",
+      "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x16 Komplekt<1>",
+      "ALL Bufer Service Komplekt/GE - Pizzato Komplekt<1>/M4x35 Komplekt<1>"
+    ],
+    "timestamp": "2026-01-08T10:02:32.601Z"
+  },
+  "userStates": {
+    "checkboxes": {
+      "ral_RAL": "{\"nodeDescription\":\"\",\"selectedOption\":\"RAL 5009\",\"colorDescription\":\"\"}",
+      "ral_RAL1": "{\"nodeDescription\":\"\",\"selectedOption\":\"RAL 3020\",\"colorDescription\":\"\"}",
+      "ral_RAL2": "{\"nodeDescription\":\"\",\"selectedOption\":\"Zn\",\"colorDescription\":\"\"}",
+      "ral_RAL3": "{\"nodeDescription\":\"\",\"selectedOption\":\"Zn\",\"colorDescription\":\"\"}",
+      "ral_RAL4": "{\"nodeDescription\":\"\",\"selectedOption\":\"RAL 9006\",\"colorDescription\":\"\"}",
+      "ral_RAL5": "{\"nodeDescription\":\"\",\"selectedOption\":\"Zn\",\"colorDescription\":\"\"}",
+      "ral_RAL6": "{\"nodeDescription\":\"\",\"selectedOption\":\"RAL 1003\",\"colorDescription\":\"\"}",
+      "ral_RAL7": "{\"nodeDescription\":\"Врати (Каси, праг)\",\"selectedOption\":\"RAL 9010\",\"colorDescription\":\"Бяло\"}",
+      "ral_RAL8": "{\"nodeDescription\":\"Врати (Орнаменти)\",\"selectedOption\":\"RAL 9010\",\"colorDescription\":\"Бяло (многоцветен)\"}",
+      "ral_RAL9": "{\"nodeDescription\":\"Покрив\",\"selectedOption\":\"RAL 9007\",\"colorDescription\":\"Сиво алуминий\"}"
+    },
+    "timestamp": "2026-01-08T11:03:34.361Z"
+  }
 }

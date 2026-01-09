@@ -2390,3 +2390,164 @@ console.log("Подсборки:", children.subassemblies);
 - [👁️ Виж] функция с category-aware scrolling и highlight анимация
 - Ръчно преместване между категории (Фаза 5.5)
 - Автоматична валидация при смяна на JSON файл
+
+---
+
+## 🌐 Интеграция #17: Фаза 6 - Централизирано мрежово съхранение
+
+**Дата:** 8 януари 2026  
+**Статус:** ✅ Завършена и работеща
+
+### Описание
+Пълна архитектурна трансформация на съхранението на данни от localStorage към централизиран `bom_data.json` файл с мрежово споделяне чрез Python HTTP сървър.
+
+### Файлове променени/създадени
+- `unified_bom_viewer.html` - рефакториране на storage логиката
+- `server.py` - **НОВ** Python HTTP сървър 
+- `start_server.bat` - **НОВ** batch файл за лесно стартиране
+- `SETUP_INSTRUCTIONS.md` - **НОВ** deployment ръководство
+
+### Архитектурни промени
+
+#### 1. Нова структура на `bom_data.json`
+```json
+{
+  "metadata": {...},
+  "assemblies": [...],
+  "classification": {
+    "workshop": ["path1", "path2"],
+    "external": ["path3", "path4"],
+    "timestamp": "2026-01-08T10:32:52.763Z"
+  },
+  "userStates": {
+    "checkboxes": {
+      "node_check_part1": "checked",
+      "ral_RAL9": "{\"nodeDescription\":\"Покрив\",\"selectedOption\":\"RAL 9007\"}",
+      "fastener_check_bolt1": "checked"
+    },
+    "timestamp": "2026-01-08T10:32:52.763Z"
+  }
+}
+```
+
+#### 2. Python HTTP сървър (`server.py`)
+- **Port:** 8080, **Host:** 0.0.0.0 (достъпен от цялата мрежа)
+- **Endpoints:**
+  - `GET /get_bom` - връща целия bom_data.json
+  - `POST /save_bom_data` - записва целия файл
+  - `GET /get_user_data`, `POST /save_user_data` - legacy endpoints
+- **Features:** CORS поддръжка, автоматично backup (премахнато), error handling
+
+#### 3. Рефакторирани функции в HTML
+```javascript
+// ПРЕДИ (localStorage модел):
+saveUserDataChange(key, value) {
+  localStorage.setItem(key, value);
+  if (isSharedMode) sendToServer(key, value);
+}
+
+// СЛЕД (bomData модел):
+saveUserDataChange(key, value) {
+  userDataCache[key] = value;
+  bomData.userStates.checkboxes = userDataCache;
+  saveBomDataToServer(); // Запазва целия файл
+}
+
+saveAssemblyClassification(data) {
+  bomData.classification = data;
+  saveBomDataToServer(); // Запазва целия файл
+}
+
+saveBomDataToServer() {
+  fetch('/save_bom_data', {
+    method: 'POST',
+    body: JSON.stringify(bomData) // Целия обект!
+  });
+}
+```
+
+### Решени проблеми
+
+#### Проблем 1: Валидация изтриваше класификацията
+**Причина:** `validateAndCleanClassification()` автоматично записваше празна класификация при несъответствие на форматите на пътищата.
+
+**Решение:**
+```javascript
+// Интелигентно сравнение на пътища
+const pathMatches = Array.from(validPaths).some(validPath => {
+  return validPath.endsWith('/' + path) || validPath === path;
+});
+
+// Премахнато автоматично записване при валидация
+// if (hasChanges) {
+//   await saveAssemblyClassification(assemblyClassification); // ПРЕМАХНАТО
+// }
+```
+
+#### Проблем 2: Излишни notifications
+**Решение:** Добавен параметър `showNotif` в `saveBomDataToServer(showNotif = false)`
+```javascript
+// При класификация: showNotif = true
+await saveBomDataToServer(true);
+
+// При checkbox: showNotif = false (по подразбиране)
+await saveBomDataToServer();
+```
+
+#### Проблем 3: RAL автоматично записване
+**Решение:** RAL промени се записват в паметта, но се изпращат на сървъра само при "Запази RAL данни"
+```javascript
+// updateRalEntry() - БЕЗ автоматично записване
+userDataCache['ral_' + ralCode] = JSON.stringify(data);
+
+// saveRalData() - единствен път за записване на сървъра
+Object.keys(window.currentRalData).forEach(code => {
+  userDataCache['ral_' + code] = JSON.stringify(window.currentRalData[code]);
+});
+await saveSharedUserData(userDataCache);
+```
+
+### Deployment опции
+
+#### 1. Windows компютър (ръчен старт)
+```batch
+cd "Project Folder"
+python server.py
+# Достъп: http://localhost:8080/unified_bom_viewer.html
+```
+
+#### 2. NAS 24/7 (Synology/QNAP)
+- Task Scheduler: `python /path/server.py`
+- Boot startup script
+- Достъп от цялата мрежа: `http://NAS-IP:8080`
+
+#### 3. Windows Autostart
+- Batch файл в `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`
+
+### Тестване и валидация
+
+✅ **Класификация workflow:**
+1. Отваряне на wizard → класификация на сборки → "Запази и затвори"
+2. Refresh на страницата → данните остават запазени
+
+✅ **Checkbox workflow:**  
+1. Отметнати части в различни табове
+2. Refresh → всички checkbox-и остават отметнати
+
+✅ **RAL workflow:**
+1. Промяна на RAL данни → БЕЗ автоматично записване  
+2. "Запази RAL данни" → изпраща на сървъра
+3. Refresh → RAL данните остават запазени
+
+✅ **Multi-user testing:**
+1. Два браузъра на `http://localhost:8080`
+2. Промяна в единия → refresh в другия показва промените
+
+### Резултати
+- 🎯 **Централизирано съхранение** - всички данни в един файл
+- 🌐 **Мрежово споделяне** - real-time sync между потребители  
+- 🧹 **Чиста архитектура** - без backup файлове, без localStorage fragmentation
+- 📁 **Production ready** - готов за deployment на NAS или Windows сървър
+- ⚡ **Оптимизирана UX** - само необходимите notifications
+
+**Статус:** Проектът е готов за production използване! 🎉

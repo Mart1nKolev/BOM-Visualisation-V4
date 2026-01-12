@@ -15,8 +15,10 @@ import socketserver
 import json
 import os
 import sys
-import shutil
 from datetime import datetime
+
+# Не използваме отделен файл за потребителски данни –
+# всички данни се пазят централизирано в bom_data.json
 
 # Настройки
 PORT = 8080
@@ -55,18 +57,13 @@ class BOMServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
                 
-        elif self.path == "/save_bom_data" or self.path == "/get_user_data" or self.path == "/save_user_data":
-            # API endpoints - връщаме JSON отговор
+        elif self.path == "/get_user_data":
+            # Съвместимост: endpoint остава, но връща празни данни (не използваме отделен файл)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            
-            if self.path == "/get_user_data":
-                # Празен отговор - вече не ползваме отделни user data ключове
-                self.wfile.write(json.dumps({}).encode())
-            else:
-                self.wfile.write(json.dumps({"status": "ok"}).encode())
+            self.wfile.write(json.dumps({}).encode('utf-8'))
         else:
             # Нормални файлове (HTML, JSON, снимки)
             super().do_GET()
@@ -112,12 +109,12 @@ class BOMServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode())
         
         elif self.path == "/save_user_data":
-            # Стар endpoint - игнорираме
+            # Съвместимост: endpoint остава, но не прави запис (всичко се пише в bom_data.json)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(json.dumps({"status": "ok"}).encode())
+            self.wfile.write(json.dumps({"status": "ok"}).encode('utf-8'))
         else:
             self.send_response(404)
             self.end_headers()

@@ -1801,7 +1801,7 @@
 
         // Debug логове за таба "Сглобяване" (Фаза 4 дърво и класификация).
         // Изключено по подразбиране, за да не пълни конзолата.
-        const DEBUG_ASSEMBLY_CLASSIFICATION = false;
+        const DEBUG_ASSEMBLY_CLASSIFICATION = true;
         function acLog(...args) {
             if (DEBUG_ASSEMBLY_CLASSIFICATION) console.log(...args);
         }
@@ -1813,40 +1813,40 @@
             timestamp: null
         };
         
-        // Зареждане на класификация от localStorage/network
+        // Зареждане на класификация от bom_data.json (централизирано)
         async function loadAssemblyClassification() {
             acLog('📥 Зареждане на класификация...');
             
             try {
-                // Опитваме се да заредим от споделените данни
-                const userData = await loadSharedUserData();
-                
-                // Търсим classification_* ключове
-                const workshop = [];
-                const external = [];
-                
-                for (let key in userData) {
-                    if (key.startsWith('classification_')) {
-                        const path = key.replace('classification_', '');
-                        const category = userData[key];
-                        
-                        if (category === 'workshop') {
-                            workshop.push(path);
-                        } else if (category === 'external') {
-                            external.push(path);
-                        }
-                    }
-                }
-                
-                if (workshop.length > 0 || external.length > 0) {
+                // Предпочитаме централизираната класификация в bomData.classification
+                if (typeof bomData === 'object' && bomData && bomData.classification) {
+                    const cls = bomData.classification || {};
                     assemblyClassification = {
-                        workshop: workshop,
-                        external: external,
+                        workshop: Array.isArray(cls.workshop) ? cls.workshop : [],
+                        external: Array.isArray(cls.external) ? cls.external : [],
                         timestamp: new Date().toISOString()
                     };
-                    acLog('✅ Класификация заредена:', assemblyClassification);
+                    acLog('✅ Класификация заредена от bom_data.json:', assemblyClassification);
                 } else {
-                    acLog('ℹ️ Няма запазена класификация');
+                    // Миграционен fallback: ако няма класификация в BOM, опитваме от старите shared ключове
+                    const userData = await loadSharedUserData();
+                    const workshop = [];
+                    const external = [];
+                    for (let key in userData) {
+                        if (!key || typeof key !== 'string') continue;
+                        if (key.startsWith('classification_')) {
+                            const path = key.replace('classification_', '');
+                            const category = userData[key];
+                            if (category === 'workshop') workshop.push(path);
+                            else if (category === 'external') external.push(path);
+                        }
+                    }
+                    assemblyClassification = {
+                        workshop,
+                        external,
+                        timestamp: new Date().toISOString()
+                    };
+                    acLog('✅ Класификация заредена от shared userData (fallback):', assemblyClassification);
                 }
             } catch (error) {
                 console.error('❌ Грешка при зареждане на класификация:', error);
@@ -1861,18 +1861,23 @@
             
             // Събираме всички валидни assembly paths от текущия BOM
             const validPaths = new Set();
-            if (window.bomData) {
-                const objects = window.bomData.objects || window.bomData;
-                objects.forEach(obj => {
-                    if (obj.assemblies) {
-                        obj.assemblies.forEach(asm => {
-                            if (asm.path) {
-                                validPaths.add(asm.path);
-                            }
-                        });
-                    }
-                });
+            let objects = [];
+            // Предпочитаме източника bomData.objects (оригиналният парсиран BOM)
+            if (bomData && Array.isArray(bomData.objects)) {
+                objects = bomData.objects;
+            } else if (window.bomData) {
+                // Fallback към вече конвертираната структура
+                objects = window.bomData.objects || window.bomData;
             }
+            objects.forEach(obj => {
+                if (obj.assemblies) {
+                    obj.assemblies.forEach(asm => {
+                        if (asm.path) {
+                            validPaths.add(asm.path);
+                        }
+                    });
+                }
+            });
             
             acLog('📋 Валидни пътища в BOM:', validPaths.size);
             
@@ -1912,31 +1917,49 @@
             }
         }
         
-        // Запазване на класификация
+        // Запазване на класификация (централизирано в bom_data.json)
         async function saveAssemblyClassification(data) {
             acLog('💾 Запазване на класификация...', data);
             
-            // Запазваме всяка сборка отделно в споделените данни
-            // Първо изчистваме старите classification_* записи
-            const userData = await loadSharedUserData();
-            for (let key in userData) {
-                if (key.startsWith('classification_')) {
-                    await saveUserDataChange(key, null);
+            // Актуализираме секцията classification в оригиналния BOM обект
+            if (typeof bomData === 'object' && bomData) {
+                if (!bomData.classification) bomData.classification = {};
+                bomData.classification.workshop = Array.isArray(data.workshop) ? data.workshop : [];
+                bomData.classification.external = Array.isArray(data.external) ? data.external : [];
+            }
+
+            assemblyClassification = {
+                workshop: Array.isArray(data.workshop) ? data.workshop : [],
+                external: Array.isArray(data.external) ? data.external : [],
+                timestamp: new Date().toISOString()
+            };
+
+            // Запис към сървъра (мрежов режим) или локално кеширане
+            try {
+                if (isSharedMode) {
+                    acLog('🌐 Изпращам обновения BOM към /save_bom_data ...');
+                    const resp = await fetch('/save_bom_data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bomData)
+                    });
+                    if (resp.ok) {
+                        acLog('✅ Класификацията е записана в bom_data.json на сървъра');
+                        showNotification('Класификацията е записана централизирано', 'success');
+                    } else {
+                        console.warn('⚠️ Грешка при запис към /save_bom_data:', resp.status);
+                        showNotification('Грешка при запис към сървъра (' + resp.status + ')', 'info');
+                    }
+                } else {
+                    // Локално кеширане за offline режим
+                    localStorage.setItem('lastLoadedBOMData', JSON.stringify(bomData));
+                    acLog('💾 Класификацията е кеширана локално (offline режим)');
+                    showNotification('Класификацията е записана локално', 'success');
                 }
+            } catch (e) {
+                console.error('❌ Грешка при запис на класификацията:', e);
+                showNotification('Грешка при запис на класификацията', 'info');
             }
-            
-            // Запазваме workshop сборките
-            for (let path of data.workshop) {
-                await saveUserDataChange('classification_' + path, 'workshop');
-            }
-            
-            // Запазваме external сборките
-            for (let path of data.external) {
-                await saveUserDataChange('classification_' + path, 'external');
-            }
-            
-            assemblyClassification = data;
-            acLog('✅ Класификация запазена');
         }
         
         // Генериране на таба с класификация
@@ -1946,8 +1969,20 @@
             // Reset уникалните id-та за дървото при всеки рендер
             assemblyTreeNodeCounter = 0;
             
-            // Зареждаме класификацията
-            await loadAssemblyClassification();
+            // Зареждаме класификацията от вече заредения BOM, ако е налична
+            if (bomData && bomData.classification) {
+                const cls = bomData.classification;
+                assemblyClassification = {
+                    workshop: Array.isArray(cls.workshop) ? cls.workshop : [],
+                    external: Array.isArray(cls.external) ? cls.external : [],
+                    timestamp: new Date().toISOString()
+                };
+                acLog('🔎 generateTab: Прочетена класификация от bomData.classification', assemblyClassification);
+            } else {
+                // Fallback: стандартното зареждане (вкл. legacy ключове)
+                await loadAssemblyClassification();
+                acLog('🔎 generateTab: Fallback класификация', assemblyClassification);
+            }
             
             const workshopContent = document.getElementById('workshopContent');
             const externalContent = document.getElementById('externalContent');
@@ -3163,7 +3198,7 @@
         
         // Запазване и затваряне
         async function saveAndCloseWizard() {
-            console.log(' Запазване на класификации...');
+            console.log('💾 Запазване на класификации...');
             
             // Подготвяме данните за запазване
             const classificationData = {
@@ -3181,15 +3216,12 @@
                 }
             });
             
-            // Запазваме всяка класификация
-            for (const path of classificationData.workshop) {
-                await saveUserDataChange('classification_' + path, 'workshop');
-            }
-            for (const path of classificationData.external) {
-                await saveUserDataChange('classification_' + path, 'external');
-            }
+            console.log('📦 Запазване на класификация:', classificationData);
             
-            console.log(' Класификациите са запазени успешно');
+            // Запазваме класификацията в bomData и на сървъра
+            await saveAssemblyClassification(classificationData);
+            
+            console.log('✅ Класификациите са запазени успешно');
             
             // Затваряме wizard-а
             closeClassificationWizard();
@@ -3199,7 +3231,7 @@
             generateAssemblyClassificationTab();
             
             // Показваме notification
-            alert(' Класификацията е запазена успешно!');
+            alert('✅ Класификацията е запазена успешно!');
         }
         
         // Затваряне на wizard-а
@@ -3281,37 +3313,38 @@
             }, 5000);
         }
         
-        // Запазва потребителски данни (checkbox-и, бележки, RAL)
+        // Запазва потребителски данни (checkbox-и, бележки, RAL) в bom_data.json
         async function saveSharedUserData(data) {
             console.log('🌐 saveSharedUserData - isSharedMode:', isSharedMode);
             console.log('🌐 Данни за запазване:', data);
-            
+
+            // Интегрираме потребителските данни в bomData.userStates.checkboxes
+            if (typeof bomData === 'object' && bomData) {
+                if (!bomData.userStates) bomData.userStates = {};
+                bomData.userStates.checkboxes = data;
+            }
+
             if (isSharedMode) {
                 try {
-                    console.log('🌐 Изпращане към мрежата...');
-                    const response = await fetch('/save_user_data', {
+                    console.log('🌐 Записвам целия BOM към /save_bom_data ...');
+                    const response = await fetch('/save_bom_data', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            timestamp: new Date().toISOString(),
-                            user: `${navigator.userAgent.substring(0,20)}...`,
-                            data: data
-                        })
+                        body: JSON.stringify(bomData)
                     });
-                    
                     if (response.ok) {
-                        console.log('✅ Споделените данни са запазени в мрежата');
+                        console.log('✅ Потребителските данни са записани в bom_data.json');
                     } else {
-                        console.warn('⚠️ Грешка в отговора от сървъра:', response.status);
+                        console.warn('⚠️ Грешка при запис към /save_bom_data:', response.status);
                     }
                 } catch (error) {
-                    console.warn('⚠️ Грешка при споделяне:', error);
+                    console.warn('⚠️ Грешка при запис към сървъра:', error);
                 }
             } else {
-                // Локално запазване
-                console.log('💾 Локално запазване в localStorage...');
-                localStorage.setItem('bomUserData', JSON.stringify(data));
-                console.log('✅ Данните са запазени локално');
+                // Локално кеширане на целия BOM
+                console.log('💾 Локално кеширане на BOM...');
+                localStorage.setItem('lastLoadedBOMData', JSON.stringify(bomData));
+                console.log('✅ Данните са кеширани локално');
             }
         }
 
@@ -3584,11 +3617,12 @@
             localStorage.setItem('lastLoadedBOMData', JSON.stringify(bomData));
             console.log('💾 BOM данните са запазени в localStorage');
             
+            // КРИТИЧНО: Първо зареждаме класификацията от bomData
+            await loadAssemblyClassification();
+            console.log('📥 Класификация заредена:', assemblyClassification);
+            
             // Зареждаме споделените потребителски данни
             await loadAllUserData();
-            
-            // КРИТИЧНО: Валидираме и изчистваме класификацията спрямо новия BOM
-            await validateAndCleanClassification();
             
             // Проверяваме структурата на данните и конвертираме ако е необходимо
             if (bomData.objects) {
@@ -3626,6 +3660,9 @@
             }
             
             console.log('Обработени BOM данни:', window.bomData);
+
+            // КРИТИЧНО: Валидираме и изчистваме класификацията след като структурата е готова
+            await validateAndCleanClassification();
             
             // Показваме основните секции
             const contentTabs = document.getElementById('contentTabs');
@@ -3646,6 +3683,13 @@
             // Първоначално показваме всички обекти
             filterByObject();
             filterPartsByObject();
+
+            // Ако потребителят вече е на таба "Сглобяване", презареждаме го с актуалната класификация
+            const asmTab = document.getElementById('assemblyClassificationTab');
+            if (asmTab && asmTab.classList.contains('active')) {
+                acLog('🔁 Таба "Сглобяване" е активен – презареждам съдържанието');
+                await generateAssemblyClassificationTab();
+            }
         }
 
         function generateObjectFilter() {
@@ -5067,9 +5111,9 @@
         async function loadAllUserData() {
             console.log('🔄 loadAllUserData - започва зареждане...');
             userDataCache = await loadSharedUserData();
-            // Ако НЕ сме в споделен режим и BOM файлът вече съдържа userStates (интегриран формат), ги зареждаме
-            if (!isSharedMode && bomData && bomData.userStates && bomData.userStates.checkboxes) {
-                console.log('💾 Локален режим с интегрирани userStates в BOM файла – зареждам ги.');
+            // Ако BOM файлът съдържа userStates (интегриран формат), винаги ги предпочитаме
+            if (bomData && bomData.userStates && bomData.userStates.checkboxes) {
+                console.log('💾 Зареждам интегрирани userStates от BOM файла.');
                 // Обединяваме локално заредените (от файла) със съществуващите (от localStorage), като файлът има приоритет
                 userDataCache = {
                     ...userDataCache,

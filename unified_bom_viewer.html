@@ -416,7 +416,7 @@
             position: relative;
             cursor: pointer;
             color: #007bff;
-            text-decoration: underline;
+            /* text-decoration: underline; */ /* ДЕАКТИВИРАНО - долните черти не се виждат добре */
         }
 
         .image-tooltip:hover {
@@ -1461,8 +1461,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏗️ Обединен BOM Визуализатор</h1>
-            <p>Визуализация на обединени спецификации от множество обекти</p>
+            <h1 id="mainTitle">🏗️ Обединен BOM Визуализатор</h1>
+            <p>Визуализация на обединени спецификации от множество възли</p>
             
             <!-- Admin Mode Toggle -->
             <div class="admin-toggle-container">
@@ -1471,6 +1471,7 @@
                     <input type="checkbox" id="adminModeToggle" onchange="toggleAdminMode()">
                     <span class="toggle-slider"></span>
                 </label>
+                <button id="editTitleBtn" onclick="editTitle()" class="admin-only-control" style="margin-left: 15px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: none;">✏️ Редактирай заглавие</button>
             </div>
             
             <!-- Admin Mode Indicator -->
@@ -1484,7 +1485,7 @@
                 <span id="statusText">Проверява...</span>
             </div>
             <!-- Версия на визуализатора за кеш проверка -->
-            <div style="position:absolute; left:20px; top:10px; font-size:12px; font-weight:bold; opacity:0.6;">v2025-12-12C</div>
+            <div style="position:absolute; left:20px; top:10px; font-size:12px; font-weight:bold; opacity:0.6;">v2026-01-12</div>
             
             <!-- Бутон за ръчно зареждане на JSON файл -->
             <div style="position:absolute; right:20px; top:80px;">
@@ -1625,7 +1626,7 @@
 
     <script>
         // Версия за отстраняване на кеш проблеми
-        console.log('🚀 SCRIPT STARTED - Unified BOM Viewer version: v2025-12-12C');
+        console.log('🚀 SCRIPT STARTED - Unified BOM Viewer version: v2026-01-12');
         console.log('🔧 Fixes applied: Network status updates & JSON file loading with await');
         console.log('✅ Fixed: Syntax error with startClassificationWizard function');
         
@@ -1759,9 +1760,63 @@
             updateUIForAdminMode();
         }
         
+        // Редактиране на заглавието (само в админ режим)
+        async function editTitle() {
+            if (!isAdminMode) {
+                alert('❌ Тази функция е достъпна само в админ режим!');
+                return;
+            }
+            
+            const titleElement = document.getElementById('mainTitle');
+            const currentTitle = titleElement.textContent.replace('🏗️ ', '');
+            
+            const newTitle = prompt('Въведете ново заглавие:', currentTitle);
+            
+            if (newTitle !== null && newTitle.trim() !== '') {
+                const fullTitle = '🏗️ ' + newTitle.trim();
+                titleElement.textContent = fullTitle;
+                
+                // Запазваме в bomData.userStates
+                if (!bomData.userStates) bomData.userStates = {};
+                bomData.userStates.customTitle = newTitle.trim();
+                
+                // Записваме директно в bom_data.json
+                try {
+                    const resp = await fetch('/save_bom_data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bomData)
+                    });
+                    
+                    if (resp.ok) {
+                        console.log('✅ Заглавието е записано в bom_data.json:', newTitle.trim());
+                    } else {
+                        console.error('❌ Грешка при запазване на заглавието');
+                    }
+                } catch (error) {
+                    console.error('❌ Грешка:', error);
+                }
+            }
+        }
+        
+        // Зареждане на персонализирано заглавие при стартиране
+        function loadCustomTitle() {
+            if (bomData && bomData.userStates && bomData.userStates.customTitle) {
+                const titleElement = document.getElementById('mainTitle');
+                titleElement.textContent = '🏗️ ' + bomData.userStates.customTitle;
+                console.log('✅ Заредено персонализирано заглавие:', bomData.userStates.customTitle);
+            }
+        }
+        
         // Обновяване на UI според admin режим
         function updateUIForAdminMode() {
             console.log('🔄 Обновяване на UI за режим:', isAdminMode ? 'ADMIN' : 'USER');
+            
+            // Контролираме бутона за редакция на заглавието
+            const editTitleBtn = document.getElementById('editTitleBtn');
+            if (editTitleBtn) {
+                editTitleBtn.style.display = isAdminMode ? 'inline-block' : 'none';
+            }
             
             // Контролираме RAL редакцията
             const adminControls = document.querySelectorAll('.admin-only-control');
@@ -3663,6 +3718,9 @@
 
             // КРИТИЧНО: Валидираме и изчистваме класификацията след като структурата е готова
             await validateAndCleanClassification();
+            
+            // Зареждаме персонализираното заглавие (ако има)
+            loadCustomTitle();
             
             // Показваме основните секции
             const contentTabs = document.getElementById('contentTabs');
@@ -5636,12 +5694,13 @@
                 const escapedPath = (convertedPath || '').replace(/'/g, "\\'");
                 
                 return `<span class="image-tooltip" 
-                            onmouseover="showTooltip(event, '${escapedPath}')" 
-                            onmouseout="hideTooltip()"
                             onclick="showImageModal('${escapedName}', '${escapedPath}')"
                             style="cursor: pointer;">
                             ${translatedName}
                         </span>`;
+                            // ДЕАКТИВИРАНО ЗА МОМЕНТА (за евентуално бъдещо пускане):
+                            // onmouseover="showTooltip(event, '${escapedPath}')" 
+                            // onmouseout="hideTooltip()"
             } catch (error) {
                 console.error('Грешка в createImageTooltip:', error, 'за име:', name);
                 return name; // Връщаме само името при грешка

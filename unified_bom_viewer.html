@@ -1466,7 +1466,7 @@
             
             <!-- Admin Mode Toggle -->
             <div class="admin-toggle-container">
-                <span class="admin-toggle-label">👤 Админ режим</span>
+                <span class="admin-toggle-label">✏️ Редактиране</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="adminModeToggle" onchange="toggleAdminMode()">
                     <span class="toggle-slider"></span>
@@ -1476,8 +1476,8 @@
             
             <!-- Admin Mode Indicator -->
             <div class="admin-mode-indicator" id="adminModeIndicator">
-                <span>🔓</span>
-                <span>АДМИН РЕЖМ</span>
+                <span>✏️</span>
+                <span>РЕДАКТИРАНЕ</span>
             </div>
             
             <div class="network-status">
@@ -1575,7 +1575,7 @@
             <div id="assemblyClassificationTab" class="tab-content">
                 <h3>🏭 Класификация на сглобяването</h3>
                 
-                <!-- Бутони за управление (само в админ режим) -->
+                <!-- Бутони за управление (само в режим редактиране) -->
                 <div class="classification-controls admin-only-control" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: none;">
                     <button onclick="startClassificationWizard()" class="classification-btn" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px;">
                         🏭 Започни класификация
@@ -1591,7 +1591,7 @@
                 
                 <!-- Съобщение за user режим -->
                 <div class="user-mode-message" style="display: none; padding: 12px; background: #e7f3ff; border-left: 4px solid #007bff; border-radius: 4px; margin-bottom: 20px;">
-                    ℹ️ Класификацията на сборките е достъпна само в админ режим
+                    ℹ️ Класификацията на сборките е достъпна само в режим редактиране
                 </div>
                 
                 <!-- Секция 1: Сглобяване в цеха -->
@@ -1663,10 +1663,10 @@
             const toggle = document.getElementById('adminModeToggle');
             
             if (toggle.checked) {
-                // Включване на admin режим - показваме modal за парола
-                showPasswordModal();
+                // Включване на режим редактиране - без парола
+                enterAdminMode();
             } else {
-                //Изключване на admin режим
+                // Изключване на режим редактиране
                 exitAdminMode();
             }
         }
@@ -1732,7 +1732,7 @@
             }
         }
         
-        // Влизане в admin режим
+        // Влизане в режим редактиране
         function enterAdminMode() {
             isAdminMode = true;
             localStorage.setItem('adminMode', 'true');
@@ -1740,13 +1740,12 @@
             // Показваме индикатора
             document.getElementById('adminModeIndicator').classList.add('active');
             
-            console.log('🔓 Admin режим активиран');
+            console.log('✏️ Режим редактиране активиран');
             
-            // TODO: Обновяване на UI за админ функции (Фаза 2-6)
             updateUIForAdminMode();
         }
         
-        // Излизане от admin режим
+        // Излизане от режим редактиране
         function exitAdminMode() {
             isAdminMode = false;
             localStorage.setItem('adminMode', 'false');
@@ -1754,16 +1753,15 @@
             // Скриваме индикатора
             document.getElementById('adminModeIndicator').classList.remove('active');
             
-            console.log('🔒 Admin режим деактивиран');
+            console.log('🔒 Режим редактиране деактивиран');
             
-            // TODO: Обновяване на UI за user функции (Фаза 2-6)
             updateUIForAdminMode();
         }
         
-        // Редактиране на заглавието (само в админ режим)
+        // Редактиране на заглавието (само в режим редактиране)
         async function editTitle() {
             if (!isAdminMode) {
-                alert('❌ Тази функция е достъпна само в админ режим!');
+                alert('❌ Тази функция е достъпна само в режим редактиране!');
                 return;
             }
             
@@ -2054,7 +2052,7 @@
                         <p style="margin-top: 15px; font-weight: 500;">
                             ${isAdminMode ? 
                                 'Натиснете бутона "🏭 Започни класификация" за да започнете.' : 
-                                'Влезте в админ режим за да започнете класификация.'}
+                                'Влезте в режим редактиране за да започнете класификация.'}
                         </p>
                     </div>
                 `;
@@ -4075,7 +4073,7 @@
                             💾 Запази всички
                         </button>
                         <span class="user-mode-message" style="display: none; color: #6c757d; font-style: italic; padding: 8px;">
-                            ℹ️ Редакцията на RAL данни е достъпна само в админ режим
+                            ℹ️ Редакцията на RAL данни е достъпна само в режим редактиране
                         </span>
                         <!-- Премахнат бутон "Възстанови липсващи" за RAL -->
                     </div>
@@ -5490,7 +5488,7 @@
         // Обновяване на RAL запис
         function updateRalEntry(ralCode, field, value) {
             if (!isAdminMode) {
-                alert('❌ Редакцията е достъпна само в админ режим!');
+                alert('❌ Редакцията е достъпна само в режим редактиране!');
                 // Презареждаме таблицата за да се върне старата стойност
                 updateRalTable(window.currentRalData);
                 return;
@@ -5512,7 +5510,7 @@
         // Добавяне на нов RAL запис
         function addNewRalEntry() {
             if (!isAdminMode) {
-                alert('❌ Тази функция е достъпна само в админ режим!');
+                alert('❌ Тази функция е достъпна само в режим редактиране!');
                 return;
             }
             const ralCode = prompt('Въведете RAL код (например RAL11):');
@@ -5532,7 +5530,7 @@
         // Изтриване на RAL запис
         function deleteRalEntry(ralCode) {
             if (!isAdminMode) {
-                alert('❌ Тази функция е достъпна само в админ режим!');
+                alert('❌ Тази функция е достъпна само в режим редактиране!');
                 return;
             }
             if (confirm(`Сигурни ли сте, че искате да изтриете ${ralCode}?`)) {
@@ -5552,7 +5550,7 @@
         // Запазване на всички RAL данни
         function saveRalData() {
             if (!isAdminMode) {
-                alert('❌ Тази функция е достъпна само в админ режим!');
+                alert('❌ Тази функция е достъпна само в режим редактиране!');
                 return;
             }
             if (!window.currentRalData) {

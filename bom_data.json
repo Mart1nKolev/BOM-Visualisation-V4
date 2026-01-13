@@ -822,8 +822,10 @@
       "ral_RAL6": "{\"nodeDescription\":\"\",\"selectedOption\":\"RAL 1003\",\"colorDescription\":\"\"}",
       "ral_RAL7": "{\"nodeDescription\":\"Врати (Каси, праг)\",\"selectedOption\":\"RAL 9010\",\"colorDescription\":\"Бяло\"}",
       "ral_RAL8": "{\"nodeDescription\":\"Врати (Орнаменти)\",\"selectedOption\":\"RAL 9010\",\"colorDescription\":\"Бяло (многоцветен)\"}",
-      "ral_RAL9": "{\"nodeDescription\":\"Покрив\",\"selectedOption\":\"RAL 9007\",\"colorDescription\":\"Сиво алуминий\"}"
+      "ral_RAL9": "{\"nodeDescription\":\"Покрив\",\"selectedOption\":\"RAL 9007\",\"colorDescription\":\"Сиво алуминий\"}",
+      "customTitle": "470 - Грамер"
     },
-    "timestamp": "2026-01-08T11:03:34.361Z"
+    "timestamp": "2026-01-08T11:03:34.361Z",
+    "customTitle": "470 - Грамер"
   }
 }

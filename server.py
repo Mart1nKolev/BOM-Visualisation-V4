@@ -15,8 +15,17 @@ import socketserver
 import json
 import os
 import sys
-import shutil
 from datetime import datetime
+
+# Опит за импортиране на qrcode библиотеката
+try:
+    import qrcode
+    QR_AVAILABLE = True
+except ImportError:
+    QR_AVAILABLE = False
+
+# Не използваме отделен файл за потребителски данни –
+# всички данни се пазят централизирано в bom_data.json
 
 # Настройки
 PORT = 8080
@@ -55,18 +64,13 @@ class BOMServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
                 
-        elif self.path == "/save_bom_data" or self.path == "/get_user_data" or self.path == "/save_user_data":
-            # API endpoints - връщаме JSON отговор
+        elif self.path == "/get_user_data":
+            # Съвместимост: endpoint остава, но връща празни данни (не използваме отделен файл)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            
-            if self.path == "/get_user_data":
-                # Празен отговор - вече не ползваме отделни user data ключове
-                self.wfile.write(json.dumps({}).encode())
-            else:
-                self.wfile.write(json.dumps({"status": "ok"}).encode())
+            self.wfile.write(json.dumps({}).encode('utf-8'))
         else:
             # Нормални файлове (HTML, JSON, снимки)
             super().do_GET()
@@ -112,12 +116,12 @@ class BOMServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode())
         
         elif self.path == "/save_user_data":
-            # Стар endpoint - игнорираме
+            # Съвместимост: endpoint остава, но не прави запис (всичко се пише в bom_data.json)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            self.wfile.write(json.dumps({"status": "ok"}).encode())
+            self.wfile.write(json.dumps({"status": "ok"}).encode('utf-8'))
         else:
             self.send_response(404)
             self.end_headers()
@@ -146,7 +150,62 @@ def get_local_ip():
         return ip
     except:
         return "localhost"
+def generate_shortcut(url):
+    """Генерира пряк път (.url файл) за бърз достъп"""
+    try:
+        # Взимаме името на текущата директория
+        folder_name = os.path.basename(os.getcwd())
+        shortcut_filename = f"{folder_name}.url"
+        
+        shortcut_content = f"""[InternetShortcut]
+URL={url}
+IconIndex=0
+"""
+        with open(shortcut_filename, 'w', encoding='utf-8') as f:
+            f.write(shortcut_content)
+        
+        print(f"🔗 Пряк път създаден: {shortcut_filename}")
+        print(f"   Копирайте този файл на други компютри за бърз достъп!")
+        
+    except Exception as e:
+        print(f"❌ Грешка при създаване на пряк път: {e}")
 
+def generate_qr_code(url):
+    """Генерира QR код за даден URL"""
+    if not QR_AVAILABLE:
+        print("⚠️  qrcode библиотеката не е инсталирана.")
+        print("   За да видите QR код, инсталирайте: pip install qrcode[pil]")
+        return
+    
+    try:
+        # Генериране на QR код
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(url)
+        qr.make(fit=True)
+        
+        # Запазване като PNG файл
+        img = qr.make_image(fill_color="black", back_color="white")
+        qr_filename = "bom_visualizer_qr.png"
+        img.save(qr_filename)
+        print(f"📱 QR код запазен като: {qr_filename}")
+        
+        # Показване в терминала като ASCII
+        print("\n" + "=" * 60)
+        print("📱 QR КОД ЗА МОБИЛЕН ДОСТЪП:")
+        print("=" * 60)
+        qr_terminal = qrcode.QRCode(border=2)
+        qr_terminal.add_data(url)
+        qr_terminal.make(fit=True)
+        qr_terminal.print_ascii(invert=True)
+        print("=" * 60 + "\n")
+        
+    except Exception as e:
+        print(f"❌ Грешка при генериране на QR код: {e}")
 if __name__ == "__main__":
     # Проверка за bom_data.json
     if not os.path.exists(BOM_FILE):
@@ -158,6 +217,7 @@ if __name__ == "__main__":
     # Стартиране на сървъра
     with socketserver.TCPServer((HOST, PORT), BOMServerHandler) as httpd:
         local_ip = get_local_ip()
+        network_url = f"http://{local_ip}:{PORT}/unified_bom_viewer.html"
         
         print("=" * 60)
         print("🌐 BOM Visualizer Server СТАРТИРАН!")
@@ -167,13 +227,20 @@ if __name__ == "__main__":
         print()
         print("🔗 Достъп до приложението:")
         print(f"   От този компютър:  http://localhost:{PORT}/unified_bom_viewer.html")
-        print(f"   От локалната мрежа: http://{local_ip}:{PORT}/unified_bom_viewer.html")
+        print(f"   От локалната мрежа: {network_url}")
         print()
+        
+        # Генериране на пряк път и QR код
+        generate_shortcut(network_url)
+        generate_qr_code(network_url)
+        
         print("💡 Инструкции:")
         print("   1. Отворете горния линк в браузър")
-        print("   2. Класифицирайте сборките в Admin режим")
-        print("   3. Промените се запазват автоматично в bom_data.json")
-        print("   4. Всички потребители виждат промените веднага")
+        print("   2. Или използвайте BOM_Visualizer.url файла (копирайте го на други компютри)")
+        print("   3. Или сканирайте QR кода с мобилен телефон")
+        print("   4. Класифицирайте сборките в Admin режим")
+        print("   5. Промените се запазват автоматично в bom_data.json")
+        print("   6. Всички потребители виждат промените веднага")
         print()
         print("⏹️  За спиране натиснете Ctrl+C")
         print("=" * 60)
